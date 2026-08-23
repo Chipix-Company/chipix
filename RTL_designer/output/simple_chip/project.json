@@ -1,0 +1,40 @@
+﻿{
+  "project": "simple_chip",
+  "language": "systemverilog",
+  "generated_at": "2026-04-01T00:06:21.662302",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\simple_chip.sv",
+      "filename": "simple_chip.sv",
+      "module_name": "simple_chip",
+      "lines": 23,
+      "timestamp": "2026-04-01T00:06:21.654570"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\simple_chip_top.sv",
+      "filename": "simple_chip_top.sv",
+      "module_name": "simple_chip_top",
+      "lines": 23,
+      "timestamp": "2026-04-01T00:06:21.654937"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_simple_chip.sv",
+      "filename": "tb_simple_chip.sv",
+      "module_name": "tb_simple_chip",
+      "lines": 50,
+      "timestamp": "2026-04-01T00:06:21.655354"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 68,
+      "timestamp": "2026-04-01T00:06:21.662281"
+    }
+  ],
+  "total_lines": 164
+}

@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "live: requires external services (LLM APIs, simulators, svls). Deselected by default.",
+    "integration: multi-component tests that may touch real files/network",
+]

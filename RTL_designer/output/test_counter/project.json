@@ -1,0 +1,40 @@
+﻿{
+  "project": "test_counter",
+  "language": "verilog",
+  "generated_at": "2026-04-06T19:58:27.591722",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\test_counter.v",
+      "filename": "test_counter.v",
+      "module_name": "test_counter",
+      "lines": 69,
+      "timestamp": "2026-04-06T19:58:27.589301"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\test_counter_top.v",
+      "filename": "test_counter_top.v",
+      "module_name": "test_counter_top",
+      "lines": 69,
+      "timestamp": "2026-04-06T19:58:27.590023"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_test_counter.v",
+      "filename": "tb_test_counter.v",
+      "module_name": "tb_test_counter",
+      "lines": 50,
+      "timestamp": "2026-04-06T19:58:27.590760"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 72,
+      "timestamp": "2026-04-06T19:58:27.591698"
+    }
+  ],
+  "total_lines": 260
+}

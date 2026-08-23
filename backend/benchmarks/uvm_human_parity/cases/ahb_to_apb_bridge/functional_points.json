@@ -1,0 +1,45 @@
+{
+  "case_id": "ahb_to_apb_bridge",
+  "functional_points": [
+    {
+      "id": "FP_RESET",
+      "name": "AHB and APB reset behavior",
+      "signals": ["Hresetn", "Hreadyout", "Penable", "Pwrite", "Pselx"]
+    },
+    {
+      "id": "FP_SINGLE_WRITE",
+      "name": "Single AHB write converted to APB write",
+      "signals": ["Hwrite", "Haddr", "Hwdata", "Pwrite", "Paddr", "Pwdata", "Penable"]
+    },
+    {
+      "id": "FP_SINGLE_READ",
+      "name": "Single AHB read converted to APB read",
+      "signals": ["Hwrite", "Prdata", "Hrdata", "Pwrite", "Penable"]
+    },
+    {
+      "id": "FP_BURST_WRITE",
+      "name": "Burst write transaction sequence",
+      "signals": ["Htrans", "Hwrite", "Hwdata", "Pselx", "Pwdata"]
+    },
+    {
+      "id": "FP_BURST_READ",
+      "name": "Burst read transaction sequence",
+      "signals": ["Htrans", "Hwrite", "Prdata", "Hrdata"]
+    },
+    {
+      "id": "FP_ADDRESS_DECODE",
+      "name": "APB select decode from AHB address range",
+      "signals": ["Haddr", "Pselx"]
+    },
+    {
+      "id": "FP_READY_RESPONSE",
+      "name": "AHB ready and response behavior",
+      "signals": ["Hreadyin", "Hreadyout", "Hresp"]
+    },
+    {
+      "id": "FP_SCOREBOARD_COMPARE",
+      "name": "AHB to APB expected versus actual comparison",
+      "signals": ["Haddr", "Hwdata", "Hrdata", "Paddr", "Pwdata", "Prdata"]
+    }
+  ]
+}

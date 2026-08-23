@@ -1,0 +1,30 @@
+{
+  "id": "fifo",
+  "top_module": "fifo",
+  "spec_file": "../../../fifo/spec.txt",
+  "rtl_files": [
+    "../../../fifo/fifo.sv"
+  ],
+  "human_uvm_dir": "human_uvm",
+  "generated_uvm_dir": "generated_uvm",
+  "clock": "clk",
+  "reset": {
+    "name": "rst_n",
+    "active": "low"
+  },
+  "required_roles": [
+    "package",
+    "interface",
+    "seq_item",
+    "sequencer",
+    "driver",
+    "monitor",
+    "agent",
+    "env",
+    "scoreboard",
+    "coverage",
+    "tests",
+    "top",
+    "filelist"
+  ]
+}

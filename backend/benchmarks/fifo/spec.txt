@@ -1,0 +1,43 @@
+Synchronous FIFO Specification
+==============================
+
+Module: fifo
+Parameters: DEPTH (default 16), WIDTH (default 8)
+
+1. Functional Requirements
+--------------------------
+REQ-001: The FIFO must support configurable depth (DEPTH) and data width (WIDTH).
+REQ-002: After reset, the FIFO must be empty (empty=1, full=0, count=0, data_out=0).
+REQ-003: A write operation occurs when wr_en=1 and full=0.
+REQ-004: A read operation occurs when rd_en=1 and empty=0.
+REQ-005: Data integrity — data read out must match data written in (FIFO ordering).
+REQ-006: The full flag must assert when count equals DEPTH.
+REQ-007: The empty flag must assert when count equals 0.
+REQ-008: Writes when full must be silently ignored (no overflow).
+REQ-009: Reads when empty must be silently ignored (no underflow).
+REQ-010: Simultaneous read and write must be supported when FIFO is neither full nor empty.
+REQ-011: The count output must always reflect the current number of stored items.
+
+2. Interface
+------------
+Inputs:  clk, rst_n (active-low async reset), wr_en, data_in[WIDTH-1:0], rd_en
+Outputs: data_out[WIDTH-1:0], full, empty, count[$clog2(DEPTH):0]
+
+3. Clock and Reset
+------------------
+- Single clock domain: clk (rising edge)
+- Asynchronous active-low reset: rst_n
+
+4. Timing
+---------
+- Write data is stored on the rising edge of clk when wr_en=1 and full=0
+- Read data appears on data_out on the rising edge of clk when rd_en=1 and empty=0
+- Flags update combinationally from count
+
+5. Edge Cases
+-------------
+- Write when full: data_in must NOT corrupt existing data
+- Read when empty: data_out must retain its last valid value
+- Alternating write-read at boundary (count=DEPTH-1 and count=1)
+- Back-to-back writes filling the FIFO from empty to full
+- Back-to-back reads draining the FIFO from full to empty

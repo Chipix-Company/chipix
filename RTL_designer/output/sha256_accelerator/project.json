@@ -1,0 +1,40 @@
+﻿{
+  "project": "sha256_accelerator",
+  "language": "systemverilog",
+  "generated_at": "2026-04-01T23:44:37.129682",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\sha256_accelerator.sv",
+      "filename": "sha256_accelerator.sv",
+      "module_name": "sha256_accelerator",
+      "lines": 326,
+      "timestamp": "2026-04-01T23:44:37.127054"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\sha256_accelerator_top.sv",
+      "filename": "sha256_accelerator_top.sv",
+      "module_name": "sha256_accelerator_top",
+      "lines": 326,
+      "timestamp": "2026-04-01T23:44:37.127360"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_sha256_accelerator.sv",
+      "filename": "tb_sha256_accelerator.sv",
+      "module_name": "tb_sha256_accelerator",
+      "lines": 50,
+      "timestamp": "2026-04-01T23:44:37.127636"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 44,
+      "timestamp": "2026-04-01T23:44:37.129664"
+    }
+  ],
+  "total_lines": 746
+}

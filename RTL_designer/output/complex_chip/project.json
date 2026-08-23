@@ -1,0 +1,88 @@
+﻿{
+  "project": "complex_chip",
+  "language": "systemverilog",
+  "generated_at": "2026-04-01T00:26:52.961794",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\complex_chip.sv",
+      "filename": "complex_chip.sv",
+      "module_name": "complex_chip",
+      "lines": 74,
+      "timestamp": "2026-04-01T00:26:52.956185"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\riscv_core.sv",
+      "filename": "riscv_core.sv",
+      "module_name": "riscv_core",
+      "lines": 99,
+      "timestamp": "2026-04-01T00:26:52.956614"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\memory.sv",
+      "filename": "memory.sv",
+      "module_name": "memory",
+      "lines": 36,
+      "timestamp": "2026-04-01T00:26:52.956989"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\uart.sv",
+      "filename": "uart.sv",
+      "module_name": "uart",
+      "lines": 173,
+      "timestamp": "2026-04-01T00:26:52.957345"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\complex_chip_top.sv",
+      "filename": "complex_chip_top.sv",
+      "module_name": "complex_chip_top",
+      "lines": 385,
+      "timestamp": "2026-04-01T00:26:52.957868"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_complex_chip.sv",
+      "filename": "tb_complex_chip.sv",
+      "module_name": "tb_complex_chip",
+      "lines": 50,
+      "timestamp": "2026-04-01T00:26:52.959269"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_riscv_core.sv",
+      "filename": "tb_riscv_core.sv",
+      "module_name": "tb_riscv_core",
+      "lines": 50,
+      "timestamp": "2026-04-01T00:26:52.959858"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_memory.sv",
+      "filename": "tb_memory.sv",
+      "module_name": "tb_memory",
+      "lines": 50,
+      "timestamp": "2026-04-01T00:26:52.960495"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_uart.sv",
+      "filename": "tb_uart.sv",
+      "module_name": "tb_uart",
+      "lines": 50,
+      "timestamp": "2026-04-01T00:26:52.961165"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 91,
+      "timestamp": "2026-04-01T00:26:52.961777"
+    }
+  ],
+  "total_lines": 1058
+}

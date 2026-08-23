@@ -1,0 +1,7 @@
+node_modules/**
+.gitignore
+src/**
+webview-ui/node_modules/**
+webview-ui/src/**/*.map
+*.vsix
+tsconfig.json

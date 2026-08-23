@@ -1,0 +1,84 @@
+# syntax=docker/dockerfile:1
+# Reproducible build image that produces a RHEL-native .rpm for ChipVerify Desktop.
+#
+# WHY AlmaLinux 8: it is ABI-identical to RHEL 8 and ships glibc 2.28 — the OLDEST
+# glibc among supported targets (RHEL 8 = 2.28, RHEL 9 = 2.34). PyInstaller binaries
+# are forward-compatible only, so building here yields a backend that runs on RHEL 8,
+# RHEL 9, Rocky, AlmaLinux and newer. Building on Ubuntu (glibc 2.35+) is exactly what
+# made the backend die on launch ("disconnect") on Red Hat.
+#
+# Built fast on Depot (remote builders + persistent cache):
+#   depot build -f Dockerfile.redhat --target artifact -o type=local,dest=./dist-electron .
+# The .rpm is exported to ./dist-electron with no container run step.
+FROM almalinux:8 AS builder
+
+# AlmaLinux 8 ships Node 10 by default, which cannot read this repo's lockfileVersion-3
+# package-lock.json. Switch to the Node 20 module stream (npm 10) before installing.
+RUN dnf module reset -y nodejs && dnf module enable -y nodejs:20
+
+# Toolchain + Python 3.11 + Node 20 + rpmbuild + helper binaries rpmbuild shells out to,
+# + the Chromium runtime libs electron-builder needs during packaging.
+RUN dnf install -y --allowerasing \
+    python3.11 python3.11-devel python3.11-pip \
+    gcc gcc-c++ make \
+    nodejs npm \
+    rpm-build rpmdevtools \
+    cpio bzip2 file diffutils patch gawk zstd elfutils rsync \
+    fuse fuse-libs \
+    gtk3 nss alsa-lib libnotify libXScrnSaver libXtst libxkbcommon \
+    libdrm mesa-libgbm cups-libs libsecret at-spi2-core at-spi2-atk atk \
+    xdg-utils which findutils git curl tar gzip xz binutils sed grep unzip \
+    && dnf clean all
+
+WORKDIR /src
+
+# Install JS deps first for layer caching.
+COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN npm ci
+
+COPY . .
+# The repo may have been checked out on Windows (git autocrlf), which leaves CRLF in the
+# shell scripts and breaks bash inside the Linux container ("set: pipefail: invalid option
+# name"). Normalize all shell scripts to LF, then make them executable.
+RUN find . -type f -name '*.sh' -exec sed -i 's/\r$//' {} + \
+    && chmod +x backend/runtime/linux/build_backend_elf.sh \
+    backend/runtime/linux/launch-backend.sh \
+    scripts/packaging/*.sh
+
+# Use Python 3.11 to bootstrap the PyInstaller venv (AlmaLinux 8 `python3` is 3.6).
+ENV CHIPVERIFY_BOOTSTRAP_PYTHON=python3.11
+
+# Optional demo keys, mirrored from Dockerfile.packaging.
+ARG CHIPVERIFY_DEMO_GEMINI_API_KEY=
+ARG CHIPVERIFY_DEMO_OPENAI_API_KEY=
+ARG CHIPVERIFY_DEMO_BEDROCK_API_KEY=
+ARG CHIPVERIFY_LLM_PROVIDER=bedrock
+ENV CHIPVERIFY_DEMO_GEMINI_API_KEY=${CHIPVERIFY_DEMO_GEMINI_API_KEY}
+ENV CHIPVERIFY_DEMO_OPENAI_API_KEY=${CHIPVERIFY_DEMO_OPENAI_API_KEY}
+ENV CHIPVERIFY_DEMO_BEDROCK_API_KEY=${CHIPVERIFY_DEMO_BEDROCK_API_KEY}
+ENV CHIPVERIFY_LLM_PROVIDER=${CHIPVERIFY_LLM_PROVIDER}
+ENV MODEL_PROVIDER=${CHIPVERIFY_LLM_PROVIDER}
+ENV CHIPVERIFY_REQUIRE_PACKAGED_LLM_KEY=true
+
+# Build the RHEL-compatible backend + Electron RPM during the image build so remote
+# builders (Depot) cache the heavy steps. Collect just the installers into /out.
+# Build the unpacked Electron app (no fpm), then assemble the .rpm with rpmbuild directly
+# via our own spec. electron-builder's bundled fpm fails opaquely (rpmbuild exit 127) on
+# AlmaLinux 8, but plain rpmbuild works, so we drive it ourselves.
+#
+# Backend bundling: build_backend_elf.sh collects services/routes/database/agent_tools
+# and runs --self-test-packaged so verification plan generation imports are present.
+RUN bash ./scripts/packaging/package_embedded_linux.sh --target dir \
+    && bash ./scripts/packaging/build_rpm_from_unpacked.sh \
+    && mkdir -p /out \
+    && cp -v dist-electron/*.rpm /out/ \
+    && ls -la /out
+
+# Fallback: the builder image can still be `docker/podman run` directly to rebuild.
+CMD ["bash", "./scripts/packaging/package_embedded_linux.sh", "--target", "rpm"]
+
+# Export-only stage. Build with `--target artifact -o type=local,dest=./dist-electron`
+# to write the .rpm to the host with no extra tooling or container run step.
+FROM scratch AS artifact
+COPY --from=builder /out/ /

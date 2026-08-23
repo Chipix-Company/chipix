@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UVM Human-Parity Benchmark</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ChipVerify Benchmark</p>
+        <h1>UVM Human-Parity Comparator</h1>
+      </div>
+      <div class="status-pill" id="statusPill">Waiting for files</div>
+    </header>
+
+    <main class="layout">
+      <section class="panel inputs-panel" aria-labelledby="input-title">
+        <h2 id="input-title">Inputs</h2>
+        <div class="field-grid">
+          <label>
+            <span>Benchmark ID</span>
+            <input id="caseId" type="text" value="custom_uvm_case">
+          </label>
+          <label>
+            <span>Top Module</span>
+            <input id="topModule" type="text" value="dut">
+          </label>
+        </div>
+
+        <div class="upload-grid">
+          <label class="upload-box">
+            <span class="upload-title">Human UVM Reference</span>
+            <span class="upload-note">Select files or a folder</span>
+            <input id="humanInput" type="file" multiple webkitdirectory>
+            <strong id="humanCount">0 files</strong>
+          </label>
+
+          <label class="upload-box">
+            <span class="upload-title">Generated UVM</span>
+            <span class="upload-note">Select files or a folder</span>
+            <input id="generatedInput" type="file" multiple webkitdirectory>
+            <strong id="generatedCount">0 files</strong>
+          </label>
+
+          <label class="upload-box">
+            <span class="upload-title">RTL Context</span>
+            <span class="upload-note">Optional, improves signal checks</span>
+            <input id="rtlInput" type="file" multiple>
+            <strong id="rtlCount">0 files</strong>
+          </label>
+
+          <label class="upload-box">
+            <span class="upload-title">Functional Points</span>
+            <span class="upload-note">Optional JSON</span>
+            <input id="functionalInput" type="file" accept=".json,application/json">
+            <strong id="functionalCount">0 files</strong>
+          </label>
+        </div>
+
+        <div class="role-box">
+          <div class="role-header">
+            <h3>Required Roles</h3>
+            <button id="resetRoles" type="button">Reset</button>
+          </div>
+          <div id="roleChecks" class="role-checks"></div>
+        </div>
+
+        <div class="actions">
+          <button id="runButton" type="button" class="primary">Run Benchmark</button>
+          <button id="clearButton" type="button">Clear Result</button>
+        </div>
+      </section>
+
+      <section class="panel results-panel" aria-labelledby="result-title">
+        <div class="result-header">
+          <div>
+            <h2 id="result-title">Result</h2>
+            <p id="resultSubtitle">Upload human and generated UVM files to start.</p>
+          </div>
+          <div class="score-circle" id="scoreCircle">--</div>
+        </div>
+
+        <div class="metrics" id="metrics"></div>
+
+        <div class="tabs">
+          <button class="tab active" type="button" data-tab="issues">Issues</button>
+          <button class="tab" type="button" data-tab="roles">Roles</button>
+          <button class="tab" type="button" data-tab="plan">Improvement Plan</button>
+          <button class="tab" type="button" data-tab="json">JSON</button>
+        </div>
+
+        <div class="tab-panel" id="issuesPanel"></div>
+        <div class="tab-panel hidden" id="rolesPanel"></div>
+        <div class="tab-panel hidden" id="planPanel"></div>
+        <pre class="tab-panel hidden code-panel" id="jsonPanel"></pre>
+
+        <div class="download-row">
+          <button id="downloadScorecard" type="button" disabled>Download scorecard.json</button>
+          <button id="downloadIssues" type="button" disabled>Download issues.json</button>
+          <button id="downloadReport" type="button" disabled>Download report.md</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

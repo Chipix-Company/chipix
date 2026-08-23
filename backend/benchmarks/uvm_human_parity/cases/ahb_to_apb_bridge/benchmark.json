@@ -1,0 +1,29 @@
+{
+  "id": "ahb_to_apb_bridge",
+  "top_module": "Bridge_Top",
+  "spec_file": "spec.md",
+  "rtl_files": [
+    "rtl/DUT.sv"
+  ],
+  "human_uvm_dir": "human_uvm",
+  "generated_uvm_dir": "generated_uvm",
+  "clock": "Hclk",
+  "reset": {
+    "name": "Hresetn",
+    "active": "low"
+  },
+  "functional_points_file": "functional_points.json",
+  "required_roles": [
+    "interface",
+    "seq_item",
+    "sequencer",
+    "driver",
+    "monitor",
+    "agent",
+    "env",
+    "scoreboard",
+    "coverage",
+    "tests",
+    "top"
+  ]
+}

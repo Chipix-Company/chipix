@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "llama_server": {
+    "linux": {
+      "path": "bin/llama-server",
+      "sha256": "<sha256>"
+    },
+    "windows": {
+      "path": "bin/llama-server.exe",
+      "sha256": "<sha256>"
+    }
+  },
+  "gguf": {
+    "model_id": "<approved-model-id>",
+    "path": "models/<approved-model-file>.gguf",
+    "sha256": "<sha256>"
+  }
+}

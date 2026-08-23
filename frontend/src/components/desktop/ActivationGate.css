@@ -1,0 +1,175 @@
+.activation-shell {
+  min-height: 100vh;
+  width: 100vw;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgba(22, 19, 15, 0.98), rgba(31, 27, 22, 0.96)),
+    var(--bg-window);
+  color: var(--text-primary);
+  padding: 32px;
+}
+
+.activation-card {
+  width: min(520px, calc(100vw - 40px));
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--surface-1);
+  box-shadow: var(--panel-shadow);
+}
+
+.activation-card.compact {
+  width: auto;
+  grid-auto-flow: column;
+  align-items: center;
+  padding: 18px 22px;
+  color: var(--text-secondary);
+}
+
+.activation-mark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(111, 139, 114, 0.48);
+  border-radius: 8px;
+  color: #b8f2cc;
+  background: rgba(25, 94, 65, 0.22);
+}
+
+.activation-eyebrow {
+  font: 700 12px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.activation-card h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.activation-card p {
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.activation-field {
+  display: grid;
+  gap: 8px;
+}
+
+.activation-field span {
+  font: 700 12px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.activation-copy-row,
+.activation-key-row {
+  min-height: 46px;
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  align-items: center;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.activation-key-row {
+  grid-template-columns: 42px 1fr;
+  padding-left: 12px;
+  color: var(--text-muted);
+}
+
+.activation-copy-row input,
+.activation-key-row input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: 600 14px/1.2 "JetBrains Mono", monospace;
+  padding: 0 12px;
+}
+
+.activation-copy-row button {
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.activation-copy-row button:hover {
+  background: var(--surface-hover);
+}
+
+.activation-help {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.activation-warning,
+.activation-error {
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.activation-warning {
+  border: 1px solid rgba(232, 182, 96, 0.36);
+  background: rgba(96, 66, 17, 0.22);
+  color: #f7e2b3;
+}
+
+.activation-error {
+  border: 1px solid var(--assistant-danger-border);
+  background: var(--assistant-danger-bg);
+  color: var(--assistant-danger-text);
+}
+
+.activation-primary {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid rgba(111, 139, 114, 0.56);
+  border-radius: 8px;
+  background: var(--accent-green);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.activation-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.activation-spinner {
+  animation: activation-spin 0.9s linear infinite;
+}
+
+@keyframes activation-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

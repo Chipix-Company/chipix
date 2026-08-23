@@ -1,0 +1,3525 @@
+<!DOCTYPE html>
+<html lang="en" class="demo-embed-root">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chipix — Interactive preview</title>
+<link rel="stylesheet" href="thread-first.css" />
+<link rel="stylesheet" href="embed.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   FIRST PRINCIPLES
+   ------------------------------------------------------------
+   1. The product is a CONVERSATION about a design.
+   2. Files, runs, edits, mental models, plans, fixes — all are
+      richly-typed messages in that thread.
+   3. Power surfaces (single-file editor, full IDE, mental-model
+      explorer, command palette) are SUMMONED, never present.
+   4. Every card carries its own next-step buttons.
+   5. Plain-English first; logs/waves/graphs/code one click deeper.
+   6. The AI shows its UNDERSTANDING (mental model, plan) before
+      it acts, so the user can correct early — not after.
+   ============================================================ */
+:root {
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface-2: #f4f1eb;
+  --surface-3: #ebe6dc;
+  --line: #e8e2d8;
+  --line-strong: #d8d0c2;
+  --ink: #1a1814;
+  --ink-2: #4a463e;
+  --ink-3: #847e72;
+  --ink-4: #b8b1a2;
+  --good: #5a8a4f;
+  --good-bg: #e9f0e3;
+  --bad: #b04a3a;
+  --bad-bg: #f5e3df;
+  --busy: #b5751a;
+  --busy-bg: #f6ebd4;
+  --thinking: #6a5da8;
+  --thinking-bg: #eae6f4;
+  --info: #3a6a8a;
+  --info-bg: #e3edf4;
+  --code-kw: #8b3a8a;
+  --code-str: #a35a1a;
+  --code-num: #2d6a4f;
+  --code-com: #847e72;
+  --code-fn: #1a4a8a;
+  --code-bg: #fcfaf6;
+}
+body.dark {
+  --bg: #15130f;
+  --surface: #1c1a16;
+  --surface-2: #221f1a;
+  --surface-3: #2a261f;
+  --line: #2d2922;
+  --line-strong: #3a3529;
+  --ink: #f0ebe0;
+  --ink-2: #c4bdaa;
+  --ink-3: #8f897b;
+  --ink-4: #5e594e;
+  --good: #8fc479;
+  --good-bg: #1f2a1c;
+  --bad: #e08a7c;
+  --bad-bg: #2e1f1c;
+  --busy: #e8b766;
+  --busy-bg: #2c2418;
+  --thinking: #b3a8e4;
+  --thinking-bg: #221f30;
+  --info: #8ec0e0;
+  --info-bg: #1c2630;
+  --code-kw: #d4a3d3;
+  --code-str: #e8b585;
+  --code-num: #98d4b4;
+  --code-com: #6f6a5e;
+  --code-fn: #9bbef0;
+  --code-bg: #15130f;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px; line-height: 1.55;
+  overflow: hidden;
+  transition: background .25s, color .25s;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: none; background: none; padding: 0; }
+textarea { resize: none; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--line-strong); }
+code, .mono { font-family: "JetBrains Mono", monospace; font-size: 0.9em; }
+.kbd {
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+  padding: 2px 6px; border-radius: 4px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--ink-3);
+}
+
+.app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+
+/* ---------- Header ---------- */
+.header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 28px; border-bottom: 1px solid var(--line);
+  background: var(--bg); position: relative; z-index: 10;
+}
+.proj-switch { position: relative; }
+.proj-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px 6px 8px; border-radius: 10px;
+  transition: background .15s;
+}
+.proj-btn:hover { background: var(--surface-2); }
+.proj-mark {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, #c2a06e, #8a6a3e);
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: #f0ebe0;
+}
+.proj-title { text-align: left; }
+.proj-title .n { font-weight: 600; font-size: 14px; color: var(--ink); }
+.proj-title .s { color: var(--ink-3); font-size: 12px; margin-top: -1px; }
+.proj-menu {
+  position: absolute; top: calc(100% + 6px); left: 0;
+  width: 280px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  padding: 6px; z-index: 30; display: none;
+}
+.proj-menu.open { display: block; }
+.proj-menu .item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13.5px; color: var(--ink-2); cursor: pointer;
+}
+.proj-menu .item:hover { background: var(--surface-2); color: var(--ink); }
+.proj-menu .item .pm-mark {
+  width: 22px; height: 22px; border-radius: 6px;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 700; color: #f0ebe0;
+}
+.proj-menu .item.active { background: var(--surface-2); }
+.proj-menu .divider { height: 1px; background: var(--line); margin: 4px 6px; }
+.proj-menu .new {
+  color: var(--ink-3); font-size: 13px;
+  padding: 8px 10px; border-radius: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.proj-menu .new:hover { background: var(--surface-2); color: var(--ink); }
+
+.header .spacer { flex: 1; }
+.pal-trigger {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; border-radius: 10px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--ink-3); font-size: 13px;
+}
+.pal-trigger:hover { border-color: var(--ink-3); color: var(--ink-2); }
+.health {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 11px; border-radius: 999px;
+  font-size: 12.5px; color: var(--ink-2);
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.health .pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--good); animation: breathe 2.4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { box-shadow: 0 0 0 0 rgba(90,138,79,0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(90,138,79,0); }
+}
+.icon-btn {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: 9px; color: var(--ink-3);
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+
+/* ---------- Thread ---------- */
+.thread-wrap { overflow-y: auto; background: var(--bg); }
+.thread {
+  max-width: 780px; margin: 0 auto;
+  padding: 32px 28px 40px;
+  display: flex; flex-direction: column; gap: 28px;
+  min-height: 100%;
+}
+.welcome {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; gap: 18px;
+  padding: 40px 0 20px;
+}
+.welcome .crest {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: linear-gradient(135deg, #c2a06e, #8a6a3e);
+  display: grid; place-items: center;
+  color: #faf8f5; font-weight: 700; font-size: 22px;
+  box-shadow: 0 8px 24px rgba(138,106,62,0.25);
+}
+.welcome h1 {
+  font-size: 28px; font-weight: 600;
+  letter-spacing: -0.02em; margin: 0; color: var(--ink);
+}
+.welcome p {
+  color: var(--ink-3); font-size: 15px;
+  max-width: 460px; margin: 0; line-height: 1.6;
+}
+.starters {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px; max-width: 560px; width: 100%; margin-top: 12px;
+}
+.starter {
+  text-align: left; padding: 14px 16px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.starter:hover { border-color: var(--ink-3); }
+.starter:active { transform: scale(0.985); }
+.starter .lbl {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3); margin-bottom: 4px;
+}
+.starter .txt {
+  font-size: 14px; color: var(--ink); font-weight: 500;
+}
+.starter .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
+
+.turn { display: flex; flex-direction: column; gap: 10px; }
+.turn-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); }
+.turn-meta .who { font-weight: 600; color: var(--ink-2); }
+.turn-meta .when { color: var(--ink-4); }
+
+.you-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.you-wrap .turn-meta { padding-right: 4px; }
+.you {
+  align-self: flex-end; max-width: 78%;
+  background: var(--ink); color: var(--bg);
+  padding: 12px 16px; border-radius: 18px 18px 4px 18px;
+  font-size: 14.5px; line-height: 1.5;
+}
+body.dark .you { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
+
+.system { display: flex; flex-direction: column; gap: 14px; }
+.said { font-size: 15px; line-height: 1.6; color: var(--ink); max-width: 95%; }
+.said code { background: var(--surface-2); padding: 1px 6px; border-radius: 5px; color: var(--ink-2); }
+.section-break {
+  text-align: center; color: var(--ink-4);
+  font-size: 11.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 4px 0;
+  display: flex; align-items: center; gap: 14px; font-weight: 500;
+}
+.section-break::before, .section-break::after {
+  content: ""; flex: 1; height: 1px; background: var(--line);
+}
+
+/* ============= CARD BASE ============= */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; overflow: hidden;
+  animation: cardIn .35s cubic-bezier(.2,.7,.3,1);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card:hover { border-color: var(--line-strong); }
+.card-h {
+  padding: 14px 18px 12px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.card-h .icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.card-h .title { font-weight: 600; font-size: 14.5px; letter-spacing: -0.01em; }
+.card-h .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+.card-h .spacer { flex: 1; }
+.card-h .micro-btn {
+  font-size: 12px; color: var(--ink-3);
+  padding: 4px 10px; border-radius: 7px;
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.card-h .micro-btn:hover { color: var(--ink); border-color: var(--ink-3); }
+.card-actions {
+  padding: 12px 18px; border-top: 1px solid var(--line);
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.card-actions .spacer { flex: 1; }
+
+/* ============= ASK ============= */
+.ask { padding: 18px 20px 16px; }
+.ask-q { font-size: 15.5px; color: var(--ink); font-weight: 500; margin-bottom: 4px; }
+.ask-sub { color: var(--ink-3); font-size: 13.5px; margin-bottom: 14px; }
+.ask-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice {
+  padding: 9px 16px; border-radius: 10px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-size: 14px; color: var(--ink); font-weight: 500;
+}
+.choice:hover { border-color: var(--ink-2); }
+.choice:active { transform: scale(0.97); }
+.choice.chosen { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.choice.locked { opacity: 0.55; pointer-events: none; }
+
+/* ============= PLAN ============= */
+.plan { padding: 16px 20px 18px; }
+.plan-h {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+}
+.plan-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 9px 0; font-size: 14px; color: var(--ink-2);
+}
+.plan-step + .plan-step { border-top: 1px dashed var(--line); }
+.plan-step .mark {
+  width: 20px; height: 20px; border-radius: 50%;
+  flex-shrink: 0; display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; margin-top: 1px;
+}
+.plan-step.done .mark { background: var(--good-bg); color: var(--good); }
+.plan-step.now .mark { background: var(--busy-bg); color: var(--busy); position: relative; }
+.plan-step.now .mark::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 50%;
+  border: 2px solid var(--busy); opacity: 0.3;
+  animation: ring 1.6s ease-out infinite;
+}
+@keyframes ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.plan-step.todo .mark {
+  background: var(--surface-2); color: var(--ink-4);
+  border: 1px dashed var(--line-strong);
+}
+.plan-step.now .label { color: var(--ink); font-weight: 500; }
+.plan-step.done .label { color: var(--ink-3); }
+.plan-step .why { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+/* ============= FILE ============= */
+.file {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px; cursor: pointer;
+}
+.file:hover { background: var(--surface-2); }
+.file .glyph {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--surface-2); color: var(--ink-2);
+  display: grid; place-items: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px; font-weight: 600; flex-shrink: 0;
+}
+.file:hover .glyph { background: var(--surface-3); }
+.file .info { flex: 1; min-width: 0; }
+.file .name { font-size: 14.5px; font-weight: 500; color: var(--ink); }
+.file .what { font-size: 13px; color: var(--ink-3); margin-top: 1px; }
+.file .what .add { color: var(--good); font-family: "JetBrains Mono", monospace; font-size: 12px; }
+.file .arrow { color: var(--ink-4); }
+.file:hover .arrow { color: var(--ink-2); transform: translateX(3px); }
+
+/* ============= DIFF ============= */
+.diff { padding: 0; }
+.diff-h .summary {
+  margin-left: auto; font-size: 12.5px;
+  color: var(--ink-3); font-family: "JetBrains Mono", monospace;
+}
+.diff-body {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12.5px; line-height: 1.7;
+  background: var(--code-bg);
+  padding: 10px 0; max-height: 220px; overflow-y: auto;
+}
+.diff-line { display: flex; padding: 0 18px; }
+.diff-line .ln { width: 28px; color: var(--ink-4); text-align: right; margin-right: 14px; user-select: none; }
+.diff-line .code { flex: 1; color: var(--ink-2); white-space: pre; }
+.diff-line.add { background: rgba(90,138,79,0.08); }
+.diff-line.add .code, .diff-line.add .ln { color: var(--good); }
+body.dark .diff-line.add { background: rgba(143,196,121,0.08); }
+.diff-line.del { background: rgba(176,74,58,0.06); }
+.diff-line.del .code, .diff-line.del .ln { color: var(--bad); }
+body.dark .diff-line.del { background: rgba(224,138,124,0.07); }
+.diff-line .marker { width: 14px; }
+.diff-line.add .marker { color: var(--good); }
+.diff-line.del .marker { color: var(--bad); }
+.card-actions[data-applied="1"] { background: var(--good-bg); }
+.card-actions[data-applied="1"]::before {
+  content: "✓ Applied"; color: var(--good); font-size: 13px;
+  font-weight: 600; align-self: center;
+}
+.card-actions[data-applied="1"] .btn { display: none; }
+
+/* ============= RUN ============= */
+.run { padding: 18px 20px; }
+.run-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.run-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 11px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.run-status.busy { background: var(--busy-bg); color: var(--busy); }
+.run-status.good { background: var(--good-bg); color: var(--good); }
+.run-status.bad { background: var(--bad-bg); color: var(--bad); }
+.run-status .live {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+.run-title { font-weight: 600; font-size: 14.5px; }
+.run-elapsed {
+  margin-left: auto; color: var(--ink-3); font-size: 13px;
+  font-family: "JetBrains Mono", monospace;
+}
+.run-now {
+  background: var(--busy-bg); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 12px;
+  font-size: 14px; color: var(--busy);
+  display: flex; align-items: center; gap: 12px;
+}
+.run-now .icon { font-size: 18px; animation: spin 2.4s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.run-now strong { color: var(--ink); font-weight: 600; }
+.run-stages { display: flex; align-items: center; gap: 6px; }
+.stage {
+  flex: 1; text-align: center;
+  padding: 8px 6px; border-radius: 8px;
+  background: var(--surface-2); font-size: 11px;
+  color: var(--ink-3); font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.stage.done { background: var(--good-bg); color: var(--good); }
+.stage.now { background: var(--busy-bg); color: var(--busy); }
+.stage.bad { background: var(--bad-bg); color: var(--bad); }
+.run-log-toggle {
+  margin-top: 12px;
+  font-size: 12.5px; color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.run-log-toggle:hover { color: var(--ink); }
+.run-log {
+  display: none;
+  margin-top: 10px;
+  background: var(--code-bg);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 14px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px; line-height: 1.7;
+  max-height: 160px; overflow-y: auto;
+  color: var(--ink-2);
+}
+.run-log.open { display: block; }
+.run-log .ts { color: var(--ink-4); margin-right: 10px; }
+.run-log .warn { color: var(--busy); }
+.run-log .err { color: var(--bad); }
+
+/* ============= VERDICT ============= */
+.verdict { padding: 22px 24px; border-width: 1px; border-style: solid; }
+.verdict.good { background: var(--good-bg); border-color: rgba(90,138,79,0.25); }
+.verdict.bad  { background: var(--bad-bg);  border-color: rgba(176,74,58,0.25); }
+body.dark .verdict.good { border-color: rgba(143,196,121,0.2); }
+body.dark .verdict.bad  { border-color: rgba(224,138,124,0.2); }
+.verdict-top { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.verdict-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center;
+}
+.verdict.good .verdict-icon { background: var(--good); color: var(--good-bg); }
+.verdict.bad  .verdict-icon { background: var(--bad);  color: var(--bad-bg); }
+.verdict-title { font-size: 18px; font-weight: 600; }
+.verdict.good .verdict-title { color: var(--good); }
+.verdict.bad  .verdict-title { color: var(--bad); }
+.verdict-sub { color: var(--ink-2); font-size: 14px; margin-left: 50px; margin-bottom: 14px; }
+.verdict-facts { margin-left: 50px; display: grid; gap: 6px; margin-bottom: 16px; }
+.verdict-facts .f { display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--ink-2); }
+.verdict-facts .f .k { width: 130px; color: var(--ink-3); }
+.verdict-facts .f .v { font-weight: 500; color: var(--ink); }
+.verdict-actions { margin-left: 50px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ============= WHY ============= */
+.why-card { padding: 0; border: 1px solid rgba(176,74,58,0.25); }
+body.dark .why-card { border-color: rgba(224,138,124,0.2); }
+.why-body { padding: 16px 20px; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+.why-body .quote {
+  margin: 10px 0; padding: 10px 14px;
+  background: var(--bad-bg);
+  border-left: 3px solid var(--bad); border-radius: 6px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12.5px; color: var(--ink);
+}
+.why-body .quote .loc { color: var(--bad); margin-right: 10px; }
+
+/* ============= WAVE ============= */
+.wave { padding: 14px 18px; }
+.wave-h {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--ink-3); margin-bottom: 10px;
+  text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+}
+.wave-h .badge {
+  font-family: "JetBrains Mono", monospace;
+  background: var(--surface-2); border: 1px solid var(--line);
+  padding: 2px 7px; border-radius: 5px; color: var(--ink-2);
+  text-transform: none; letter-spacing: 0; font-weight: 500;
+}
+.wave-grid { background: var(--code-bg); border-radius: 8px; padding: 12px 14px; border: 1px solid var(--line); }
+.wave-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.wave-row:last-child { margin-bottom: 0; }
+.wave-row .sig {
+  width: 90px; font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px; color: var(--ink-2);
+}
+.wave-row svg { flex: 1; height: 22px; }
+.wave-foot { margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
+
+/* ============= NEW: MENTAL MODEL CARD ============= */
+.mm-card { padding: 0; }
+.mm-card .card-h .icon { background: var(--thinking-bg); color: var(--thinking); }
+.mm-body { padding: 14px 18px; }
+.mm-desc {
+  font-size: 14px; color: var(--ink-2); line-height: 1.6;
+  background: var(--surface-2); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 12px;
+}
+.mm-desc strong { color: var(--ink); font-weight: 600; }
+.mm-graph {
+  background: var(--code-bg); border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px; margin-bottom: 12px;
+  position: relative;
+}
+.mm-graph svg { width: 100%; height: 170px; display: block; }
+.mm-node {
+  font-family: "Inter", sans-serif; font-size: 11px; font-weight: 500;
+  fill: var(--ink);
+}
+.mm-tabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.mm-tab {
+  padding: 5px 10px; border-radius: 6px;
+  font-size: 12px; color: var(--ink-3);
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.mm-tab.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.mm-tab-body { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+.mm-list { list-style: none; padding: 0; margin: 0; }
+.mm-list li {
+  padding: 6px 0; border-bottom: 1px dashed var(--line);
+  display: flex; gap: 10px; align-items: baseline;
+}
+.mm-list li:last-child { border-bottom: none; }
+.mm-list .k {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px; color: var(--ink-3); min-width: 130px;
+}
+
+/* ============= NEW: STRATEGY CARD ============= */
+.strat-card { padding: 0; }
+.strat-card .card-h .icon { background: var(--info-bg); color: var(--info); }
+.strat-body { padding: 6px 8px 6px; }
+.strat-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px; border-radius: 10px;
+  margin: 6px 4px;
+  cursor: pointer;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+.strat-row:hover { background: var(--surface-2); }
+.strat-row.picked { background: var(--surface-2); border-color: var(--ink); }
+.strat-row .check {
+  width: 20px; height: 20px; border-radius: 6px;
+  border: 1.5px solid var(--line-strong);
+  flex-shrink: 0; margin-top: 2px;
+  display: grid; place-items: center;
+  background: var(--surface);
+}
+.strat-row.picked .check { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.strat-row.picked .check svg { display: block; }
+.strat-row .check svg { display: none; }
+.strat-row .body { flex: 1; }
+.strat-row .name {
+  font-weight: 600; font-size: 14px; color: var(--ink);
+  display: flex; align-items: center; gap: 8px;
+}
+.strat-row .reco {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--good-bg); color: var(--good);
+}
+.strat-row .skip {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--surface-3); color: var(--ink-3);
+}
+.strat-row .desc { font-size: 13px; color: var(--ink-3); margin-top: 2px; line-height: 1.5; }
+.strat-row .why { font-size: 12.5px; color: var(--ink-3); margin-top: 4px; font-style: italic; }
+
+/* ============= NEW: PLAN APPROVAL CARD ============= */
+.papp-card { padding: 0; }
+.papp-card .card-h .icon { background: var(--busy-bg); color: var(--busy); }
+.papp-body { padding: 8px 6px 4px; max-height: 320px; overflow-y: auto; }
+.papp-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 14px; margin: 2px 4px;
+  border-radius: 8px; cursor: pointer;
+  font-size: 13.5px;
+}
+.papp-row:hover { background: var(--surface-2); }
+.papp-row .check {
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 1.5px solid var(--line-strong);
+  flex-shrink: 0;
+  display: grid; place-items: center;
+}
+.papp-row.on .check { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.papp-row.on .check svg { display: block; }
+.papp-row .check svg { display: none; }
+.papp-row .label { flex: 1; color: var(--ink); }
+.papp-row.off .label { color: var(--ink-4); text-decoration: line-through; }
+.papp-row .kind {
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+  color: var(--ink-3); padding: 1px 6px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.papp-summary {
+  padding: 10px 18px; font-size: 12.5px; color: var(--ink-3);
+  border-top: 1px solid var(--line);
+}
+.papp-summary strong { color: var(--ink); font-weight: 600; }
+
+/* ============= NEW: TOOLCHAIN CARD ============= */
+.tool-card { padding: 14px 18px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.tool-card .lbl {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3); margin-right: 4px;
+}
+.tool-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 500;
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.tool-badge.ok { color: var(--good); border-color: rgba(90,138,79,0.3); background: var(--good-bg); }
+.tool-badge.bad { color: var(--bad); border-color: rgba(176,74,58,0.3); background: var(--bad-bg); }
+
+/* ============= NEW: COVERAGE CARD ============= */
+.cov-card { padding: 16px 18px; }
+.cov-card .h {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.cov-card .h .icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--info-bg); color: var(--info);
+  display: grid; place-items: center;
+}
+.cov-card .h .title { font-weight: 600; font-size: 14.5px; }
+.cov-card .h .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+.cov-bars { display: grid; gap: 9px; }
+.cov-row { display: flex; align-items: center; gap: 12px; }
+.cov-row .name { width: 170px; font-size: 13px; color: var(--ink-2); }
+.cov-row .bar {
+  flex: 1; height: 10px; border-radius: 5px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.cov-row .fill {
+  height: 100%; border-radius: 5px;
+  background: var(--good);
+  transition: width 1.2s cubic-bezier(.2,.7,.3,1);
+}
+.cov-row .fill.low { background: var(--bad); }
+.cov-row .fill.mid { background: var(--busy); }
+.cov-row .pct {
+  width: 44px; text-align: right;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px; color: var(--ink-2);
+}
+
+/* ============= NEW: SCHEMATIC CARD ============= */
+.sch-card { padding: 14px 18px; }
+.sch-card .h {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.sch-card .h .icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--thinking-bg); color: var(--thinking);
+  display: grid; place-items: center;
+}
+.sch-card .h .title { font-weight: 600; font-size: 14.5px; }
+.sch-card .h .spacer { flex: 1; }
+.sch-card .canvas {
+  background: var(--code-bg); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px; overflow: hidden;
+}
+.sch-card svg { width: 100%; height: 180px; display: block; }
+.sch-node { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.2; }
+.sch-text { font-family: "Inter", sans-serif; font-size: 10.5px; fill: var(--ink); }
+.sch-wire { fill: none; stroke: var(--ink-3); stroke-width: 1.4; }
+
+/* ============= BUTTONS ============= */
+.btn {
+  padding: 9px 16px; border-radius: 10px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--ink); font-size: 14px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { border-color: var(--ink-2); }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.primary:hover { background: var(--ink-2); border-color: var(--ink-2); }
+.btn.danger { color: var(--bad); border-color: rgba(176,74,58,0.3); }
+.btn.danger:hover { background: var(--bad-bg); }
+.btn.sm { padding: 6px 11px; font-size: 13px; }
+.btn[disabled] { opacity: 0.6; pointer-events: none; }
+
+.thinking {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--ink-3); font-size: 13.5px;
+}
+.thinking .dots { display: inline-flex; gap: 3px; }
+.thinking .dots span {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ink-4);
+  animation: bounce 1.4s ease-in-out infinite;
+}
+.thinking .dots span:nth-child(2) { animation-delay: 0.15s; }
+.thinking .dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* ============= COMPOSER ============= */
+.composer-wrap {
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  padding: 14px 28px 20px;
+}
+.composer-inner { max-width: 780px; margin: 0 auto; }
+.suggest { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+.sgg {
+  padding: 6px 12px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--ink-2); font-size: 13px;
+}
+.sgg:hover { border-color: var(--ink-2); color: var(--ink); }
+.sgg.accent { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.composer {
+  display: flex; align-items: flex-end; gap: 10px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 9px 11px 9px 16px;
+}
+.composer:focus-within { border-color: var(--ink-2); box-shadow: 0 0 0 4px var(--surface-2); }
+.composer textarea {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 15px; line-height: 1.5;
+  min-height: 24px; max-height: 200px;
+  padding: 7px 0; color: var(--ink);
+}
+.composer textarea::placeholder { color: var(--ink-3); }
+.composer .tool {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: 9px; color: var(--ink-3);
+}
+.composer .tool:hover { background: var(--surface-2); color: var(--ink); }
+.composer .send {
+  width: 38px; height: 38px;
+  background: var(--ink); color: var(--bg);
+  border-radius: 12px; display: grid; place-items: center;
+}
+.composer .send:hover { background: var(--ink-2); }
+.composer-foot {
+  margin-top: 7px; display: flex; justify-content: space-between;
+  font-size: 11.5px; color: var(--ink-4); padding: 0 4px;
+}
+
+/* ============= EDITOR (single-file, summoned) ============= */
+.editor {
+  position: fixed; inset: 0; background: var(--bg); z-index: 80;
+  display: none; flex-direction: column;
+  animation: editorIn .25s ease;
+}
+.editor.open { display: flex; }
+@keyframes editorIn {
+  from { opacity: 0; transform: scale(0.99); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.editor-h {
+  padding: 14px 22px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+}
+.editor-back {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 12px 7px 9px; border-radius: 9px;
+  color: var(--ink-2); font-size: 13.5px;
+}
+.editor-back:hover { background: var(--surface-2); color: var(--ink); }
+.editor-title { display: flex; align-items: center; gap: 10px; }
+.editor-title .glyph {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--surface-2); color: var(--ink-2);
+  display: grid; place-items: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; font-weight: 600;
+}
+.editor-title .name { font-weight: 600; font-size: 14.5px; }
+.editor-title .meta { font-size: 12.5px; color: var(--ink-3); margin-top: -1px; }
+.editor-h .spacer { flex: 1; }
+.editor-h .saved {
+  font-size: 12px; color: var(--good);
+  background: var(--good-bg);
+  padding: 4px 10px; border-radius: 999px;
+  font-weight: 500;
+  opacity: 0; transition: opacity .25s;
+}
+.editor-h .saved.show { opacity: 1; }
+.file-tabs {
+  display: flex; gap: 4px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 9px; padding: 3px;
+}
+.file-tabs .ft {
+  padding: 5px 10px; border-radius: 6px;
+  font-size: 12.5px; color: var(--ink-3);
+  font-family: "JetBrains Mono", monospace;
+}
+.file-tabs .ft.active { background: var(--bg); color: var(--ink); }
+.editor-body-wrap { flex: 1; overflow: hidden; background: var(--code-bg); display: flex; }
+.editor-gutter {
+  padding: 18px 0 28px; width: 56px; text-align: right;
+  color: var(--ink-4); font-family: "JetBrains Mono", monospace;
+  font-size: 13px; line-height: 1.75;
+  user-select: none; flex-shrink: 0; overflow: hidden;
+}
+.editor-gutter .gl { padding: 0 12px 0 8px; }
+.editor-gutter .gl.hl { background: var(--busy-bg); color: var(--busy); font-weight: 600; }
+.editor-textarea {
+  flex: 1; padding: 18px 28px 28px 6px;
+  background: transparent; border: none; outline: none;
+  color: var(--ink); font-family: "JetBrains Mono", monospace;
+  font-size: 13px; line-height: 1.75;
+  overflow: auto; white-space: pre; tab-size: 2;
+}
+.editor-footer {
+  padding: 12px 22px 16px;
+  border-top: 1px solid var(--line); background: var(--bg);
+}
+.editor-footer .ef-inner { max-width: 780px; margin: 0 auto; }
+.editor-footer .ef-prompt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.editor-footer .ef-prompt:focus-within { border-color: var(--ink-2); }
+.editor-footer .ef-prompt .lbl {
+  font-size: 11px; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600;
+  padding-right: 10px; border-right: 1px solid var(--line);
+}
+.editor-footer .ef-prompt input {
+  flex: 1; border: none; outline: none; background: none;
+  font-size: 14px; color: var(--ink);
+}
+.editor-footer .ef-prompt input::placeholder { color: var(--ink-3); }
+.ef-suggests { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.ef-suggests .sg2 {
+  font-size: 12px; color: var(--ink-3);
+  padding: 4px 9px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+
+/* ============= IDE MODE (hidden multi-pane) ============= */
+.ide {
+  position: fixed; inset: 0; background: var(--bg); z-index: 85;
+  display: none; flex-direction: column;
+}
+.ide.open { display: flex; animation: editorIn .25s ease; }
+.ide-h {
+  padding: 12px 18px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+}
+.ide-h .badge {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--info); background: var(--info-bg);
+  padding: 3px 8px; border-radius: 6px;
+}
+.ide-h .title { font-weight: 600; font-size: 14px; }
+.ide-h .sub { font-size: 12px; color: var(--ink-3); margin-left: 6px; }
+.ide-h .spacer { flex: 1; }
+.ide-body {
+  flex: 1; display: grid;
+  grid-template-columns: 220px 1fr 280px;
+  overflow: hidden;
+}
+.ide-explorer {
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.ide-explorer .grp {
+  padding: 6px 14px;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+.ide-explorer .erow {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px 5px 22px;
+  font-size: 13px; color: var(--ink-2);
+  cursor: pointer; font-family: "JetBrains Mono", monospace;
+}
+.ide-explorer .erow:hover { background: var(--surface-2); color: var(--ink); }
+.ide-explorer .erow.active { background: var(--surface-2); color: var(--ink); border-left: 2px solid var(--ink); padding-left: 20px; }
+.ide-explorer .erow .gly {
+  width: 14px; color: var(--ink-3); font-size: 10px;
+}
+.ide-center {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--code-bg);
+}
+.ide-tabs {
+  display: flex; gap: 2px; background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.ide-tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; font-size: 12.5px; color: var(--ink-3);
+  border-right: 1px solid var(--line);
+  cursor: pointer; font-family: "JetBrains Mono", monospace;
+  flex-shrink: 0;
+}
+.ide-tab.active { background: var(--code-bg); color: var(--ink); }
+.ide-tab .x { color: var(--ink-4); }
+.ide-tab .x:hover { color: var(--ink); }
+.ide-editor-wrap { flex: 1; display: flex; overflow: hidden; }
+.ide-gutter {
+  width: 50px; padding: 12px 0 20px;
+  text-align: right; color: var(--ink-4);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px; line-height: 1.75;
+  overflow: hidden;
+}
+.ide-gutter .gl { padding: 0 10px 0 8px; }
+.ide-textarea {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--ink); font-family: "JetBrains Mono", monospace;
+  font-size: 13px; line-height: 1.75;
+  padding: 12px 18px 20px 4px;
+  overflow: auto; white-space: pre; tab-size: 2;
+}
+.ide-output {
+  height: 180px; border-top: 1px solid var(--line);
+  background: var(--surface); display: none;
+}
+.ide-output.open { display: flex; flex-direction: column; }
+.ide-output .h {
+  padding: 8px 14px; border-bottom: 1px solid var(--line);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.ide-output .h .spacer { flex: 1; }
+.ide-output .body {
+  flex: 1; overflow-y: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px; line-height: 1.7; padding: 8px 14px;
+  color: var(--ink-2);
+}
+.ide-right {
+  border-left: 1px solid var(--line); background: var(--surface);
+  overflow-y: auto;
+}
+.ide-right .grp {
+  padding: 10px 14px 6px;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--line);
+}
+.ide-right .ai-msg {
+  padding: 10px 14px;
+  font-size: 13px; color: var(--ink-2);
+  border-bottom: 1px solid var(--line);
+}
+.ide-right .ai-msg.you { background: var(--surface-2); color: var(--ink); }
+.ide-status {
+  display: flex; align-items: center; gap: 14px;
+  padding: 5px 16px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+  font-size: 11.5px; color: var(--ink-3);
+  font-family: "JetBrains Mono", monospace;
+}
+.ide-status .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--good);
+}
+
+/* ============= MENTAL MODEL OVERLAY (full view) ============= */
+.mm-overlay {
+  position: fixed; inset: 0; background: var(--bg); z-index: 88;
+  display: none; flex-direction: column;
+}
+.mm-overlay.open { display: flex; animation: editorIn .25s ease; }
+
+/* ============= DASHBOARD OVERLAY ============= */
+.dash-overlay {
+  position: fixed; inset: 0; background: var(--bg); z-index: 87;
+  display: none; flex-direction: column;
+}
+.dash-overlay.open { display: flex; animation: editorIn .25s ease; }
+.dash-overlay .h {
+  padding: 14px 22px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+}
+.dash-overlay .h .title { font-weight: 600; font-size: 16px; }
+.dash-overlay .h .sub { font-size: 12.5px; color: var(--ink-3); }
+.dash-overlay .h .spacer { flex: 1; }
+.dash-body { flex: 1; overflow: auto; padding: 22px 28px 32px; }
+.dash-kpis {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px; margin-bottom: 28px;
+}
+.dash-kpi {
+  padding: 16px 18px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface);
+}
+.dash-kpi .k { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.dash-kpi .v { font-size: 22px; font-weight: 600; margin-top: 6px; letter-spacing: -0.02em; }
+.dash-kpi.good .v { color: var(--good); }
+.dash-runs h3 { font-size: 14px; font-weight: 600; margin: 0 0 12px; color: var(--ink-2); }
+.dash-run-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface); margin-bottom: 8px;
+}
+.dash-run-row .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); flex-shrink: 0; }
+.dash-run-row .dot.busy { background: var(--busy); }
+.dash-run-row .name { font-weight: 500; font-size: 14px; flex: 1; }
+.dash-run-row .meta { font-size: 12px; color: var(--ink-3); }
+.mm-overlay .h {
+  padding: 14px 22px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+}
+.mm-overlay .h .title { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+.mm-overlay .h .sub { font-size: 12.5px; color: var(--ink-3); }
+.mm-overlay .h .spacer { flex: 1; }
+.mm-overlay .tabs { padding: 10px 22px; border-bottom: 1px solid var(--line); display: flex; gap: 6px; flex-wrap: wrap; }
+.mm-overlay .tabs .t {
+  padding: 7px 14px; border-radius: 9px;
+  font-size: 13px; color: var(--ink-3);
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.mm-overlay .tabs .t.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.mm-overlay .body {
+  flex: 1; overflow-y: auto;
+  padding: 24px 32px; max-width: 920px;
+  margin: 0 auto; width: 100%;
+}
+.mm-overlay .panel { display: none; }
+.mm-overlay .panel.active { display: block; }
+.mm-overlay h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 12px; }
+.mm-overlay h3 { font-size: 14px; font-weight: 600; color: var(--ink-2); margin: 18px 0 8px; }
+.mm-overlay p { font-size: 14px; color: var(--ink-2); line-height: 1.65; margin: 0 0 12px; }
+.mm-overlay .big-graph {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 24px; margin-bottom: 16px;
+}
+.mm-overlay .big-graph svg { width: 100%; height: 320px; display: block; }
+.mm-overlay table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.mm-overlay th, .mm-overlay td {
+  padding: 10px 12px; text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.mm-overlay th { color: var(--ink-3); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+.mm-overlay td { color: var(--ink-2); }
+.mm-overlay td code { background: var(--surface-2); color: var(--ink); padding: 2px 6px; border-radius: 4px; }
+.mm-overlay .ref {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11.5px; color: var(--info);
+  background: var(--info-bg);
+  padding: 2px 7px; border-radius: 4px;
+  margin-left: 6px;
+}
+
+/* ============= PALETTE ============= */
+.pal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90;
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 100px;
+}
+.pal-overlay.open { display: flex; animation: fadeIn .15s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.palette {
+  width: 560px; max-width: 92%;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3); overflow: hidden;
+  animation: popIn .2s ease;
+}
+@keyframes popIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.pal-input { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.pal-input input { flex: 1; background: none; border: none; outline: none; font-size: 15px; color: var(--ink); }
+.pal-input input::placeholder { color: var(--ink-3); }
+.pal-list { max-height: 360px; overflow-y: auto; padding: 8px; }
+.pal-section {
+  font-size: 11px; font-weight: 600; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 8px 10px 4px;
+}
+.pal-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 11px; border-radius: 8px;
+  cursor: pointer; font-size: 13.5px; color: var(--ink-2);
+}
+.pal-item:hover, .pal-item.active { background: var(--surface-2); color: var(--ink); }
+.pal-item .pi-glyph {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--surface-2); color: var(--ink-3);
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 600;
+}
+.pal-item .pi-name { flex: 1; }
+.pal-item .pi-meta { font-size: 12px; color: var(--ink-4); font-family: "JetBrains Mono", monospace; }
+.pal-foot { padding: 8px 16px; border-top: 1px solid var(--line); display: flex; gap: 14px; font-size: 11.5px; color: var(--ink-4); }
+
+/* ============= DRAWER ============= */
+.drawer-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50;
+}
+.drawer-overlay.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; right: 0; top: 0; bottom: 0;
+  width: 380px; background: var(--surface);
+  border-left: 1px solid var(--line);
+  transform: translateX(100%); transition: transform .25s ease;
+  z-index: 60; display: flex; flex-direction: column;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-h {
+  padding: 18px 22px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 10px;
+}
+.drawer-h h3 { margin: 0; font-size: 14px; }
+.drawer-h .x {
+  margin-left: auto; width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: 8px; color: var(--ink-3);
+}
+.drawer-h .x:hover { background: var(--surface-2); color: var(--ink); }
+.drawer-body { flex: 1; overflow-y: auto; padding: 8px 14px 16px; }
+.drawer-section h4 {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-3); margin: 14px 10px 6px;
+}
+.drawer-section .row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13.5px; color: var(--ink-2); cursor: pointer;
+}
+.drawer-section .row:hover { background: var(--surface-2); color: var(--ink); }
+.drawer-section .row .dot { width: 7px; height: 7px; border-radius: 50%; }
+.drawer-section .row .dot.g { background: var(--good); }
+.drawer-section .row .dot.b { background: var(--bad); }
+.drawer-section .row .dot.y { background: var(--busy); }
+.drawer-section .row .when {
+  margin-left: auto; color: var(--ink-4);
+  font-size: 12px; font-family: "JetBrains Mono", monospace;
+}
+.drawer-section .empty { padding: 8px 10px; font-size: 12.5px; color: var(--ink-4); font-style: italic; }
+.drawer-section .row.special {
+  background: var(--info-bg); color: var(--info); font-weight: 500;
+  border: 1px dashed rgba(58,106,138,0.3);
+  margin: 4px 4px;
+}
+body.dark .drawer-section .row.special {
+  background: var(--info-bg); color: var(--info);
+}
+
+@media (max-width: 640px) {
+  .thread { padding: 24px 18px 28px; }
+  .composer-wrap { padding: 12px 18px 18px; }
+  .you { max-width: 90%; }
+  .starters { grid-template-columns: 1fr; }
+  .ide-body { grid-template-columns: 60px 1fr; }
+  .ide-right { display: none; }
+}
+</style>
+</head>
+<body class="dark thread-first-shell demo-embed-root">
+
+<p class="demo-preview-banner" role="status">
+  <strong>Interactive preview</strong> — simulated thread · no backend required
+  <button type="button" class="demo-banner-reset" id="demoBannerReset" title="Restart demo">↺ Restart</button>
+</p>
+
+<div class="tf-desktop-root demo-chrome" data-ui-shell="thread-first" data-tf-theme="dark">
+<nav class="tf-side-rail demo-rail" aria-label="Workspace shortcuts">
+  <button type="button" class="tf-side-rail-mark" aria-label="Chipix" title="Chipix"><span class="tf-side-rail-mark-glyph">Cx</span></button>
+  <div class="tf-side-rail-group" role="toolbar">
+    <button type="button" class="tf-side-rail-btn" data-rail="threads" aria-label="Threads" title="Conversation history"><span class="tf-side-rail-ind"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></button>
+    <button type="button" class="tf-side-rail-btn" data-rail="ide" aria-label="Editor" title="Open IDE"><span class="tf-side-rail-ind"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
+    <button type="button" class="tf-side-rail-btn" data-rail="mental" aria-label="Mental model" title="Mental model"><span class="tf-side-rail-ind"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></button>
+    <button type="button" class="tf-side-rail-btn" data-rail="staged" aria-label="Staged flow" title="Staged verification"><span class="tf-side-rail-ind"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg></button>
+    <button type="button" class="tf-side-rail-btn" data-rail="dash" aria-label="Dashboard" title="Dashboard"><span class="tf-side-rail-ind"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
+  </div>
+  <div class="tf-side-rail-spacer"></div>
+  <div class="tf-side-rail-group bottom">
+    <button type="button" class="tf-side-rail-btn" id="demoThemeRail" aria-label="Theme" title="Theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  </div>
+</nav>
+
+<div class="app demo-app-shell">
+
+  <!-- ============ Header ============ -->
+  <header class="header">
+    <div class="proj-switch">
+      <button class="proj-btn" id="projBtn">
+        <div class="proj-mark">UA</div>
+        <div class="proj-title">
+          <div class="n">UART APB Controller</div>
+          <div class="s" id="projSub">new conversation</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink-3)"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="proj-menu" id="projMenu">
+        <div class="item active">
+          <div class="pm-mark" style="background:linear-gradient(135deg,#c2a06e,#8a6a3e)">UA</div>
+          UART APB Controller
+        </div>
+        <div class="item">
+          <div class="pm-mark" style="background:linear-gradient(135deg,#7a8da0,#4a5c70)">SH</div>
+          SHA-256 Accelerator
+        </div>
+        <div class="item">
+          <div class="pm-mark" style="background:linear-gradient(135deg,#a07e7e,#705252)">I2</div>
+          I2C Master Controller
+        </div>
+        <div class="divider"></div>
+        <button class="new">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Start a new project
+        </button>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <button class="pal-trigger" id="palTrigger">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      Jump to anything
+      <span class="kbd">⌘K</span>
+    </button>
+
+    <div class="health">
+      <span class="pulse"></span>
+      Everything healthy
+    </div>
+    <button class="icon-btn" id="resetBtn" title="Reset conversation">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+    </button>
+    <button class="icon-btn" id="themeBtn" title="Switch theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+    <button class="icon-btn" id="drawerBtn" title="More">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+    </button>
+  </header>
+
+  <!-- ============ Thread ============ -->
+  <div class="thread-wrap" id="threadWrap">
+    <div class="thread" id="thread">
+      <div class="welcome" id="welcome">
+        <div class="crest">Cx</div>
+        <h1>Let's design something.</h1>
+        <p>Describe a chip in plain English. I'll show you how I understand it, write the RTL, then we move to verification together — mental model, staged plan, and human-approved diffs.</p>
+        <div class="starters">
+          <button class="starter" data-intent="uart">
+            <div class="lbl">RTL · Peripheral</div>
+            <div class="txt">UART controller with APB interface</div>
+            <div class="sub">Design + verification end-to-end</div>
+          </button>
+          <button class="starter" data-intent="fifo">
+            <div class="lbl">RTL · Building block</div>
+            <div class="txt">Synchronous FIFO</div>
+            <div class="sub">Parameterizable depth and width</div>
+          </button>
+          <button class="starter" data-intent="alu">
+            <div class="lbl">RTL · Datapath</div>
+            <div class="txt">RISC-V style ALU</div>
+            <div class="sub">Add, sub, shift, logic — single cycle</div>
+          </button>
+          <button class="starter" data-intent="import">
+            <div class="lbl">Existing project</div>
+            <div class="txt">Verify code I already have</div>
+            <div class="sub">Paste or upload your module</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Composer + floating mode toggle ============ -->
+  <div class="demo-composer-stack">
+  <div class="tf-mode-toggle-wrap demo-mode-float" id="demoModeToggle">
+    <div class="tf-mode-toggle" data-mode="design" role="radiogroup" aria-label="Design or Verify focus">
+      <span class="tf-mode-thumb" aria-hidden="true"></span>
+      <button type="button" class="tf-mode-opt active" data-mode="design" role="radio" aria-checked="true"><span class="tf-mode-dot tf-mode-dot--design" aria-hidden="true"></span><span class="tf-mode-label">Design</span></button>
+      <button type="button" class="tf-mode-opt" data-mode="verify" role="radio" aria-checked="false"><span class="tf-mode-dot tf-mode-dot--verify" aria-hidden="true"></span><span class="tf-mode-label">Verify</span></button>
+    </div>
+  </div>
+  <div class="composer-wrap">
+    <div class="composer-inner">
+      <div class="suggest" id="suggest"></div>
+      <div class="composer">
+        <button class="tool" title="Attach file">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.4 11.1L13 19.5a5 5 0 0 1-7-7L14.4 4a3.3 3.3 0 1 1 4.7 4.7L10.7 17a1.7 1.7 0 0 1-2.4-2.4L16 7"/></svg>
+        </button>
+        <textarea id="composerInput" placeholder="Describe what you want to build, or ask anything…" rows="1"></textarea>
+        <button class="send" id="sendBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+      </div>
+      <div class="composer-foot">
+        <span><span class="kbd">⌘ Enter</span> send · <span class="kbd">⌘ K</span> palette · <span class="kbd">⌘ ⇧ E</span> IDE mode</span>
+        <span>Chipix builds, verifies, explains, and fixes</span>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <footer class="demo-status-bar" aria-label="Status">
+    <span class="demo-status-pill ok"><span class="dot"></span>Backend ready</span>
+    <span class="demo-status-chip" id="demoStatusMode">Design lens</span>
+    <span class="demo-status-activity" id="demoStatusActivity">Pick a starter or describe your block</span>
+    <span class="demo-status-spacer"></span>
+    <span class="demo-status-hint">Simulated preview</span>
+  </footer>
+</div>
+</div>
+
+<!-- ============ Editor (single file, summoned) ============ -->
+<div class="editor" id="editor">
+  <header class="editor-h">
+    <button class="editor-back" id="editorBack">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to conversation
+    </button>
+    <div class="editor-title">
+      <div class="glyph" id="editorGlyph">SV</div>
+      <div>
+        <div class="name" id="editorName">file.sv</div>
+        <div class="meta" id="editorMeta">—</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <span class="saved" id="savedTag">Saved</span>
+    <button class="btn sm" id="expandIde" title="Open in full IDE mode (⌘⇧E)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+      Expand to IDE
+    </button>
+    <div class="file-tabs">
+      <button class="ft active">Latest</button>
+      <button class="ft">v2</button>
+      <button class="ft">v1</button>
+    </div>
+    <button class="btn sm primary" id="saveBtn">Save</button>
+  </header>
+  <div class="editor-body-wrap">
+    <div class="editor-gutter" id="editorGutter"></div>
+    <textarea class="editor-textarea" id="editorTextarea" spellcheck="false"></textarea>
+  </div>
+  <div class="editor-footer">
+    <div class="ef-inner">
+      <div class="ef-prompt">
+        <span class="lbl">Ask Chipix</span>
+        <input id="editorAsk" placeholder="Explain a line, refactor, find issues — about this file" />
+        <button class="tool" style="color:var(--ink-3)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="ef-suggests">
+        <button class="sg2">Explain this file</button>
+        <button class="sg2">Find issues</button>
+        <button class="sg2">Make this synthesizable for FPGA</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ IDE Mode (hidden, summoned) ============ -->
+<div class="ide" id="ide">
+  <div class="ide-h">
+    <span class="badge">IDE mode</span>
+    <span class="title">UART APB Controller</span>
+    <span class="sub">power workspace · file tree · multi-tab · run output · assistant</span>
+    <div class="spacer"></div>
+    <button class="btn sm" id="ideToggleOutput">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 18 12 14 8 10"/><path d="M16 18h.01"/></svg>
+      Toggle output
+    </button>
+    <button class="btn sm" id="ideClose">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to conversation
+    </button>
+  </div>
+  <div class="ide-body">
+    <aside class="ide-explorer" id="ideExplorer"></aside>
+    <div class="ide-center">
+      <div class="ide-tabs" id="ideTabs"></div>
+      <div class="ide-editor-wrap">
+        <div class="ide-gutter" id="ideGutter"></div>
+        <textarea class="ide-textarea" id="ideTextarea" spellcheck="false"></textarea>
+      </div>
+      <div class="ide-output" id="ideOutput">
+        <div class="h">
+          Output · last run
+          <div class="spacer"></div>
+          <button class="btn sm">Re-run</button>
+        </div>
+        <div class="body" id="ideOutputBody">
+<span style="color:var(--ink-4)">[14:43:01] </span>Starting regression…
+<span style="color:var(--ink-4)">[14:43:02] </span>Linting 4 modules — clean
+<span style="color:var(--ink-4)">[14:43:03] </span>Building testbench
+<span style="color:var(--ink-4)">[14:43:05] </span>Simulating 333 directed + random tests
+<span style="color:var(--ink-4)">[14:46:13] </span>All assertions held (218/218)
+<span style="color:var(--ink-4)">[14:46:13] </span><span style="color:var(--good)">PASS · coverage 92% functional / 87% line</span>
+        </div>
+      </div>
+    </div>
+    <aside class="ide-right">
+      <div class="grp">Assistant in context</div>
+      <div class="ai-msg you">Open <code>uart_apb.sv</code> at line 218 — that's where the parity bug was.</div>
+      <div class="ai-msg">Done. The fix swapped the ternary so odd parity inverts the XOR. Want me to add a header comment summarising the change?</div>
+      <div class="grp">Project agents</div>
+      <div class="ai-msg"><strong>Spec Parser</strong> · idle</div>
+      <div class="ai-msg"><strong>RTL Designer</strong> · idle</div>
+      <div class="ai-msg"><strong>Verifier</strong> · last run passed 12m ago</div>
+      <div class="ai-msg"><strong>Coverage Analyst</strong> · 94% functional</div>
+    </aside>
+  </div>
+  <div class="ide-status">
+    <span><span class="dot"></span> Connected · 127.0.0.1:7348</span>
+    <span>Yosys ✓</span><span>Icarus ✓</span><span>Verilator ✗</span>
+    <div class="spacer" style="flex:1"></div>
+    <span id="ideCursorPos">Ln 1, Col 1</span>
+    <span>SystemVerilog</span>
+    <span>UTF-8</span>
+  </div>
+</div>
+
+<!-- ============ Mental Model Full Overlay ============ -->
+<div class="mm-overlay" id="mmOverlay">
+  <div class="h">
+    <div>
+      <div class="title">How I understand this design</div>
+      <div class="sub">My mental model · derived from your description and clarifying answers</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn sm" id="mmClose">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to conversation
+    </button>
+  </div>
+  <div class="tabs" id="mmTabs">
+    <button class="t active" data-p="overview">Overview</button>
+    <button class="t" data-p="modules">Modules</button>
+    <button class="t" data-p="functionality">Functionality</button>
+    <button class="t" data-p="ports">Ports &amp; Interfaces</button>
+    <button class="t" data-p="params">Design Parameters</button>
+    <button class="t" data-p="experimental">Experimental</button>
+  </div>
+  <div class="body">
+    <section class="panel active" data-p="overview">
+      <h2>UART APB Controller</h2>
+      <p>An 8-bit asynchronous serial transmitter/receiver that exposes a 32-bit APB slave interface for register access. The block buffers data with 16-byte synchronous FIFOs on both transmit and receive paths, generates its own baud clock from a fractional divider, and raises an interrupt when the RX FIFO crosses a programmable threshold.<span class="ref">spec §2.1</span></p>
+
+      <div class="big-graph">
+        <svg viewBox="0 0 700 320">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+            </marker>
+          </defs>
+          <!-- Top: APB iface -->
+          <rect x="20" y="20" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--line-strong)"/>
+          <text x="80" y="48" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">APB Slave</text>
+          <text x="80" y="65" text-anchor="middle" fill="var(--ink-3)" font-size="10">pclk, paddr, pwdata…</text>
+
+          <rect x="280" y="20" width="160" height="80" rx="8" fill="var(--info-bg)" stroke="var(--info)"/>
+          <text x="360" y="48" text-anchor="middle" fill="var(--info)" font-size="13" font-weight="600">uart_apb (TOP)</text>
+          <text x="360" y="65" text-anchor="middle" fill="var(--ink-2)" font-size="10">register decode</text>
+          <text x="360" y="80" text-anchor="middle" fill="var(--ink-2)" font-size="10">IRQ logic, status mux</text>
+
+          <rect x="560" y="20" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--line-strong)"/>
+          <text x="620" y="48" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">irq → SoC</text>
+
+          <line x1="140" y1="50" x2="280" y2="50" stroke="var(--ink-3)" stroke-width="1.4" marker-end="url(#arr)"/>
+          <line x1="440" y1="50" x2="560" y2="50" stroke="var(--ink-3)" stroke-width="1.4" marker-end="url(#arr)"/>
+
+          <!-- Children -->
+          <rect x="80" y="170" width="130" height="50" rx="8" fill="var(--surface)" stroke="var(--line-strong)"/>
+          <text x="145" y="195" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="600">baud_gen</text>
+          <text x="145" y="210" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">fractional divider</text>
+
+          <rect x="240" y="170" width="130" height="50" rx="8" fill="var(--surface)" stroke="var(--line-strong)"/>
+          <text x="305" y="195" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="600">tx_fifo</text>
+          <text x="305" y="210" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">16×8 sync FIFO</text>
+
+          <rect x="400" y="170" width="130" height="50" rx="8" fill="var(--surface)" stroke="var(--line-strong)"/>
+          <text x="465" y="195" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="600">rx_fifo</text>
+          <text x="465" y="210" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">16×8 sync FIFO</text>
+
+          <rect x="560" y="170" width="130" height="50" rx="8" fill="var(--surface)" stroke="var(--line-strong)"/>
+          <text x="625" y="195" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="600">serdes</text>
+          <text x="625" y="210" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">tx_ser + rx_des</text>
+
+          <line x1="340" y1="100" x2="145" y2="170" stroke="var(--ink-4)" stroke-width="1.2"/>
+          <line x1="350" y1="100" x2="305" y2="170" stroke="var(--ink-4)" stroke-width="1.2"/>
+          <line x1="370" y1="100" x2="465" y2="170" stroke="var(--ink-4)" stroke-width="1.2"/>
+          <line x1="385" y1="100" x2="625" y2="170" stroke="var(--ink-4)" stroke-width="1.2"/>
+
+          <!-- bottom: tx/rx pins -->
+          <text x="80" y="290" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-family="JetBrains Mono">clk_baud</text>
+          <text x="305" y="290" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-family="JetBrains Mono">→ tx (pin)</text>
+          <text x="465" y="290" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-family="JetBrains Mono">← rx (pin)</text>
+          <text x="625" y="290" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-family="JetBrains Mono">parity bit</text>
+
+          <line x1="145" y1="220" x2="145" y2="275" stroke="var(--ink-4)" stroke-width="1" stroke-dasharray="3 3"/>
+          <line x1="305" y1="220" x2="305" y2="275" stroke="var(--ink-4)" stroke-width="1" stroke-dasharray="3 3"/>
+          <line x1="465" y1="220" x2="465" y2="275" stroke="var(--ink-4)" stroke-width="1" stroke-dasharray="3 3"/>
+          <line x1="625" y1="220" x2="625" y2="275" stroke="var(--ink-4)" stroke-width="1" stroke-dasharray="3 3"/>
+        </svg>
+      </div>
+
+      <h3>Source references</h3>
+      <p>Spec § 2.1 (Block overview)<span class="ref">spec.txt</span> · Spec § 3 (Register map)<span class="ref">spec.txt</span> · Your clarification "baud only when FIFOs empty"<span class="ref">chat 2:39 PM</span></p>
+    </section>
+
+    <section class="panel" data-p="modules">
+      <h2>Modules</h2>
+      <table>
+        <thead><tr><th>Module</th><th>Role</th><th>Children</th></tr></thead>
+        <tbody>
+          <tr><td><code>uart_apb</code></td><td>Top — APB decode, register file, IRQ logic</td><td>4</td></tr>
+          <tr><td><code>baud_gen</code></td><td>Fractional baud divider, ±0.05% accuracy</td><td>—</td></tr>
+          <tr><td><code>fifo</code></td><td>Synchronous FIFO (instantiated twice: tx_fifo, rx_fifo)</td><td>—</td></tr>
+          <tr><td><code>tx_serializer</code></td><td>Drives the <code>tx</code> pin: start, 8 data, parity, stop</td><td>—</td></tr>
+          <tr><td><code>rx_deserializer</code></td><td>Samples <code>rx</code> at mid-bit, framing/parity check</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel" data-p="functionality">
+      <h2>Functionality</h2>
+      <ul style="padding-left: 18px; line-height: 1.8; color: var(--ink-2)">
+        <li>APB slave reads/writes to four 32-bit registers: <code>CTRL</code>, <code>BAUD</code>, <code>DATA</code>, <code>STAT</code></li>
+        <li>Transmits 8-bit data with optional parity (none / even / odd, configurable via <code>CTRL[6:5]</code>)</li>
+        <li>Receives 8-bit data; flags framing and parity errors in <code>STAT</code></li>
+        <li>Generates <code>irq</code> when RX FIFO level crosses a programmable threshold (default 8)</li>
+        <li>Baud rate updates only honoured when both FIFOs are empty (per your decision)</li>
+      </ul>
+    </section>
+
+    <section class="panel" data-p="ports">
+      <h2>Ports &amp; Interfaces</h2>
+      <table>
+        <thead><tr><th>Signal</th><th>Direction</th><th>Width</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>pclk</code></td><td>in</td><td>1</td><td>APB / core clock</td></tr>
+          <tr><td><code>presetn</code></td><td>in</td><td>1</td><td>Active-low reset</td></tr>
+          <tr><td><code>psel/penable/pwrite</code></td><td>in</td><td>1 each</td><td>APB handshake</td></tr>
+          <tr><td><code>paddr</code></td><td>in</td><td>12</td><td>APB byte address</td></tr>
+          <tr><td><code>pwdata / prdata</code></td><td>in / out</td><td>32</td><td>APB data lanes</td></tr>
+          <tr><td><code>rx</code></td><td>in</td><td>1</td><td>Serial receive pad</td></tr>
+          <tr><td><code>tx</code></td><td>out</td><td>1</td><td>Serial transmit pad</td></tr>
+          <tr><td><code>irq</code></td><td>out</td><td>1</td><td>Level interrupt to SoC</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel" data-p="params">
+      <h2>Design parameters</h2>
+      <table>
+        <thead><tr><th>Parameter</th><th>Default</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>FIFO_DEPTH</code></td><td>16</td><td>Synchronous FIFOs on TX/RX</td></tr>
+          <tr><td><code>DATA_WIDTH</code></td><td>8</td><td>Single byte per UART frame</td></tr>
+          <tr><td><code>CLK_HZ</code></td><td>50_000_000</td><td>Core clock used by <code>baud_gen</code></td></tr>
+          <tr><td><code>IRQ_THRESH_DEFAULT</code></td><td>8</td><td>Programmable via <code>CTRL[12:8]</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel" data-p="experimental">
+      <h2>Experimental insights</h2>
+      <p>I noticed your spec leaves <strong>oversampling factor</strong> unspecified. I'm defaulting to <strong>16×</strong> at mid-bit (standard), but flag this — some industrial systems run 13× to save power. Want me to expose this as a register field?</p>
+      <p>I also see the spec mentions "back-pressure" on RX once — but the FIFO can't really push back over a UART line. I'm treating that paragraph as informational. Confirm if you wanted hardware flow control (RTS/CTS) instead.</p>
+    </section>
+  </div>
+</div>
+
+<!-- ============ Dashboard Overlay ============ -->
+<div class="dash-overlay" id="dashOverlay">
+  <div class="h">
+    <div>
+      <div class="title">Verification dashboard</div>
+      <div class="sub">Runs, coverage, and KPIs for this project</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn sm" id="dashClose" type="button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to conversation
+    </button>
+  </div>
+  <div class="dash-body">
+    <div class="dash-kpis" id="dashKpis">
+      <div class="dash-kpi good"><div class="k">Tests</div><div class="v" id="dashTests">—</div></div>
+      <div class="dash-kpi good"><div class="k">Coverage</div><div class="v" id="dashCov">—</div></div>
+      <div class="dash-kpi"><div class="k">Assertions</div><div class="v" id="dashAssert">—</div></div>
+      <div class="dash-kpi"><div class="k">Last runtime</div><div class="v" id="dashRuntime">—</div></div>
+    </div>
+    <div class="dash-runs">
+      <h3>Recent runs</h3>
+      <div id="dashRuns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Palette ============ -->
+<div class="pal-overlay" id="palOverlay">
+  <div class="palette">
+    <div class="pal-input">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink-3)"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="palInput" placeholder="Jump to a file, run, conversation, or action…" />
+      <span class="kbd">esc</span>
+    </div>
+    <div class="pal-list" id="palList"></div>
+    <div class="pal-foot">
+      <span><span class="kbd">↑</span><span class="kbd">↓</span> navigate</span>
+      <span><span class="kbd">↵</span> open</span>
+      <span><span class="kbd">esc</span> close</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Drawer ============ -->
+<div class="drawer-overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-h">
+    <h3>This project</h3>
+    <button class="x" id="closeDrawer">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-section">
+      <h4>Power tools</h4>
+      <div class="row special" id="drawerOpenIde">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
+        Open in IDE mode (multi-file editor)
+        <span class="when">⌘⇧E</span>
+      </div>
+      <div class="row" id="drawerOpenMM">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+        View full mental model
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h4>All conversations</h4>
+      <div id="drawerConvos">
+        <div class="empty">No conversations yet — start by describing what you want to build.</div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h4>Files in this project</h4>
+      <div id="drawerFiles">
+        <div class="empty">No files yet.</div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h4>Settings</h4>
+      <div class="row">Verification profiles</div>
+      <div class="row">Connected toolchain</div>
+      <div class="row">Team &amp; sharing</div>
+    </div>
+  </div>
+</aside>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+const STATE = {
+  step: "welcome",
+  clarifiers: { baud: null, threshold: null },
+  mentalModelApproved: false,
+  strategies: { unitsim: true, formal: true, uvm: false },
+  planTests: [
+    { id: "rst",   label: "Reset behaviour",                       kind: "unit",   on: true },
+    { id: "tx1",   label: "Single byte TX",                        kind: "unit",   on: true },
+    { id: "rx1",   label: "Single byte RX",                        kind: "unit",   on: true },
+    { id: "full",  label: "TX FIFO full backpressure",             kind: "unit",   on: true },
+    { id: "empt",  label: "RX FIFO empty read",                    kind: "unit",   on: true },
+    { id: "baud",  label: "Baud rate boundary (115200 ±0.1%)",     kind: "unit",   on: true },
+    { id: "thr",   label: "RX threshold IRQ fires correctly",      kind: "unit",   on: true },
+    { id: "b2b",   label: "Back-to-back bytes",                    kind: "unit",   on: true },
+    { id: "stall", label: "APB read while shifting",               kind: "formal", on: true },
+    { id: "dead",  label: "No deadlock from any reachable state",  kind: "formal", on: true },
+    { id: "frag",  label: "Framing error sets STAT bit",           kind: "unit",   on: true },
+    { id: "edge",  label: "Edge: reset during mid-byte TX",        kind: "unit",   on: true },
+  ],
+  files: {},
+  convos: [],
+};
+
+const FILE_TEMPLATES = {
+  "uart_pkg.sv": {
+    glyph: "SV",
+    meta: "package · written by Chipix",
+    content:
+`// uart_pkg.sv — parameters and types for UART APB controller
+
+package uart_pkg;
+  localparam int FIFO_DEPTH = 16;
+  localparam int DATA_WIDTH = 8;
+
+  localparam int unsigned ADDR_CTRL = 'h00;
+  localparam int unsigned ADDR_BAUD = 'h04;
+  localparam int unsigned ADDR_DATA = 'h08;
+  localparam int unsigned ADDR_STAT = 'h0C;
+
+  typedef enum logic [1:0] {
+    PARITY_NONE = 2'b00
+  } parity_t;
+endpackage
+`
+  },
+  "baud_gen.sv": {
+    glyph: "SV",
+    meta: "baud divider · written by Chipix",
+    content:
+`// baud_gen.sv — fractional baud divider
+
+module baud_gen #(parameter int CLK_HZ = 50_000_000)
+(
+  input  logic        clk, rst_n,
+  input  logic [15:0] divisor,
+  input  logic [3:0]  frac,
+  output logic        tick
+);
+  logic [19:0] acc;
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) {tick, acc} <= '0;
+    else        {tick, acc} <= acc + {divisor, frac};
+  end
+endmodule
+`
+  },
+  "fifo.sv": {
+    glyph: "SV",
+    meta: "synchronous FIFO · written by Chipix",
+    content:
+`// fifo.sv — synchronous FIFO
+
+module fifo #(parameter int DEPTH = 16, parameter int WIDTH = 8)
+(
+  input  logic              clk, rst_n,
+  input  logic              wr_en, rd_en,
+  input  logic [WIDTH-1:0]  wr_data,
+  output logic [WIDTH-1:0]  rd_data,
+  output logic              full, empty
+);
+  // (...pointer logic, storage, full/empty flags...)
+endmodule
+`
+  },
+  "uart_apb.sv": {
+    glyph: "SV",
+    meta: "top module · written by Chipix",
+    content:
+`// uart_apb.sv — APB UART top module
+
+module uart_apb import uart_pkg::*;
+(
+  input  logic        pclk, presetn,
+  input  logic        psel, penable, pwrite,
+  input  logic [11:0] paddr,
+  input  logic [31:0] pwdata,
+  output logic [31:0] prdata,
+  output logic        pready,
+  input  logic        rx,
+  output logic        tx,
+  output logic        irq
+);
+  logic [7:0] tx_data;
+  parity_t    parity_mode;
+  logic       tx_parity;
+
+  // (parity logic added in iteration 2)
+endmodule
+`
+  },
+  "spec.md": {
+    glyph: "MD",
+    meta: "specification · imported",
+    content:
+`# UART APB Controller — Specification
+
+## §1 Overview
+An 8-bit asynchronous serial transceiver exposed to the SoC over APB.
+
+## §2 Interface
+- APB slave (32-bit data, 12-bit byte address)
+- Single RX, single TX pin
+- Active-high level interrupt to the SoC
+
+## §3 Register map
+- 0x00 CTRL  : enable / parity / threshold
+- 0x04 BAUD  : integer divisor + fractional
+- 0x08 DATA  : TX write / RX read
+- 0x0C STAT  : flags, fill levels
+
+## §4 Constraints
+- 16-byte synchronous FIFOs
+- Programmable baud, ±0.05% accuracy
+- Parity: none / even / odd
+`
+  }
+};
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = sel => document.querySelector(sel);
+const thread = $("#thread");
+const welcome = $("#welcome");
+const threadWrap = $("#threadWrap");
+
+function now() {
+  const d = new Date();
+  let h = d.getHours(); const m = d.getMinutes();
+  const ap = h >= 12 ? "PM" : "AM";
+  if (h > 12) h -= 12; if (h === 0) h = 12;
+  return `${h}:${String(m).padStart(2,"0")} ${ap}`;
+}
+function scrollDown() {
+  setTimeout(() => threadWrap.scrollTo({ top: threadWrap.scrollHeight, behavior: "smooth" }), 30);
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function hideWelcome() { if (welcome) welcome.style.display = "none"; }
+function escapeHTML(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* ============================================================
+   THREAD APPENDERS
+   ============================================================ */
+function addUser(text) {
+  hideWelcome();
+  const t = document.createElement("div");
+  t.className = "turn you-wrap";
+  t.innerHTML = `<div class="turn-meta"><span class="who">You</span><span class="when">${now()}</span></div><div class="you"></div>`;
+  t.querySelector(".you").textContent = text;
+  thread.appendChild(t);
+  scrollDown();
+}
+function addSystemTurn(buildFn) {
+  hideWelcome();
+  const t = document.createElement("div");
+  t.className = "turn system";
+  t.innerHTML = `<div class="turn-meta"><span class="who">Chipix</span><span class="when">${now()}</span></div>`;
+  if (buildFn) buildFn(t);
+  thread.appendChild(t);
+  scrollDown();
+  return t;
+}
+function addThinking(label) {
+  hideWelcome();
+  const t = document.createElement("div");
+  t.className = "turn system";
+  t.innerHTML = `
+    <div class="turn-meta"><span class="who">Chipix</span><span class="when">${now()}</span></div>
+    <div class="thinking"><span class="dots"><span></span><span></span><span></span></span><span>${label}</span></div>
+  `;
+  thread.appendChild(t);
+  scrollDown();
+  return t;
+}
+function addSaid(turn, html) {
+  const d = document.createElement("div");
+  d.className = "said";
+  d.innerHTML = html;
+  turn.appendChild(d);
+  scrollDown();
+  return d;
+}
+function addBreak(label) {
+  hideWelcome();
+  const d = document.createElement("div");
+  d.className = "section-break";
+  d.textContent = label;
+  thread.appendChild(d);
+  scrollDown();
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+function cardAsk(turn, opts) {
+  const card = document.createElement("div");
+  card.className = "card ask";
+  card.innerHTML = `
+    <div class="ask-q">${opts.q}</div>
+    ${opts.sub ? `<div class="ask-sub">${opts.sub}</div>` : ""}
+    <div class="ask-choices">
+      ${opts.choices.map((c,i) => `<button class="choice" data-idx="${i}">${c.label}</button>`).join("")}
+    </div>
+  `;
+  card.querySelectorAll(".choice").forEach((b, i) => {
+    b.addEventListener("click", () => {
+      card.querySelectorAll(".choice").forEach(x => x.classList.remove("chosen"));
+      b.classList.add("chosen");
+      card.querySelectorAll(".choice").forEach(x => x.classList.add("locked"));
+      if (opts.onPick) opts.onPick(opts.choices[i], i);
+    });
+  });
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Mental Model ----- */
+function cardMentalModel(turn) {
+  const card = document.createElement("div");
+  card.className = "card mm-card";
+  card.innerHTML = `
+    <div class="card-h">
+      <div class="icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1A4 4 0 0 0 4 11v1a4 4 0 0 0 0 8v1a4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0 4 4 4 4 0 0 0 4-4v-1a4 4 0 0 0 0-8v-1a4 4 0 0 0-4-4V6a4 4 0 0 0-4-4z"/></svg>
+      </div>
+      <div>
+        <div class="title">Here's how I understand your design</div>
+        <div class="sub">My mental model — please correct anything I got wrong</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="micro-btn" id="mmOpenFull">View full model →</button>
+    </div>
+    <div class="mm-body">
+      <div class="mm-desc">
+        A <strong>UART APB controller</strong> — an 8-bit asynchronous serial transceiver fronted by an APB slave. It buffers data with <strong>16-byte sync FIFOs</strong> on TX and RX, generates its own baud clock from a fractional divider, and fires an interrupt when the RX FIFO crosses a programmable level (default 8). Baud rate changes only take effect when both FIFOs are empty.
+      </div>
+      <div class="mm-graph">
+        <svg viewBox="0 0 700 170" preserveAspectRatio="xMidYMid meet">
+          <rect x="280" y="10" width="160" height="50" rx="8" fill="var(--info-bg)" stroke="var(--info)" stroke-width="1.4"/>
+          <text x="360" y="32" text-anchor="middle" fill="var(--info)" font-size="12" font-weight="600">uart_apb (TOP)</text>
+          <text x="360" y="48" text-anchor="middle" fill="var(--ink-2)" font-size="10">APB decode · IRQ</text>
+
+          <rect x="40"  y="110" width="120" height="46" rx="8" class="mm-node"/>
+          <text x="100" y="132" text-anchor="middle" class="mm-node" font-weight="600">baud_gen</text>
+          <text x="100" y="146" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">divider</text>
+
+          <rect x="190" y="110" width="120" height="46" rx="8" class="mm-node"/>
+          <text x="250" y="132" text-anchor="middle" class="mm-node" font-weight="600">tx_fifo</text>
+          <text x="250" y="146" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">16×8</text>
+
+          <rect x="340" y="110" width="120" height="46" rx="8" class="mm-node"/>
+          <text x="400" y="132" text-anchor="middle" class="mm-node" font-weight="600">rx_fifo</text>
+          <text x="400" y="146" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">16×8</text>
+
+          <rect x="490" y="110" width="170" height="46" rx="8" class="mm-node"/>
+          <text x="575" y="132" text-anchor="middle" class="mm-node" font-weight="600">serdes</text>
+          <text x="575" y="146" text-anchor="middle" fill="var(--ink-3)" font-size="9.5">tx_ser + rx_des</text>
+
+          <line x1="320" y1="60" x2="100" y2="110" stroke="var(--ink-4)" stroke-width="1.2"/>
+          <line x1="335" y1="60" x2="250" y2="110" stroke="var(--ink-4)" stroke-width="1.2"/>
+          <line x1="370" y1="60" x2="400" y2="110" stroke="var(--ink-4)" stroke-width="1.2"/>
+          <line x1="395" y1="60" x2="575" y2="110" stroke="var(--ink-4)" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div class="mm-tabs">
+        <button class="mm-tab active" data-mtab="ports">Key ports</button>
+        <button class="mm-tab" data-mtab="modules">Modules</button>
+        <button class="mm-tab" data-mtab="func">Functionality</button>
+        <button class="mm-tab" data-mtab="params">Parameters</button>
+      </div>
+      <div class="mm-tab-body" id="mmBody">
+        <ul class="mm-list">
+          <li><span class="k">pclk, presetn</span><span>APB clock + reset</span></li>
+          <li><span class="k">psel/penable/pwrite</span><span>APB handshake</span></li>
+          <li><span class="k">paddr[11:0]</span><span>Byte address, decodes to 4 registers</span></li>
+          <li><span class="k">pwdata / prdata</span><span>32-bit data lanes</span></li>
+          <li><span class="k">rx, tx</span><span>Serial pads</span></li>
+          <li><span class="k">irq</span><span>Level interrupt to SoC</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn primary" id="mmAccept">Looks right — continue</button>
+      <button class="btn" id="mmCorrect">Something's off — let me correct</button>
+      <div class="spacer"></div>
+      <button class="btn" id="mmFullBtn">Explore in full view</button>
+    </div>
+  `;
+  // Tab switching inside the card
+  const tabBodies = {
+    ports: `<ul class="mm-list">
+      <li><span class="k">pclk, presetn</span><span>APB clock + reset</span></li>
+      <li><span class="k">psel/penable/pwrite</span><span>APB handshake</span></li>
+      <li><span class="k">paddr[11:0]</span><span>Byte address, decodes to 4 registers</span></li>
+      <li><span class="k">pwdata / prdata</span><span>32-bit data lanes</span></li>
+      <li><span class="k">rx, tx</span><span>Serial pads</span></li>
+      <li><span class="k">irq</span><span>Level interrupt to SoC</span></li></ul>`,
+    modules: `<ul class="mm-list">
+      <li><span class="k">uart_apb</span><span>Top — APB decode, register file, IRQ</span></li>
+      <li><span class="k">baud_gen</span><span>Fractional baud divider (±0.05%)</span></li>
+      <li><span class="k">fifo ×2</span><span>16×8 sync FIFO (tx_fifo, rx_fifo)</span></li>
+      <li><span class="k">tx_serializer</span><span>start, 8 data, parity, stop</span></li>
+      <li><span class="k">rx_deserializer</span><span>mid-bit sample, framing/parity check</span></li></ul>`,
+    func: `<ul class="mm-list">
+      <li><span class="k">Register access</span><span>4 regs: CTRL · BAUD · DATA · STAT</span></li>
+      <li><span class="k">TX path</span><span>APB → tx_fifo → serializer → tx pin</span></li>
+      <li><span class="k">RX path</span><span>rx pin → deserializer → rx_fifo → APB</span></li>
+      <li><span class="k">IRQ</span><span>RX FIFO ≥ threshold (default 8)</span></li>
+      <li><span class="k">Baud reload</span><span>Only when both FIFOs are empty</span></li></ul>`,
+    params: `<ul class="mm-list">
+      <li><span class="k">FIFO_DEPTH</span><span>16</span></li>
+      <li><span class="k">DATA_WIDTH</span><span>8 bits</span></li>
+      <li><span class="k">CLK_HZ</span><span>50_000_000 (configurable)</span></li>
+      <li><span class="k">Threshold default</span><span>8 (programmable via CTRL[12:8])</span></li></ul>`,
+  };
+  card.querySelectorAll(".mm-tab").forEach(t => {
+    t.addEventListener("click", () => {
+      card.querySelectorAll(".mm-tab").forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      card.querySelector("#mmBody").innerHTML = tabBodies[t.dataset.mtab];
+    });
+  });
+  card.querySelector("#mmOpenFull").addEventListener("click", openMentalModel);
+  card.querySelector("#mmFullBtn").addEventListener("click", openMentalModel);
+  card.querySelector("#mmAccept").addEventListener("click", () => {
+    if (STATE.mentalModelApproved) return;
+    STATE.mentalModelApproved = true;
+    card.querySelector(".card-actions").innerHTML =
+      `<span style="color:var(--good);font-weight:600;font-size:13px;padding:6px 0">✓ Approved — proceeding to strategy</span>`;
+    addUser("Looks right — continue.");
+    proceedToStrategy();
+  });
+  card.querySelector("#mmCorrect").addEventListener("click", () => {
+    addUser("Actually, the baud rate should be allowed to change anytime — not just when FIFOs are empty.");
+    const t = addThinking("Updating my model…");
+    sleep(900).then(() => {
+      t.remove();
+      addSystemTurn(turn2 => {
+        addSaid(turn2, "Got it — corrected. Baud reload is now allowed any time, with a glitch-free divider switch. I've updated the model. Tap <strong>Looks right — continue</strong> to move on.");
+      });
+      const desc = card.querySelector(".mm-desc");
+      desc.innerHTML = desc.innerHTML.replace(/Baud rate changes only take effect when both FIFOs are empty\./, "<strong>Baud reload is allowed any time</strong>, glitch-free.");
+    });
+  });
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Strategy ----- */
+function cardStrategy(turn) {
+  const card = document.createElement("div");
+  card.className = "card strat-card";
+  card.innerHTML = `
+    <div class="card-h">
+      <div class="icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14.1 9 11.1"/></svg>
+      </div>
+      <div>
+        <div class="title">My recommended verification approach</div>
+        <div class="sub">Three strategies — I've pre-selected what fits this design</div>
+      </div>
+    </div>
+    <div class="strat-body">
+      <div class="strat-row picked" data-strat="unitsim">
+        <div class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="body">
+          <div class="name">Unit simulation <span class="reco">Recommended</span></div>
+          <div class="desc">Directed + randomized testbench with assertions. Best ROI for a peripheral this size.</div>
+          <div class="why">Covers ~80% of bugs you'll actually see. Fast iteration.</div>
+        </div>
+      </div>
+      <div class="strat-row picked" data-strat="formal">
+        <div class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="body">
+          <div class="name">Formal property checking <span class="reco">Recommended</span></div>
+          <div class="desc">Mathematically prove no deadlock and that APB protocol is honoured.</div>
+          <div class="why">~20 lines of SVA — cheap insurance for a control block.</div>
+        </div>
+      </div>
+      <div class="strat-row" data-strat="uvm">
+        <div class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="body">
+          <div class="name">Full UVM environment <span class="skip">Skip for now</span></div>
+          <div class="desc">Constrained-random with scoreboards, agents, sequences.</div>
+          <div class="why">Overkill for a block this small — adds days of setup. Reach for it when integrating into the SoC.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn primary" id="stratGo">Continue with selected</button>
+      <button class="btn" id="stratExplain">Explain the trade-offs</button>
+    </div>
+  `;
+  card.querySelectorAll(".strat-row").forEach(r => {
+    r.addEventListener("click", () => {
+      r.classList.toggle("picked");
+      const k = r.dataset.strat;
+      STATE.strategies[k] = r.classList.contains("picked");
+    });
+  });
+  card.querySelector("#stratGo").addEventListener("click", () => {
+    const picked = Object.entries(STATE.strategies).filter(([,v]) => v).map(([k]) => k);
+    addUser(`Use: ${picked.join(", ")}.`);
+    card.querySelector(".card-actions").innerHTML =
+      `<span style="color:var(--good);font-weight:600;font-size:13px;padding:6px 0">✓ Locked in</span>`;
+    proceedToPlanApproval();
+  });
+  card.querySelector("#stratExplain").addEventListener("click", () => {
+    addSystemTurn(t => addSaid(t,
+      "Unit sim is your fast feedback loop — minutes per cycle. Formal proves things you'd never reach by simulation. UVM scales to <em>systems</em>; for one block it's mostly ceremony. We can always promote to UVM when this peripheral lands in an SoC."));
+  });
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Plan approval ----- */
+function cardPlanApproval(turn) {
+  const card = document.createElement("div");
+  card.className = "card papp-card";
+  card.innerHTML = `
+    <div class="card-h">
+      <div class="icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <div class="title">Verification plan — please approve</div>
+        <div class="sub">${STATE.planTests.filter(t=>t.on).length} test scenarios across the strategies you picked</div>
+      </div>
+    </div>
+    <div class="papp-body" id="pappBody"></div>
+    <div class="papp-summary">
+      <span id="pappCount"><strong>${STATE.planTests.filter(t=>t.on).length}</strong> tests will run.</span>
+      &nbsp;&nbsp;Estimated runtime: <strong>~3 minutes</strong>.
+    </div>
+    <div class="card-actions">
+      <button class="btn primary" id="pappGo">Approve plan and start building</button>
+      <button class="btn" id="pappAddMore">Suggest more tests</button>
+      <div class="spacer"></div>
+      <button class="btn" id="pappEdit">Edit further</button>
+    </div>
+  `;
+  const body = card.querySelector("#pappBody");
+  function renderRows() {
+    body.innerHTML = STATE.planTests.map(t => `
+      <div class="papp-row ${t.on ? 'on' : 'off'}" data-id="${t.id}">
+        <div class="check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="label">${t.label}</div>
+        <div class="kind">${t.kind}</div>
+      </div>
+    `).join("");
+    body.querySelectorAll(".papp-row").forEach(r => {
+      r.addEventListener("click", () => {
+        const id = r.dataset.id;
+        const t = STATE.planTests.find(x => x.id === id);
+        t.on = !t.on;
+        renderRows();
+        card.querySelector("#pappCount").innerHTML = `<strong>${STATE.planTests.filter(x=>x.on).length}</strong> tests will run.`;
+      });
+    });
+  }
+  renderRows();
+  card.querySelector("#pappGo").addEventListener("click", () => {
+    addUser(`Approve plan (${STATE.planTests.filter(t=>t.on).length} tests).`);
+    card.querySelector(".card-actions").innerHTML =
+      `<span style="color:var(--good);font-weight:600;font-size:13px;padding:6px 0">✓ Approved</span>`;
+    proceedToBuild();
+  });
+  card.querySelector("#pappAddMore").addEventListener("click", () => {
+    addSystemTurn(t => addSaid(t, "Added two more: <em>concurrent TX+RX</em> and <em>break condition on RX</em>. They're now checked above."));
+    STATE.planTests.push(
+      { id: "cc", label: "Concurrent TX and RX", kind: "unit", on: true },
+      { id: "brk", label: "Break condition on RX line", kind: "unit", on: true }
+    );
+    renderRows();
+    card.querySelector("#pappCount").innerHTML = `<strong>${STATE.planTests.filter(t=>t.on).length}</strong> tests will run.`;
+  });
+  card.querySelector("#pappEdit").addEventListener("click", () => {
+    addSystemTurn(t => addSaid(t, "Tap any test above to toggle it off. Re-tap to bring it back."));
+  });
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Toolchain ----- */
+function cardToolchain(turn) {
+  const card = document.createElement("div");
+  card.className = "card tool-card";
+  card.innerHTML = `
+    <span class="lbl">Toolchain</span>
+    <span class="tool-badge ok">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      Yosys 0.40
+    </span>
+    <span class="tool-badge ok">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      Icarus 12.0
+    </span>
+    <span class="tool-badge ok">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      SymbiYosys
+    </span>
+    <span class="tool-badge bad">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      Verilator
+    </span>
+    <span style="font-size:12px;color:var(--ink-3);flex:1;text-align:right">Verilator missing — falling back to Icarus for sim.</span>
+  `;
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- File ----- */
+function cardFile(turn, name) {
+  const t = FILE_TEMPLATES[name];
+  if (!STATE.files[name] && t) {
+    const lines = t.content.split("\n").length;
+    STATE.files[name] = { content: t.content, lines, meta: `${t.meta} ${now()}`, glyph: t.glyph };
+    refreshDrawerFiles();
+  }
+  const lines = STATE.files[name]?.lines || 1;
+  const card = document.createElement("div");
+  card.className = "card file";
+  card.innerHTML = `
+    <div class="glyph">${STATE.files[name]?.glyph || "SV"}</div>
+    <div class="info">
+      <div class="name">${name}</div>
+      <div class="what">${lines} lines &nbsp; <span class="add">+${lines}</span></div>
+    </div>
+    <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  `;
+  card.addEventListener("click", () => openEditor(name));
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Plan (build sequence) ----- */
+function cardPlan(turn, steps) {
+  const card = document.createElement("div");
+  card.className = "card plan";
+  card.innerHTML = `
+    <div class="plan-h">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      ${steps.length} steps
+    </div>
+    ${steps.map(s => `
+      <div class="plan-step ${s.state}" data-key="${s.key||""}">
+        <div class="mark">${s.state === "done" ? "✓" : (s.state === "now" ? "•" : "")}</div>
+        <div>
+          <div class="label">${s.label}</div>
+          ${s.why ? `<div class="why">${s.why}</div>` : ""}
+        </div>
+      </div>
+    `).join("")}
+  `;
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+function setPlanStepDone(planCard, key) {
+  const s = planCard.querySelector(`.plan-step[data-key="${key}"]`);
+  if (!s) return; s.classList.remove("now","todo"); s.classList.add("done");
+  s.querySelector(".mark").textContent = "✓";
+}
+function setPlanStepNow(planCard, key) {
+  const s = planCard.querySelector(`.plan-step[data-key="${key}"]`);
+  if (!s) return; s.classList.remove("todo","done"); s.classList.add("now");
+  s.querySelector(".mark").textContent = "•";
+}
+
+/* ----- Diff ----- */
+function cardDiff(turn, opts) {
+  const card = document.createElement("div");
+  card.className = "card diff";
+  card.innerHTML = `
+    <div class="card-h diff-h">
+      <div class="icon" style="background:var(--thinking-bg);color:var(--thinking)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+      </div>
+      <div>
+        <div class="title">Change to <code>${opts.file}</code></div>
+        <div class="sub">${opts.sub || ""}</div>
+      </div>
+      <div class="summary"><span style="color:var(--good)">+${opts.plusCount}</span> &nbsp; <span style="color:var(--bad)">−${opts.minusCount}</span></div>
+    </div>
+    <div class="diff-body">
+      ${opts.lines.map(l => `
+        <div class="diff-line ${l.type === 'add' ? 'add' : (l.type === 'del' ? 'del' : '')}">
+          <span class="ln">${l.n||""}</span>
+          <span class="marker">${l.type === 'add' ? '+' : (l.type === 'del' ? '−' : ' ')}</span>
+          <span class="code">${escapeHTML(l.code)}</span>
+        </div>
+      `).join("")}
+    </div>
+    <div class="card-actions">
+      <button class="btn primary apply-btn">Apply change</button>
+      <button class="btn open-btn">Open file to edit</button>
+      <div class="spacer"></div>
+      <button class="btn reject-btn">Reject</button>
+    </div>
+  `;
+  card.querySelector(".apply-btn").addEventListener("click", () => {
+    card.querySelector(".card-actions").setAttribute("data-applied", "1");
+    if (opts.onApply) opts.onApply();
+  });
+  card.querySelector(".open-btn").addEventListener("click", () => openEditor(opts.file));
+  card.querySelector(".reject-btn").addEventListener("click", () => {
+    card.style.opacity = 0.4;
+    card.querySelector(".card-actions").innerHTML = '<span style="color:var(--ink-3);font-size:13px">Rejected.</span>';
+  });
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Run ----- */
+function cardRun(turn, title) {
+  const card = document.createElement("div");
+  card.className = "card run";
+  card.innerHTML = `
+    <div class="run-top">
+      <span class="run-status busy"><span class="live"></span>Running</span>
+      <div class="run-title">${title}</div>
+      <span class="run-elapsed">00:00</span>
+    </div>
+    <div class="run-now">
+      <span class="icon">⟳</span>
+      <div>
+        <strong class="now-title">Starting up</strong>
+        <div style="font-size:13px;color:var(--ink-3);margin-top:1px" class="now-sub">Spinning up the simulation environment</div>
+      </div>
+    </div>
+    <div class="run-stages">
+      <div class="stage now" data-s="lint">Lint</div>
+      <div class="stage" data-s="build">Build</div>
+      <div class="stage" data-s="sim">Simulate</div>
+      <div class="stage" data-s="cov">Coverage</div>
+      <div class="stage" data-s="rep">Report</div>
+    </div>
+    <button class="run-log-toggle">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      Show technical log
+    </button>
+    <div class="run-log"></div>
+  `;
+  card.querySelector(".run-log-toggle").addEventListener("click", () => {
+    const log = card.querySelector(".run-log");
+    log.classList.toggle("open");
+  });
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+async function runRunCard(card, script) {
+  const elapsedEl = card.querySelector(".run-elapsed");
+  const nowTitle = card.querySelector(".now-title");
+  const nowSub = card.querySelector(".now-sub");
+  const log = card.querySelector(".run-log");
+  const start = Date.now();
+  const tick = setInterval(() => {
+    const s = Math.floor((Date.now() - start) / 1000);
+    elapsedEl.textContent = `0${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+  }, 250);
+  let prevStage = null;
+  for (const step of script) {
+    if (prevStage && prevStage !== step.stage) {
+      const prev = card.querySelector(`.stage[data-s="${prevStage}"]`);
+      if (prev) { prev.classList.remove("now"); prev.classList.add("done"); }
+    }
+    const cur = card.querySelector(`.stage[data-s="${step.stage}"]`);
+    if (cur) { cur.classList.remove("done","bad"); cur.classList.add("now"); }
+    nowTitle.textContent = step.label;
+    nowSub.textContent = step.sub || "";
+    const ts = new Date().toTimeString().slice(0,8);
+    log.innerHTML += `<span class="ts">[${ts}]</span>${step.label} — ${step.sub||""}\n`;
+    log.scrollTop = log.scrollHeight;
+    prevStage = step.stage;
+    await sleep(step.durationMs);
+  }
+  clearInterval(tick);
+  const last = script[script.length - 1];
+  const finalStage = card.querySelector(`.stage[data-s="${prevStage}"]`);
+  const status = card.querySelector(".run-status");
+  if (last.finalState === "bad") {
+    if (finalStage) { finalStage.classList.remove("now"); finalStage.classList.add("bad"); }
+    status.classList.remove("busy"); status.classList.add("bad");
+    status.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>Failed';
+    card.querySelector(".run-now").style.display = "none";
+    log.innerHTML += `<span class="err">FAILED · 17 assertions broke in parity_odd_*</span>\n`;
+  } else {
+    if (finalStage) { finalStage.classList.remove("now"); finalStage.classList.add("done"); }
+    status.classList.remove("busy"); status.classList.add("good");
+    status.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Passed';
+    card.querySelector(".run-now").style.display = "none";
+    log.innerHTML += `<span style="color:var(--good)">PASSED</span>\n`;
+  }
+  return last.finalState || "good";
+}
+
+/* ----- Verdict ----- */
+function cardVerdict(turn, opts) {
+  const card = document.createElement("div");
+  card.className = `card verdict ${opts.kind}`;
+  const icon = opts.kind === "good"
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>';
+  card.innerHTML = `
+    <div class="verdict-top">
+      <div class="verdict-icon">${icon}</div>
+      <div class="verdict-title">${opts.title}</div>
+    </div>
+    <div class="verdict-sub">${opts.sub}</div>
+    <div class="verdict-facts">
+      ${opts.facts.map(f => `<div class="f"><span class="k">${f.k}</span><span class="v">${f.v}</span></div>`).join("")}
+    </div>
+    <div class="verdict-actions">
+      ${(opts.actions||[]).map((a,i) => `<button class="btn ${a.primary?'primary':''}" data-i="${i}">${a.label}</button>`).join("")}
+    </div>
+  `;
+  card.querySelectorAll(".verdict-actions .btn").forEach((b, i) => {
+    b.addEventListener("click", () => { const a = (opts.actions||[])[i]; if (a && a.on) a.on(); });
+  });
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Coverage card ----- */
+function cardCoverage(turn) {
+  const card = document.createElement("div");
+  card.className = "card cov-card";
+  card.innerHTML = `
+    <div class="h">
+      <div class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg></div>
+      <div>
+        <div class="title">Coverage breakdown</div>
+        <div class="sub">Where the tests reached — and where they didn't</div>
+      </div>
+    </div>
+    <div class="cov-bars">
+      ${[
+        ["Register decode",  98, ""],
+        ["TX path",          95, ""],
+        ["RX path",          93, ""],
+        ["FIFO full/empty",  91, ""],
+        ["Baud divider",     88, "mid"],
+        ["Parity (any mode)", 0, "low"],
+        ["Break detection",  18, "low"],
+      ].map(([n, v, cls]) => `
+        <div class="cov-row">
+          <div class="name">${n}</div>
+          <div class="bar"><div class="fill ${cls}" style="width:0%"></div></div>
+          <div class="pct">${v}%</div>
+        </div>
+      `).join("")}
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:var(--ink-3)">
+      <strong style="color:var(--ink)">Two real gaps:</strong> parity and break detection. Want me to add tests for those?
+    </div>
+  `;
+  setTimeout(() => {
+    const fills = card.querySelectorAll(".fill");
+    fills.forEach((f, i) => {
+      const pct = card.querySelectorAll(".pct")[i].textContent.replace("%","");
+      f.style.width = pct + "%";
+    });
+  }, 100);
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Schematic card ----- */
+function cardSchematic(turn) {
+  const card = document.createElement("div");
+  card.className = "card sch-card";
+  card.innerHTML = `
+    <div class="h">
+      <div class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="8" height="12" rx="1"/><rect x="14" y="6" width="8" height="12" rx="1"/><path d="M10 12h4"/></svg></div>
+      <div class="title">Synthesised schematic</div>
+      <div class="spacer"></div>
+      <button class="micro-btn">Open full visualiser →</button>
+    </div>
+    <div class="canvas">
+      <svg viewBox="0 0 700 180">
+        <rect class="sch-node" x="20"  y="30" width="100" height="50" rx="6"/>
+        <text class="sch-text" x="70"  y="58" text-anchor="middle">APB if</text>
+        <rect class="sch-node" x="170" y="30" width="100" height="50" rx="6"/>
+        <text class="sch-text" x="220" y="58" text-anchor="middle">reg_file</text>
+        <rect class="sch-node" x="320" y="20" width="120" height="35" rx="6"/>
+        <text class="sch-text" x="380" y="42" text-anchor="middle">tx_fifo (16×8)</text>
+        <rect class="sch-node" x="320" y="60" width="120" height="35" rx="6"/>
+        <text class="sch-text" x="380" y="82" text-anchor="middle">rx_fifo (16×8)</text>
+        <rect class="sch-node" x="490" y="20" width="100" height="35" rx="6"/>
+        <text class="sch-text" x="540" y="42" text-anchor="middle">tx_serializer</text>
+        <rect class="sch-node" x="490" y="60" width="100" height="35" rx="6"/>
+        <text class="sch-text" x="540" y="82" text-anchor="middle">rx_deserial</text>
+        <rect class="sch-node" x="170" y="115" width="100" height="40" rx="6"/>
+        <text class="sch-text" x="220" y="139" text-anchor="middle">baud_gen</text>
+        <rect class="sch-node" x="490" y="115" width="100" height="40" rx="6"/>
+        <text class="sch-text" x="540" y="139" text-anchor="middle">irq_logic</text>
+
+        <path class="sch-wire" d="M120 55 L170 55"/>
+        <path class="sch-wire" d="M270 55 L320 37"/>
+        <path class="sch-wire" d="M270 55 L320 77"/>
+        <path class="sch-wire" d="M440 37 L490 37"/>
+        <path class="sch-wire" d="M440 77 L490 77"/>
+        <path class="sch-wire" d="M220 80 L220 115"/>
+        <path class="sch-wire" d="M270 135 L490 135"/>
+        <path class="sch-wire" d="M590 37 L640 37"/>
+        <path class="sch-wire" d="M590 77 L640 77"/>
+        <text class="sch-text" x="660" y="40" font-weight="600">tx</text>
+        <text class="sch-text" x="660" y="80" font-weight="600">rx</text>
+        <path class="sch-wire" d="M590 135 L640 135"/>
+        <text class="sch-text" x="660" y="138" font-weight="600">irq</text>
+      </svg>
+    </div>
+    <div style="margin-top:10px;font-size:12.5px;color:var(--ink-3)">Yosys reports ~340 cells, longest path = 8 levels of logic (well within timing).</div>
+  `;
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Why ----- */
+function cardWhy(turn, opts) {
+  const card = document.createElement("div");
+  card.className = "card why-card";
+  card.innerHTML = `
+    <div class="card-h">
+      <div class="icon" style="background:var(--bad-bg);color:var(--bad)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>
+      </div>
+      <div>
+        <div class="title">${opts.title}</div>
+        <div class="sub">${opts.sub}</div>
+      </div>
+    </div>
+    <div class="why-body">
+      <div>${opts.bodyHTML}</div>
+      ${opts.quote ? `<div class="quote"><span class="loc">${opts.quote.loc}</span>${escapeHTML(opts.quote.code)}</div>` : ""}
+      ${opts.after ? `<div style="margin-top:10px">${opts.after}</div>` : ""}
+    </div>
+  `;
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ----- Waveform ----- */
+function cardWaveform(turn) {
+  const card = document.createElement("div");
+  card.className = "card wave";
+  card.innerHTML = `
+    <div class="wave-h">
+      Waveform around failure
+      <span class="badge">t = 1.182 ms</span>
+      <span class="badge">parity_odd_tx_basic</span>
+    </div>
+    <div class="wave-grid">
+      <div class="wave-row"><div class="sig">clk</div>
+        <svg viewBox="0 0 320 22" preserveAspectRatio="none">
+          <polyline fill="none" stroke="var(--ink-2)" stroke-width="1.4"
+            points="0,18 16,18 16,4 32,4 32,18 48,18 48,4 64,4 64,18 80,18 80,4 96,4 96,18 112,18 112,4 128,4 128,18 144,18 144,4 160,4 160,18 176,18 176,4 192,4 192,18 208,18 208,4 224,4 224,18 240,18 240,4 256,4 256,18 272,18 272,4 288,4 288,18 304,18 304,4 320,4"/>
+        </svg></div>
+      <div class="wave-row"><div class="sig">tx_data</div>
+        <svg viewBox="0 0 320 22" preserveAspectRatio="none">
+          <line x1="0" y1="11" x2="60" y2="11" stroke="var(--ink-2)" stroke-width="1.4"/>
+          <line x1="60" y1="4" x2="200" y2="4" stroke="var(--ink-2)" stroke-width="1.4"/>
+          <line x1="60" y1="18" x2="200" y2="18" stroke="var(--ink-2)" stroke-width="1.4"/>
+          <line x1="200" y1="11" x2="320" y2="11" stroke="var(--ink-2)" stroke-width="1.4"/>
+          <text x="125" y="14" font-size="9" fill="var(--ink-2)" font-family="JetBrains Mono">0xA5</text>
+        </svg></div>
+      <div class="wave-row"><div class="sig" style="color:var(--bad)">tx_parity</div>
+        <svg viewBox="0 0 320 22" preserveAspectRatio="none">
+          <line x1="0" y1="18" x2="240" y2="18" stroke="var(--bad)" stroke-width="1.6"/>
+          <line x1="240" y1="18" x2="240" y2="4" stroke="var(--bad)" stroke-width="1.6"/>
+          <line x1="240" y1="4" x2="320" y2="4" stroke="var(--bad)" stroke-width="1.6"/>
+          <circle cx="240" cy="4" r="3" fill="var(--bad)"/>
+        </svg></div>
+      <div class="wave-row"><div class="sig" style="color:var(--good)">expected</div>
+        <svg viewBox="0 0 320 22" preserveAspectRatio="none">
+          <line x1="0" y1="18" x2="320" y2="18" stroke="var(--good)" stroke-width="1.6" stroke-dasharray="3 3"/>
+        </svg></div>
+    </div>
+    <div class="wave-foot">For 0xA5 (10100101 → four 1s), odd parity should output <strong style="color:var(--good)">0</strong> but the design produces <strong style="color:var(--bad)">1</strong>.</div>
+  `;
+  turn.appendChild(card);
+  scrollDown();
+  return card;
+}
+
+/* ============================================================
+   SUGGESTIONS
+   ============================================================ */
+function setSuggestions(list) {
+  const s = $("#suggest");
+  s.innerHTML = "";
+  list.forEach(it => {
+    const b = document.createElement("button");
+    b.className = "sgg" + (it.accent ? " accent" : "");
+    b.textContent = it.text;
+    b.addEventListener("click", it.on);
+    s.appendChild(b);
+  });
+}
+function updateSuggestionsForStep() {
+  switch (STATE.step) {
+    case "welcome":
+      setSuggestions([
+        { text: "Build a UART with APB", accent: true, on: beginDesignUART },
+        { text: "Verify code I already have", on: () => addUser("I have existing RTL — try the UART starter for the full demo.") },
+      ]);
+      break;
+    case "passedFirst":
+      setSuggestions([
+        { text: "Add parity support", accent: true, on: () => userAsks("Add parity support — both odd and even, configurable through the control register.") },
+        { text: "Show me the schematic", on: () => addSystemTurn(t => cardSchematic(t)) },
+        { text: "Open in IDE mode", on: openIDE },
+      ]);
+      break;
+    case "finalPass":
+      setSuggestions([
+        { text: "Save baseline", accent: true, on: () => toast("Baseline saved (mock).") },
+        { text: "Show coverage", on: () => addSystemTurn(t => cardCoverage(t)) },
+        { text: "Start a new project", on: () => location.reload() },
+      ]);
+      break;
+    default:
+      setSuggestions([]);
+  }
+}
+
+/* ============================================================
+   FLOWS
+   ============================================================ */
+async function beginDesignUART() {
+  STATE.step = "designing";
+  STATE.convos.unshift({ status: "y", label: "UART APB Controller", when: now() });
+  refreshDrawerConvos();
+  $("#projSub").textContent = "designing now";
+  setDemoMode("design");
+  setDemoActivity("Answering design clarifiers…");
+  addUser("Build me a UART controller with an APB slave interface, 16-byte FIFOs, and an RX interrupt that fires past a threshold.");
+  updateSuggestionsForStep();
+
+  const t1 = addThinking("Reading your requirements…");
+  await sleep(900); t1.remove();
+
+  const turn = addSystemTurn(t => {
+    addSaid(t, "Two things I want to get right before I do anything. Pick an option or just tell me in your own words.");
+  });
+
+  cardAsk(turn, {
+    q: "Should the baud rate be changeable while the UART is busy?",
+    sub: "Most designs only allow it when both FIFOs are empty — safer, simpler.",
+    choices: [
+      { label: "Only when FIFOs are empty" },
+      { label: "Allow changes anytime" },
+      { label: "Recommend for me" }
+    ],
+    onPick: (c) => { STATE.clarifiers.baud = c.label; maybeProceedAfterClarifiers(); }
+  });
+  cardAsk(turn, {
+    q: "What should trigger the RX interrupt?",
+    sub: "Pick a default — you can change it in the register map later.",
+    choices: [
+      { label: "Half-full (8 bytes)" },
+      { label: "Programmable, default 8" },
+      { label: "Programmable, default 4" }
+    ],
+    onPick: (c) => { STATE.clarifiers.threshold = c.label; maybeProceedAfterClarifiers(); }
+  });
+}
+
+function maybeProceedAfterClarifiers() {
+  if (!STATE.clarifiers.baud || !STATE.clarifiers.threshold) return;
+  proceedToMentalModel();
+}
+
+async function proceedToMentalModel() {
+  if (STATE.step === "mentalmodel") return;
+  STATE.step = "mentalmodel";
+  setDemoActivity("Building mental model…");
+  addUser(`${STATE.clarifiers.baud}. ${STATE.clarifiers.threshold}.`);
+  const t = addThinking("Synthesising my mental model of the design…");
+  await sleep(1400); t.remove();
+  const turn = addSystemTurn(t => {
+    addSaid(t, "Before I write a single line, let me show you how I understand this. <strong>If anything is wrong here, every test I write will reinforce the wrong design</strong> — so this is the most important checkpoint.");
+  });
+  cardMentalModel(turn);
+}
+
+async function proceedToStrategy() {
+  STATE.step = "strategy";
+  syncDemoActivity();
+  const t = addThinking("Picking the right verification approaches…");
+  await sleep(1000); t.remove();
+  const turn = addSystemTurn(t => {
+    addSaid(t, "For a peripheral this size with FSM behaviour and a protocol interface, here's what I'd reach for:");
+  });
+  cardStrategy(turn);
+}
+
+async function proceedToPlanApproval() {
+  STATE.step = "planapproval";
+  syncDemoActivity();
+  const t = addThinking("Writing the test plan…");
+  await sleep(1100); t.remove();
+  const turn = addSystemTurn(t => {
+    addSaid(t, "Here's every test I'm proposing to write. Toggle any off if you don't want it, or have me add more. <strong>Nothing runs until you approve.</strong>");
+  });
+  cardPlanApproval(turn);
+}
+
+async function proceedToBuild() {
+  STATE.step = "building";
+  syncDemoActivity();
+  const turn = addSystemTurn(t => addSaid(t, "Building. I'll show each file as it's done."));
+  const plan = cardPlan(turn, [
+    { state: "now",  key: "lock", label: "Lock interface and parameters", why: "APB · 16×8 FIFOs · programmable baud + threshold" },
+    { state: "todo", key: "pkg",  label: "Package and types" },
+    { state: "todo", key: "baud", label: "Baud generator" },
+    { state: "todo", key: "fifo", label: "FIFO module" },
+    { state: "todo", key: "top",  label: "Top module and registers" }
+  ]);
+
+  await sleep(800);
+  setPlanStepDone(plan, "lock"); setPlanStepNow(plan, "pkg");
+  await sleep(900); cardFile(turn, "uart_pkg.sv");
+  setPlanStepDone(plan, "pkg"); setPlanStepNow(plan, "baud");
+  await sleep(900); cardFile(turn, "baud_gen.sv");
+  setPlanStepDone(plan, "baud"); setPlanStepNow(plan, "fifo");
+  await sleep(900); cardFile(turn, "fifo.sv");
+  setPlanStepDone(plan, "fifo"); setPlanStepNow(plan, "top");
+  await sleep(1100); cardFile(turn, "uart_apb.sv");
+  setPlanStepDone(plan, "top");
+
+  // Initialize spec.md silently
+  if (!STATE.files["spec.md"]) {
+    const t = FILE_TEMPLATES["spec.md"];
+    STATE.files["spec.md"] = { content: t.content, lines: t.content.split("\n").length, meta: `${t.meta} ${now()}`, glyph: t.glyph };
+    refreshDrawerFiles();
+  }
+
+  await sleep(400);
+  addSaid(turn, "All files written. Want me to verify it now using the plan you approved?");
+  setDemoMode("verify");
+  setDemoActivity("RTL ready — start verification when you are");
+  cardAsk(turn, {
+    q: "Start verification?",
+    choices: [
+      { label: "Yes, run the full plan" },
+      { label: "Show the schematic first" },
+      { label: "Let me read the code first" }
+    ],
+    onPick: (c, i) => {
+      if (i === 1) { addSystemTurn(t => cardSchematic(t)); STATE.step = "passedFirst"; updateSuggestionsForStep(); }
+      else if (i === 2) { addSystemTurn(t => addSaid(t, "Take your time. Tap any file card to read it — or open the full IDE from the drawer.")); STATE.step = "passedFirst"; updateSuggestionsForStep(); }
+      else runFirstVerification();
+    }
+  });
+}
+
+async function runFirstVerification() {
+  STATE.step = "running";
+  setDemoMode("verify");
+  setDemoActivity("Running staged verification…");
+  addUser("Yes, run the full plan.");
+  const turn = addSystemTurn(t => addSaid(t, "Starting the run. Talking to the toolchain first…"));
+  cardToolchain(turn);
+  const runCard = cardRun(turn, "Initial regression");
+  await runRunCard(runCard, [
+    { stage: "lint",  label: "Linting",  sub: "Checking syntax and style", durationMs: 800 },
+    { stage: "build", label: "Building", sub: "Compiling 4 modules + tb",  durationMs: 900 },
+    { stage: "sim",   label: "Simulating", sub: `Running ${STATE.planTests.filter(t=>t.on).length} approved tests`, durationMs: 2200 },
+    { stage: "cov",   label: "Measuring coverage", sub: "Functional + line", durationMs: 700 },
+    { stage: "rep",   label: "Writing report", sub: "Summarising results", durationMs: 500, finalState: "good" }
+  ]);
+  STATE.convos.unshift({ status: "g", label: "Initial regression", when: now() });
+  refreshDrawerConvos();
+  cardVerdict(turn, {
+    kind: "good",
+    title: "Looks correct",
+    sub: `All ${STATE.planTests.filter(t=>t.on).length} tests passed. Coverage came in at <strong>87%</strong> — two real gaps showed up, see below.`,
+    facts: [
+      { k: "Simulation", v: `${STATE.planTests.filter(t=>t.on).length} / ${STATE.planTests.filter(t=>t.on).length} passed` },
+      { k: "Coverage",   v: "87% functional, 82% line" },
+      { k: "Assertions", v: "218 / 218 held" },
+      { k: "Runtime",    v: "03:08" }
+    ],
+    actions: [
+      { label: "Download report", primary: true, on: () => toast("Report saved (mock).") },
+      { label: "Save as baseline", on: () => toast("Baseline saved (mock).") }
+    ]
+  });
+  cardCoverage(turn);
+  STATE.step = "passedFirst";
+  setDemoActivity("Tests green — iterate or extend");
+  updateSuggestionsForStep();
+}
+
+/* ----- Iteration ----- */
+async function userAsks(text) {
+  addUser(text);
+  const lower = text.toLowerCase();
+  if (lower.includes("parity") && STATE.step === "passedFirst") return addParityIteration();
+  if (lower.includes("schematic")) return addSystemTurn(t => cardSchematic(t));
+  if (lower.includes("coverage")) return addSystemTurn(t => cardCoverage(t));
+  if (lower.includes("baseline") || lower.includes("save")) { toast("Baseline saved (mock)."); return; }
+  if (lower.includes("ide") || lower.includes("editor")) return openIDE();
+  if (lower.includes("model") || lower.includes("understand")) return openMentalModel();
+
+  const t = addThinking("Thinking…");
+  await sleep(900); t.remove();
+  addSystemTurn(t => addSaid(t, "Got it. The rich demo flow in this mock is: <strong>UART build → verify → add parity → fix failure → re-verify</strong>. Try a suggestion below."));
+}
+
+async function addParityIteration() {
+  STATE.step = "parity";
+  addBreak("Iteration · " + now());
+  const t = addThinking("Planning the change…");
+  await sleep(1000); t.remove();
+  const turn = addSystemTurn(t => {
+    addSaid(t, "I'll add two bits to <code>CTRL[6:5]</code>: parity enable and parity type. Here's the change before I apply it.");
+  });
+
+  let appliedCount = 0;
+  const onBoth = () => { appliedCount++; if (appliedCount >= 2) askReverify(turn); };
+
+  cardDiff(turn, {
+    file: "uart_pkg.sv",
+    sub: "Add parity enum and CTRL bit layout",
+    plusCount: 8, minusCount: 2,
+    lines: [
+      { n: 13, type: "ctx", code: "  typedef enum logic [1:0] {" },
+      { n: 14, type: "del", code: "    PARITY_NONE = 2'b00" },
+      { n: 15, type: "del", code: "  } parity_t;" },
+      { n: 14, type: "add", code: "    PARITY_NONE = 2'b00," },
+      { n: 15, type: "add", code: "    PARITY_EVEN = 2'b01," },
+      { n: 16, type: "add", code: "    PARITY_ODD  = 2'b10" },
+      { n: 17, type: "add", code: "  } parity_t;" },
+      { n: 18, type: "ctx", code: "" },
+      { n: 19, type: "add", code: "  // CTRL[6:5] = parity_t" },
+      { n: 20, type: "add", code: "  localparam int CTRL_PARITY_LSB = 5;" },
+      { n: 21, type: "add", code: "  localparam int CTRL_PARITY_MSB = 6;" }
+    ],
+    onApply: () => {
+      const f = STATE.files["uart_pkg.sv"];
+      if (f) {
+        f.content = f.content.replace(
+`  typedef enum logic [1:0] {
+    PARITY_NONE = 2'b00
+  } parity_t;`,
+`  typedef enum logic [1:0] {
+    PARITY_NONE = 2'b00,
+    PARITY_EVEN = 2'b01,
+    PARITY_ODD  = 2'b10
+  } parity_t;
+
+  // CTRL[6:5] = parity_t
+  localparam int CTRL_PARITY_LSB = 5;
+  localparam int CTRL_PARITY_MSB = 6;`);
+        f.lines = f.content.split("\n").length;
+        f.meta = `package · edited by Chipix ${now()}`;
+      }
+      onBoth();
+    }
+  });
+
+  cardDiff(turn, {
+    file: "uart_apb.sv",
+    sub: "Wire parity into TX serializer (introduces a subtle bug)",
+    plusCount: 4, minusCount: 0,
+    lines: [
+      { n: 20, type: "ctx", code: "  // Compute outgoing parity bit" },
+      { n: 21, type: "add", code: "  // Even: parity = XOR; Odd: ~XOR" },
+      { n: 22, type: "add", code: "  assign tx_parity = (parity_mode == PARITY_EVEN) ? ^tx_data : ~^tx_data;" },
+    ],
+    onApply: () => {
+      const f = STATE.files["uart_apb.sv"];
+      if (f && !f.content.includes("tx_parity = (")) {
+        f.content = f.content.replace(
+"  // (parity logic added in iteration 2)",
+`  // Compute outgoing parity bit
+  // Even: parity = XOR; Odd: ~XOR
+  assign tx_parity = (parity_mode == PARITY_EVEN) ? ^tx_data : ~^tx_data;`);
+        f.lines = f.content.split("\n").length;
+      }
+      onBoth();
+    }
+  });
+}
+
+function askReverify(turn) {
+  STATE.step = "askedReverify";
+  addSaid(turn, "Changes applied. Want me to re-verify?");
+  cardAsk(turn, {
+    q: "Re-verify with the new parity scenarios?",
+    sub: "I'll add 64 directed parity tests to your plan.",
+    choices: [
+      { label: "Yes, re-verify" },
+      { label: "Not yet" }
+    ],
+    onPick: (c, i) => { if (i === 0) runSecondVerification(); }
+  });
+}
+
+async function runSecondVerification() {
+  STATE.step = "runningSecond";
+  addUser("Yes, re-verify.");
+  const turn = addSystemTurn(t => addSaid(t, "Re-running with the parity scenarios added."));
+  const runCard = cardRun(turn, "Regression with parity");
+  const result = await runRunCard(runCard, [
+    { stage: "lint",  label: "Linting", sub: "Clean", durationMs: 600 },
+    { stage: "build", label: "Building", sub: "Compiling 4 modules", durationMs: 700 },
+    { stage: "sim",   label: "Simulating", sub: "Running 64 directed parity tests", durationMs: 2200, finalState: "bad" }
+  ]);
+  STATE.convos.unshift({ status: "b", label: "Regression with parity (failed)", when: now() });
+  refreshDrawerConvos();
+  if (result === "bad") { await sleep(300); showFailureAnalysis(); }
+}
+
+async function showFailureAnalysis() {
+  STATE.step = "failed";
+  const t = addThinking("Analysing failures…");
+  await sleep(1300); t.remove();
+  const turn = addSystemTurn(() => {});
+
+  cardVerdict(turn, {
+    kind: "bad",
+    title: "Found a problem",
+    sub: "17 of 64 parity tests failed. All failures are in <strong>odd parity</strong> mode — even parity is clean.",
+    facts: [
+      { k: "Failing tests",    v: "17 / 64 — all odd parity" },
+      { k: "First failure",    v: "parity_odd_tx_basic" },
+      { k: "Assertion broken", v: "tx_parity_match" },
+      { k: "Coverage",         v: "81% functional, 73% line" }
+    ],
+    actions: []
+  });
+
+  cardWhy(turn, {
+    title: "What's going wrong",
+    sub: "My best read of the failure pattern",
+    bodyHTML: "The parity bit is being computed correctly, but I'm writing the <strong>inverse</strong> for odd parity. Looking at the new line:",
+    quote: { loc: "uart_apb.sv:", code: "assign tx_parity = (parity_mode == PARITY_EVEN) ? ^tx_data : ~^tx_data;" },
+    after: "For <strong>odd</strong> parity the result should be <code>~(^tx_data)</code>, but the ternary branches are <strong>swapped</strong>. I'm 92% confident this is the bug. Here's the fix:"
+  });
+
+  cardWaveform(turn);
+
+  cardDiff(turn, {
+    file: "uart_apb.sv",
+    sub: "Swap the ternary branches so odd parity inverts the XOR",
+    plusCount: 1, minusCount: 1,
+    lines: [
+      { n: 22, type: "del", code: "  assign tx_parity = (parity_mode == PARITY_EVEN) ? ^tx_data : ~^tx_data;" },
+      { n: 22, type: "add", code: "  assign tx_parity = (parity_mode == PARITY_ODD)  ? ~^tx_data : ^tx_data;" },
+    ],
+    onApply: () => {
+      const f = STATE.files["uart_apb.sv"];
+      if (f) {
+        f.content = f.content.replace(
+"  assign tx_parity = (parity_mode == PARITY_EVEN) ? ^tx_data : ~^tx_data;",
+"  assign tx_parity = (parity_mode == PARITY_ODD)  ? ~^tx_data : ^tx_data;");
+      }
+      runFixVerification();
+    }
+  });
+}
+
+async function runFixVerification() {
+  await sleep(400);
+  const turn = addSystemTurn(t => addSaid(t, "Applied. Re-running the same suite now."));
+  const runCard = cardRun(turn, "Regression with parity (after fix)");
+  const result = await runRunCard(runCard, [
+    { stage: "lint",  label: "Linting", sub: "Clean", durationMs: 500 },
+    { stage: "build", label: "Building", sub: "Compiling 4 modules", durationMs: 600 },
+    { stage: "sim",   label: "Simulating", sub: "Running 397 total tests", durationMs: 2200 },
+    { stage: "cov",   label: "Measuring coverage", sub: "Functional + line", durationMs: 600 },
+    { stage: "rep",   label: "Writing report", sub: "Summarising results", durationMs: 400, finalState: "good" }
+  ]);
+  if (result === "good") {
+    cardVerdict(turn, {
+      kind: "good",
+      title: "All clear",
+      sub: "397 / 397 tests passed — including all 64 parity scenarios. Coverage rose to <strong>94%</strong>.",
+      facts: [
+        { k: "Simulation", v: "397 / 397 passed" },
+        { k: "Parity tests", v: "64 / 64 (odd + even)" },
+        { k: "Coverage", v: "94% functional, 89% line" },
+        { k: "Runtime", v: "03:22" }
+      ],
+      actions: [
+        { label: "Download report", primary: true, on: () => toast("Report saved (mock).") },
+        { label: "Promote baseline", on: () => toast("Baseline promoted (mock).") },
+        { label: "Compare runs", on: () => toast("Δ +64 parity tests, +7% coverage.") }
+      ]
+    });
+    STATE.convos.unshift({ status: "g", label: "Regression with parity (passed)", when: now() });
+    refreshDrawerConvos();
+    STATE.step = "finalPass";
+    updateSuggestionsForStep();
+  }
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg) {
+  const el = document.createElement("div");
+  el.style.cssText = `
+    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg);
+    padding: 8px 14px; border-radius: 999px;
+    font-size: 13px; z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  `;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1800);
+}
+
+/* ============================================================
+   SINGLE-FILE EDITOR
+   ============================================================ */
+const editor = $("#editor");
+const editorTextarea = $("#editorTextarea");
+const editorGutter = $("#editorGutter");
+const editorName = $("#editorName");
+const editorMeta = $("#editorMeta");
+const editorGlyph = $("#editorGlyph");
+const savedTag = $("#savedTag");
+let currentEditorFile = null;
+function renderGutter(text, hl) {
+  const n = text.split("\n").length;
+  editorGutter.innerHTML = Array.from({length: n}, (_, i) => {
+    const ln = i + 1;
+    return `<div class="gl ${hl===ln?'hl':''}">${ln}</div>`;
+  }).join("");
+}
+function openEditor(name) {
+  if (!STATE.files[name] && FILE_TEMPLATES[name]) {
+    const t = FILE_TEMPLATES[name];
+    STATE.files[name] = { content: t.content, lines: t.content.split("\n").length, meta: `${t.meta} ${now()}`, glyph: t.glyph };
+  }
+  const f = STATE.files[name]; if (!f) return;
+  currentEditorFile = name;
+  editorName.textContent = name;
+  editorMeta.textContent = `${f.lines} lines · ${f.meta}`;
+  editorGlyph.textContent = f.glyph || "SV";
+  editorTextarea.value = f.content;
+  renderGutter(f.content);
+  editorTextarea.scrollTop = 0;
+  editor.classList.add("open");
+}
+function closeEditor() {
+  if (currentEditorFile) {
+    const f = STATE.files[currentEditorFile];
+    if (f) { f.content = editorTextarea.value; f.lines = f.content.split("\n").length; }
+  }
+  editor.classList.remove("open"); currentEditorFile = null;
+}
+$("#editorBack").addEventListener("click", closeEditor);
+$("#saveBtn").addEventListener("click", () => {
+  if (!currentEditorFile) return;
+  const f = STATE.files[currentEditorFile];
+  f.content = editorTextarea.value;
+  f.lines = f.content.split("\n").length;
+  f.meta = `edited by you · ${now()}`;
+  editorMeta.textContent = `${f.lines} lines · ${f.meta}`;
+  savedTag.classList.add("show");
+  setTimeout(() => savedTag.classList.remove("show"), 1400);
+});
+editorTextarea.addEventListener("input", () => renderGutter(editorTextarea.value));
+editorTextarea.addEventListener("scroll", () => { editorGutter.scrollTop = editorTextarea.scrollTop; });
+$("#editorAsk").addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.value.trim()) {
+    const q = e.target.value.trim(); e.target.value = "";
+    toast(`Asked Chipix: "${q}" (mock).`);
+  }
+});
+$("#expandIde").addEventListener("click", () => {
+  const f = currentEditorFile;
+  closeEditor();
+  openIDE(f);
+});
+
+/* ============================================================
+   IDE MODE (multi-pane, hidden by default)
+   ============================================================ */
+const ide = $("#ide");
+const ideExplorer = $("#ideExplorer");
+const ideTabs = $("#ideTabs");
+const ideTextarea = $("#ideTextarea");
+const ideGutter = $("#ideGutter");
+let ideOpenTabs = [];
+let ideActiveTab = null;
+
+function renderIdeGutter(text) {
+  const n = text.split("\n").length;
+  ideGutter.innerHTML = Array.from({length: n}, (_, i) => `<div class="gl">${i+1}</div>`).join("");
+}
+function renderIdeExplorer() {
+  const fileNames = Object.keys(STATE.files);
+  const rtl = fileNames.filter(n => n.endsWith(".sv"));
+  const docs = fileNames.filter(n => n.endsWith(".md"));
+  ideExplorer.innerHTML = `
+    <div class="grp">UART APB Controller</div>
+    <div class="grp" style="padding-top:2px">RTL</div>
+    ${rtl.map(n => `<div class="erow ${ideActiveTab===n?'active':''}" data-f="${n}"><span class="gly">SV</span>${n}</div>`).join("") || `<div class="erow"><span class="gly" style="color:var(--ink-4)">—</span><em style="color:var(--ink-4)">empty</em></div>`}
+    <div class="grp">Spec</div>
+    ${docs.map(n => `<div class="erow ${ideActiveTab===n?'active':''}" data-f="${n}"><span class="gly">MD</span>${n}</div>`).join("") || `<div class="erow"><span class="gly" style="color:var(--ink-4)">—</span><em style="color:var(--ink-4)">empty</em></div>`}
+    <div class="grp">Tests</div>
+    <div class="erow"><span class="gly" style="color:var(--ink-4)">SV</span><em style="color:var(--ink-4)">tb_uart.sv (generated)</em></div>
+    <div class="grp">Reports</div>
+    <div class="erow"><span class="gly" style="color:var(--ink-4)">∎</span><em style="color:var(--ink-4)">last_run.html</em></div>
+  `;
+  ideExplorer.querySelectorAll(".erow[data-f]").forEach(r => {
+    r.addEventListener("click", () => ideOpenFile(r.dataset.f));
+  });
+}
+function renderIdeTabs() {
+  ideTabs.innerHTML = ideOpenTabs.map(n => `
+    <div class="ide-tab ${n===ideActiveTab?'active':''}" data-f="${n}">
+      ${n}
+      <span class="x" data-close="${n}">×</span>
+    </div>
+  `).join("");
+  ideTabs.querySelectorAll(".ide-tab").forEach(t => {
+    t.addEventListener("click", (e) => {
+      if (e.target.dataset.close) return;
+      ideActivateTab(t.dataset.f);
+    });
+  });
+  ideTabs.querySelectorAll("[data-close]").forEach(x => {
+    x.addEventListener("click", e => {
+      e.stopPropagation();
+      ideCloseTab(x.dataset.close);
+    });
+  });
+}
+function ideOpenFile(name) {
+  if (!STATE.files[name] && FILE_TEMPLATES[name]) {
+    const t = FILE_TEMPLATES[name];
+    STATE.files[name] = { content: t.content, lines: t.content.split("\n").length, meta: t.meta, glyph: t.glyph };
+  }
+  if (!STATE.files[name]) return;
+  if (!ideOpenTabs.includes(name)) ideOpenTabs.push(name);
+  ideActivateTab(name);
+}
+function ideActivateTab(name) {
+  // save current first
+  if (ideActiveTab && STATE.files[ideActiveTab]) {
+    STATE.files[ideActiveTab].content = ideTextarea.value;
+    STATE.files[ideActiveTab].lines = ideTextarea.value.split("\n").length;
+  }
+  ideActiveTab = name;
+  const f = STATE.files[name];
+  ideTextarea.value = f.content;
+  renderIdeGutter(f.content);
+  renderIdeTabs();
+  renderIdeExplorer();
+}
+function ideCloseTab(name) {
+  ideOpenTabs = ideOpenTabs.filter(n => n !== name);
+  if (ideActiveTab === name) {
+    ideActiveTab = ideOpenTabs[ideOpenTabs.length - 1] || null;
+    if (ideActiveTab) ideActivateTab(ideActiveTab);
+    else { ideTextarea.value = ""; renderIdeGutter(""); }
+  }
+  renderIdeTabs();
+}
+function openIDE(initialFile) {
+  // Ensure spec.md exists for the explorer to feel real
+  if (!STATE.files["spec.md"]) {
+    const t = FILE_TEMPLATES["spec.md"];
+    STATE.files["spec.md"] = { content: t.content, lines: t.content.split("\n").length, meta: t.meta, glyph: t.glyph };
+  }
+  if (Object.keys(STATE.files).length === 0) {
+    // Seed templates if nothing exists yet
+    ["uart_pkg.sv","baud_gen.sv","fifo.sv","uart_apb.sv","spec.md"].forEach(n => {
+      const t = FILE_TEMPLATES[n];
+      STATE.files[n] = { content: t.content, lines: t.content.split("\n").length, meta: t.meta, glyph: t.glyph };
+    });
+  }
+  const startWith = initialFile && STATE.files[initialFile] ? initialFile :
+    (Object.keys(STATE.files).find(n => n.endsWith(".sv")) || Object.keys(STATE.files)[0]);
+  if (startWith) {
+    if (!ideOpenTabs.includes(startWith)) ideOpenTabs.push(startWith);
+    ideActiveTab = startWith;
+    ideActivateTab(startWith);
+  } else {
+    renderIdeExplorer(); renderIdeTabs();
+  }
+  ide.classList.add("open");
+}
+function closeIDE() {
+  if (ideActiveTab && STATE.files[ideActiveTab]) {
+    STATE.files[ideActiveTab].content = ideTextarea.value;
+    STATE.files[ideActiveTab].lines = ideTextarea.value.split("\n").length;
+  }
+  ide.classList.remove("open");
+}
+$("#ideClose").addEventListener("click", closeIDE);
+$("#ideToggleOutput").addEventListener("click", () => $("#ideOutput").classList.toggle("open"));
+ideTextarea.addEventListener("input", () => renderIdeGutter(ideTextarea.value));
+ideTextarea.addEventListener("scroll", () => { ideGutter.scrollTop = ideTextarea.scrollTop; });
+ideTextarea.addEventListener("keyup", () => {
+  const v = ideTextarea.value;
+  const pos = ideTextarea.selectionStart;
+  const before = v.slice(0, pos);
+  const line = before.split("\n").length;
+  const col = pos - before.lastIndexOf("\n");
+  $("#ideCursorPos").textContent = `Ln ${line}, Col ${col}`;
+});
+
+/* ============================================================
+   MENTAL MODEL OVERLAY
+   ============================================================ */
+const mmOverlay = $("#mmOverlay");
+function openMentalModel() {
+  mmOverlay.classList.add("open");
+}
+function closeMentalModel() { mmOverlay.classList.remove("open"); }
+$("#mmClose").addEventListener("click", closeMentalModel);
+
+/* ============================================================
+   DASHBOARD OVERLAY
+   ============================================================ */
+const dashOverlay = $("#dashOverlay");
+const DASHBOARD_READY_STEPS = new Set(["building", "running", "runningSecond", "passedFirst", "finalPass", "failed", "parity", "askedReverify"]);
+function renderDashboard() {
+  const testCount = STATE.planTests?.filter(t => t.on).length || 12;
+  const hasPass = ["passedFirst", "finalPass"].includes(STATE.step);
+  $("#dashTests").textContent = hasPass ? `${testCount} / ${testCount}` : "Pending";
+  $("#dashCov").textContent = hasPass ? "87%" : "—";
+  $("#dashAssert").textContent = hasPass ? "218 / 218" : "—";
+  $("#dashRuntime").textContent = hasPass ? "03:08" : "—";
+  const runs = $("#dashRuns");
+  runs.innerHTML = "";
+  const items = STATE.convos?.length ? STATE.convos : [{ status: "y", label: "UART APB Controller", when: "In progress" }];
+  items.slice(0, 5).forEach(c => {
+    const row = document.createElement("div");
+    row.className = "dash-run-row";
+    const dotClass = c.status === "g" ? "" : c.status === "r" ? " busy" : "";
+    row.innerHTML = `<span class="dot${dotClass}"></span><span class="name">${c.label}</span><span class="meta">${c.when}</span>`;
+    runs.appendChild(row);
+  });
+}
+function openDashboard() {
+  if (!DASHBOARD_READY_STEPS.has(STATE.step)) {
+    toast("Dashboard opens once RTL is built or a verification run has started.");
+    return;
+  }
+  renderDashboard();
+  dashOverlay.classList.add("open");
+  setDemoActivity("Viewing verification dashboard");
+}
+function closeDashboard() { dashOverlay.classList.remove("open"); syncDemoActivity(); }
+$("#dashClose").addEventListener("click", closeDashboard);
+$("#mmTabs").querySelectorAll(".t").forEach(t => {
+  t.addEventListener("click", () => {
+    $("#mmTabs").querySelectorAll(".t").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    mmOverlay.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    mmOverlay.querySelector(`.panel[data-p="${t.dataset.p}"]`).classList.add("active");
+  });
+});
+
+/* ============================================================
+   PROJECT MENU / DRAWER / THEME
+   ============================================================ */
+const projMenu = $("#projMenu");
+$("#projBtn").addEventListener("click", e => { e.stopPropagation(); projMenu.classList.toggle("open"); });
+document.addEventListener("click", e => { if (!projMenu.contains(e.target)) projMenu.classList.remove("open"); });
+
+const drawer = $("#drawer");
+const overlay = $("#overlay");
+$("#drawerBtn").addEventListener("click", () => { drawer.classList.add("open"); overlay.classList.add("open"); });
+function closeDrawer() { drawer.classList.remove("open"); overlay.classList.remove("open"); }
+$("#closeDrawer").addEventListener("click", closeDrawer);
+overlay.addEventListener("click", closeDrawer);
+$("#drawerOpenIde").addEventListener("click", () => { closeDrawer(); openIDE(); });
+$("#drawerOpenMM").addEventListener("click", () => { closeDrawer(); openMentalModel(); });
+
+$("#themeBtn").addEventListener("click", () => document.body.classList.toggle("dark"));
+$("#resetBtn").addEventListener("click", () => location.reload());
+
+function refreshDrawerConvos() {
+  const el = $("#drawerConvos");
+  if (!STATE.convos.length) {
+    el.innerHTML = `<div class="empty">No conversations yet — start by describing what you want to build.</div>`;
+    return;
+  }
+  el.innerHTML = STATE.convos.map(c => `<div class="row"><span class="dot ${c.status}"></span>${c.label}<span class="when">${c.when}</span></div>`).join("");
+}
+function refreshDrawerFiles() {
+  const el = $("#drawerFiles");
+  const names = Object.keys(STATE.files);
+  if (!names.length) {
+    el.innerHTML = `<div class="empty">No files yet.</div>`;
+    return;
+  }
+  el.innerHTML = names.map(n => `<div class="row" data-file="${n}">${n}<span class="when">${STATE.files[n].lines}</span></div>`).join("");
+  el.querySelectorAll(".row[data-file]").forEach(r => {
+    r.addEventListener("click", () => { closeDrawer(); openEditor(r.dataset.file); });
+  });
+}
+
+/* ============================================================
+   PALETTE
+   ============================================================ */
+const palOverlay = $("#palOverlay");
+const palInput = $("#palInput");
+const palList = $("#palList");
+function renderPalette(query = "") {
+  const q = query.trim().toLowerCase();
+  const items = [];
+  items.push({ section: "Power tools", icon: "▣", name: "Open IDE mode (multi-file editor)", meta: "⌘⇧E", on: openIDE });
+  items.push({ section: "Power tools", icon: "◯", name: "View full mental model", meta: "overlay", on: openMentalModel });
+  if (DASHBOARD_READY_STEPS.has(STATE.step)) {
+    items.push({ section: "Power tools", icon: "▤", name: "Open verification dashboard", meta: "KPIs", on: () => { closePalette(); openDashboard(); } });
+  }
+  if (STATE.step === "passedFirst") {
+    items.push({ section: "Suggested", icon: "+", name: "Add parity support", meta: "iterate", on: () => userAsks("Add parity support — both odd and even.") });
+  }
+  Object.keys(STATE.files).forEach(n => {
+    items.push({ section: "Files", icon: STATE.files[n].glyph || "SV", name: n, meta: `${STATE.files[n].lines} lines`, on: () => openEditor(n) });
+  });
+  STATE.convos.forEach(c => {
+    items.push({ section: "Recent runs", icon: c.status === "g" ? "✓" : (c.status === "b" ? "✕" : "•"), name: c.label, meta: c.when, on: closePalette });
+  });
+  const filtered = q ? items.filter(i => i.name.toLowerCase().includes(q)) : items;
+  if (!filtered.length) { palList.innerHTML = `<div style="padding:20px;text-align:center;color:var(--ink-4)">No matches</div>`; return; }
+  let lastSection = "", html = "";
+  filtered.forEach((it, i) => {
+    if (it.section !== lastSection) { html += `<div class="pal-section">${it.section}</div>`; lastSection = it.section; }
+    html += `<div class="pal-item ${i===0?'active':''}" data-i="${i}"><div class="pi-glyph">${it.icon}</div><div class="pi-name">${it.name}</div><div class="pi-meta">${it.meta}</div></div>`;
+  });
+  palList.innerHTML = html;
+  palList.querySelectorAll(".pal-item").forEach(el => {
+    el.addEventListener("click", () => { const it = filtered[parseInt(el.dataset.i)]; closePalette(); if (it && it.on) it.on(); });
+  });
+}
+function openPalette() { palOverlay.classList.add("open"); palInput.value = ""; renderPalette(); setTimeout(() => palInput.focus(), 30); }
+function closePalette() { palOverlay.classList.remove("open"); }
+$("#palTrigger").addEventListener("click", openPalette);
+palOverlay.addEventListener("click", e => { if (e.target === palOverlay) closePalette(); });
+palInput.addEventListener("input", () => renderPalette(palInput.value));
+document.addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "e") { e.preventDefault(); openIDE(); return; }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openPalette(); }
+  if (e.key === "Escape") { closePalette(); closeEditor(); closeIDE(); closeMentalModel(); closeDashboard(); }
+});
+
+/* ============================================================
+   COMPOSER
+   ============================================================ */
+const input = $("#composerInput");
+input.addEventListener("input", () => { input.style.height = "24px"; input.style.height = Math.min(input.scrollHeight, 200) + "px"; });
+input.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); send(); } });
+$("#sendBtn").addEventListener("click", send);
+function send() {
+  const v = input.value.trim();
+  if (!v) return;
+  input.value = ""; input.style.height = "24px";
+  userAsks(v);
+}
+
+/* ============================================================
+   STARTERS
+   ============================================================ */
+document.querySelectorAll(".starter").forEach(b => {
+  b.addEventListener("click", () => {
+    const intent = b.dataset.intent;
+    if (intent === "uart") beginDesignUART();
+    else {
+      addUser(b.querySelector(".txt").textContent);
+      addSystemTurn(t => addSaid(t, "For the full end-to-end demo, hit the <strong>UART with APB</strong> starter — it walks through mental model → strategy → plan → build → fix."));
+    }
+  });
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+updateSuggestionsForStep();
+refreshDrawerConvos();
+refreshDrawerFiles();
+
+/* ============================================================
+   LANDING DEMO — side rail + Design/Verify lens (product shell)
+   ============================================================ */
+const demoModeWrap = document.getElementById("demoModeToggle");
+const demoModeToggle = demoModeWrap?.querySelector(".tf-mode-toggle");
+const demoChrome = document.querySelector(".demo-chrome");
+const demoStatusMode = document.getElementById("demoStatusMode");
+const demoStatusActivity = document.getElementById("demoStatusActivity");
+const VERIFY_GATED_STEPS = new Set(["welcome", "idle", "designing", "mentalmodel", "strategy", "planapproval"]);
+const DEMO_ACTIVITY = {
+  welcome: "Pick a starter or describe your block",
+  designing: "Answering design clarifiers…",
+  mentalmodel: "Building mental model…",
+  strategy: "Choosing verification strategy…",
+  planapproval: "Approve the staged plan…",
+  building: "Writing RTL — verification next",
+  running: "Running staged verification…",
+  runningSecond: "Re-running verification…",
+  passedFirst: "Tests green — iterate or extend",
+  finalPass: "All checks passed — save baseline",
+  failed: "Investigating failure…",
+  parity: "Applying parity changes…",
+  askedReverify: "Ready to re-verify",
+};
+function setDemoActivity(text) {
+  if (demoStatusActivity && text) demoStatusActivity.textContent = text;
+}
+function syncDemoActivity() {
+  setDemoActivity(DEMO_ACTIVITY[STATE.step] || "Working in thread…");
+}
+function scrollThreadToEnd() {
+  const tw = document.getElementById("threadWrap");
+  if (tw) requestAnimationFrame(() => { tw.scrollTop = tw.scrollHeight; });
+}
+function setDemoMode(mode, opts = {}) {
+  if (!demoModeToggle) return;
+  demoModeToggle.dataset.mode = mode;
+  demoChrome?.setAttribute("data-tf-mode", mode);
+  demoModeWrap?.setAttribute("data-mode", mode);
+  if (demoStatusMode) demoStatusMode.textContent = mode === "verify" ? "Verify lens" : "Design lens";
+  demoModeToggle.querySelectorAll(".tf-mode-opt").forEach((btn) => {
+    const on = btn.dataset.mode === mode;
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-checked", on ? "true" : "false");
+  });
+  if (!opts.skipActivity) {
+    if (mode === "verify" && VERIFY_GATED_STEPS.has(STATE.step)) {
+      setDemoActivity("Approve mental model before verification");
+    } else if (mode === "verify" && STATE.step === "building") {
+      setDemoActivity("RTL ready — start verification in thread");
+    } else {
+      syncDemoActivity();
+    }
+  }
+}
+function handleDemoModeClick(mode) {
+  if (mode === "verify" && VERIFY_GATED_STEPS.has(STATE.step)) {
+    setDemoMode("verify");
+    toast("Finish design and confirm the mental model — then staged verification unlocks.");
+    return;
+  }
+  setDemoMode(mode);
+  if (mode === "verify" && STATE.step === "building") scrollThreadToEnd();
+}
+demoModeToggle?.querySelectorAll(".tf-mode-opt").forEach((btn) => {
+  btn.addEventListener("click", () => handleDemoModeClick(btn.dataset.mode));
+});
+function setActiveRail(rail) {
+  document.querySelectorAll(".demo-rail .tf-side-rail-btn").forEach((b) => {
+    b.classList.toggle("active", b.dataset.rail === rail);
+  });
+}
+document.querySelectorAll(".demo-rail [data-rail]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    setActiveRail(btn.dataset.rail);
+    const rail = btn.dataset.rail;
+    if (rail === "threads") { closeDashboard(); drawer.classList.add("open"); overlay.classList.add("open"); }
+    else if (rail === "ide") { closeDrawer(); closeDashboard(); openIDE(); }
+    else if (rail === "mental") { closeDrawer(); closeDashboard(); openMentalModel(); }
+    else if (rail === "staged") {
+      closeDrawer(); closeDashboard();
+      if (STATE.step === "idle" || STATE.step === "welcome") beginDesignUART();
+      else if (STATE.step === "building") { setDemoMode("verify"); scrollThreadToEnd(); }
+      else scrollThreadToEnd();
+    }
+    else if (rail === "dash") { closeDrawer(); openDashboard(); }
+  });
+});
+document.getElementById("demoThemeRail")?.addEventListener("click", () => document.getElementById("themeBtn")?.click());
+document.getElementById("demoBannerReset")?.addEventListener("click", () => location.reload());
+</script>
+</body>
+</html>

@@ -1,0 +1,702 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Mental Model Viewer — ChipStack-style Dark Theme
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.mm-viewer {
+  background: #0d0f14;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  color: #e2e8f0;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+
+.mm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #13151c 0%, #0d0f14 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mm-header-icon { color: #a78bfa; }
+
+.mm-header-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #f1f5f9;
+}
+
+.mm-header-file {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.mm-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+
+.mm-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mm-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.mm-btn-build {
+  background: linear-gradient(135deg, #7c3aed20, #a78bfa15);
+  border-color: #7c3aed40;
+  color: #a78bfa;
+}
+
+.mm-btn-build:hover {
+  background: linear-gradient(135deg, #7c3aed30, #a78bfa25);
+  color: #c4b5fd;
+}
+
+.mm-btn-export { color: #60a5fa; border-color: #3b82f620; }
+.mm-btn-export-arch { color: #34d399; border-color: #10b98120; }
+
+.mm-btn-more {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+  font-weight: 500;
+}
+
+.mm-btn-more:hover { color: #93c5fd; }
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+
+.mm-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 16px;
+  background: #0d0f14;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+}
+
+.mm-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mm-tab:hover {
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mm-tab-active {
+  color: #e2e8f0;
+  border-bottom-color: #a78bfa;
+}
+
+/* ── Content ──────────────────────────────────────────────────────────── */
+
+.mm-content {
+  padding: 0;
+  min-height: 200px;
+}
+
+.mm-section {
+  padding: 20px;
+}
+
+.mm-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mm-sub-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 20px 0 10px;
+}
+
+/* ── Graph ────────────────────────────────────────────────────────────── */
+
+.mm-graph-container {
+  background: #0a0c10;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 24px;
+  min-height: 200px;
+  overflow-x: auto;
+}
+
+.mm-graph-svg {
+  width: 100%;
+  height: auto;
+  min-height: 180px;
+}
+
+.mm-graph-edge {
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 1.5;
+}
+
+.mm-graph-node-rect {
+  fill: #1a1d27;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+  transition: all 0.2s ease;
+}
+
+.mm-graph-node:hover .mm-graph-node-rect,
+.mm-graph-node-hover .mm-graph-node-rect {
+  fill: #242736;
+  stroke: #a78bfa60;
+  stroke-width: 1.5;
+}
+
+.mm-graph-node-text {
+  fill: #e2e8f0;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-weight: 500;
+}
+
+.mm-graph-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #475569;
+  gap: 12px;
+}
+
+/* ── Description & Functionality ──────────────────────────────────────── */
+
+.mm-description-section,
+.mm-functionality-section,
+.mm-references-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.mm-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 10px;
+}
+
+.mm-description-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.mm-ref-link {
+  color: #60a5fa;
+  font-size: 11px;
+  text-decoration: none;
+  margin-right: 2px;
+}
+
+.mm-ref-link:hover { text-decoration: underline; }
+
+.mm-func-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mm-func-list li {
+  font-size: 13px;
+  color: #cbd5e1;
+  padding: 4px 0;
+  line-height: 1.5;
+}
+
+.mm-func-list li::before {
+  content: "›";
+  color: #64748b;
+  margin-right: 8px;
+}
+
+.mm-ref-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mm-ref-file {
+  color: #60a5fa;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  text-decoration: none;
+}
+
+.mm-ref-file:hover { text-decoration: underline; }
+
+/* ── Stat Cards ───────────────────────────────────────────────────────── */
+
+.mm-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mm-stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.mm-stat-icon { color: #a78bfa; margin-bottom: 4px; }
+.mm-stat-value { font-size: 20px; font-weight: 700; color: #f1f5f9; }
+.mm-stat-label { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+/* ── Chip List ────────────────────────────────────────────────────────── */
+
+.mm-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mm-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(167, 139, 250, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #c4b5fd;
+}
+
+.mm-chip-small {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+.mm-chip-state {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.2);
+  color: #6ee7b7;
+}
+
+.mm-chip-qos {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+}
+
+/* ── Table ─────────────────────────────────────────────────────────────── */
+
+.mm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mm-table th {
+  text-align: left;
+  padding: 8px 12px;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mm-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: #cbd5e1;
+}
+
+.mm-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mm-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 11px;
+}
+
+.mm-port-name { color: #60a5fa; font-weight: 600; }
+.mm-desc { color: #94a3b8; max-width: 300px; }
+.mm-req-text { max-width: 400px; line-height: 1.5; }
+
+/* ── Direction Badges ─────────────────────────────────────────────────── */
+
+.mm-dir {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mm-dir-input { background: rgba(52, 211, 153, 0.1); color: #34d399; }
+.mm-dir-output { background: rgba(96, 165, 250, 0.1); color: #60a5fa; }
+.mm-dir-inout { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+
+.mm-port-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.mm-port-count { color: #64748b; font-size: 12px; }
+
+/* ── Protocol Cards ───────────────────────────────────────────────────── */
+
+.mm-protocol-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.mm-protocol-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.mm-protocol-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #a78bfa;
+  margin-bottom: 4px;
+}
+
+.mm-protocol-role {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.mm-protocol-ports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* ── Flow Cards ───────────────────────────────────────────────────────── */
+
+.mm-flow-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.mm-flow-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mm-flow-name { font-weight: 600; color: #e2e8f0; }
+
+.mm-flow-latency {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-left: auto;
+}
+
+.mm-flow-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.mm-flow-step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(96, 165, 250, 0.15);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #93c5fd;
+}
+
+.mm-flow-arrow { color: #475569; }
+
+/* ── Clock Cards ──────────────────────────────────────────────────────── */
+
+.mm-clock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.mm-clock-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.mm-clock-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-bottom: 6px;
+}
+
+.mm-clock-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ── FSM Cards ────────────────────────────────────────────────────────── */
+
+.mm-fsm-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.mm-fsm-name {
+  font-weight: 600;
+  color: #34d399;
+  margin-bottom: 8px;
+}
+
+.mm-fsm-states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.mm-fsm-transitions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mm-fsm-trans {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.mm-fsm-cond {
+  color: #64748b;
+  font-style: italic;
+}
+
+/* ── Arbitration Cards ────────────────────────────────────────────────── */
+
+.mm-arb-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.mm-arb-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mm-arb-name { font-weight: 600; color: #e2e8f0; }
+
+.mm-arb-masters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.mm-arb-bw {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.mm-arb-bw-item {
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
+/* ── Questions ────────────────────────────────────────────────────────── */
+
+.mm-question {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.mm-question-blocking {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.mm-question-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mm-question-id {
+  font-family: monospace;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.mm-badge-blocking {
+  font-size: 9px;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.mm-question-text { font-size: 13px; color: #cbd5e1; margin: 0; }
+
+.mm-question-answer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #10b981;
+  margin-top: 6px;
+}
+
+/* ── Priority Badge ───────────────────────────────────────────────────── */
+
+.mm-priority-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ── Icon Helpers ─────────────────────────────────────────────────────── */
+
+.mm-icon-pass { color: #10b981; }
+.mm-icon-fail { color: #475569; }
+
+/* ── States ───────────────────────────────────────────────────────────── */
+
+.mm-loading, .mm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: #475569;
+  gap: 10px;
+  text-align: center;
+}
+
+.mm-empty-icon { color: #334155; }
+.mm-empty-title { font-size: 16px; font-weight: 600; color: #64748b; margin: 0; }
+.mm-empty-hint { font-size: 13px; color: #475569; margin: 0; }
+
+.mm-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(239, 68, 68, 0.08);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  font-size: 13px;
+}
+
+/* ── Animations ───────────────────────────────────────────────────────── */
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }

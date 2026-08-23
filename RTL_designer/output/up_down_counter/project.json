@@ -1,0 +1,40 @@
+﻿{
+  "project": "up_down_counter",
+  "language": "verilog",
+  "generated_at": "2026-04-06T19:57:43.880170",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\up_down_counter.v",
+      "filename": "up_down_counter.v",
+      "module_name": "up_down_counter",
+      "lines": 36,
+      "timestamp": "2026-04-06T19:57:43.878023"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\up_down_counter_top.v",
+      "filename": "up_down_counter_top.v",
+      "module_name": "up_down_counter_top",
+      "lines": 36,
+      "timestamp": "2026-04-06T19:57:43.878876"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_up_down_counter.v",
+      "filename": "tb_up_down_counter.v",
+      "module_name": "tb_up_down_counter",
+      "lines": 50,
+      "timestamp": "2026-04-06T19:57:43.879535"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 66,
+      "timestamp": "2026-04-06T19:57:43.880148"
+    }
+  ],
+  "total_lines": 188
+}

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=ChipVerify Desktop
+Comment=AI-assisted chip verification workspace
+Exec=/opt/chipverify/ChipVerify.AppImage --appimage-extract-and-run
+Icon=chipverify
+Type=Application
+Categories=Development;Engineering;
+StartupNotify=true

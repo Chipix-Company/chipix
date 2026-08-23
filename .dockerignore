@@ -1,0 +1,16 @@
+# Keep the build context small and reproducible.
+.git
+node_modules
+frontend/node_modules
+dist-electron
+dist-redhat
+.packaging
+backend/runtime/redhat/build
+build-resources/runtime
+backend/runtime/linux/build
+**/__pycache__
+*.AppImage
+*.rpm
+.venv
+.tmp-*.log
+qa-screenshots

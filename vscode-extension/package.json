@@ -1,0 +1,224 @@
+{
+  "name": "chipix-vscode",
+  "displayName": "Chipix Verification",
+  "description": "TruthCore-backed chip verification automation for VS Code.",
+  "version": "0.1.0",
+  "license": "GPL-3.0-or-later",
+  "publisher": "chipix",
+  "private": true,
+  "engines": {
+    "vscode": "^1.92.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:chipix.truthCore",
+    "onView:chipix.verification",
+    "onCommand:chipix.checkBackend"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-dependencies"
+  },
+  "contributes": {
+    "configuration": {
+      "title": "Chipix",
+      "properties": {
+        "chipix.backendUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:7348",
+          "description": "Local Chipix backend base URL."
+        },
+        "chipix.outputDir": {
+          "type": "string",
+          "default": "chipix_out",
+          "description": "Workspace-relative directory for synced generated artifacts."
+        },
+        "chipix.defaultVerificationType": {
+          "type": "string",
+          "enum": ["uvm", "formal", "unitsim", "all"],
+          "default": "uvm",
+          "description": "Default staged verification strategy."
+        },
+        "chipix.autoStartBackend": {
+          "type": "boolean",
+          "default": false,
+          "description": "Reserved for future bundled-backend startup."
+        },
+        "chipix.llmProvider": {
+          "type": "string",
+          "enum": ["gemini", "openai", "azure_openai", "nim", "local"],
+          "default": "gemini",
+          "description": "Preferred LLM provider metadata for the backend. Use openai for the official OpenAI API."
+        },
+        "chipix.model": {
+          "type": "string",
+          "default": "gemini-2.5-pro",
+          "description": "Preferred LLM model metadata for the backend, for example gemini-2.5-pro or gpt-4o-mini."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "chipix",
+          "title": "Chipix",
+          "icon": "resources/chipix.svg"
+        }
+      ]
+    },
+    "views": {
+      "chipix": [
+        {
+          "id": "chipix.truthCore",
+          "name": "TruthCore",
+          "type": "webview"
+        },
+        {
+          "id": "chipix.verification",
+          "name": "Verification",
+          "type": "webview"
+        },
+        {
+          "id": "chipix.runs",
+          "name": "Runs & Logs"
+        },
+        {
+          "id": "chipix.patches",
+          "name": "Patches"
+        },
+        {
+          "id": "chipix.reports",
+          "name": "Reports"
+        },
+        {
+          "id": "chipix.settings",
+          "name": "Settings"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "chipix.checkBackend",
+        "title": "Chipix: Check Backend"
+      },
+      {
+        "command": "chipix.createOrLoadProject",
+        "title": "Chipix: Create or Load Workspace Project"
+      },
+      {
+        "command": "chipix.selectSpec",
+        "title": "Chipix: Attach Spec File"
+      },
+      {
+        "command": "chipix.attachRtlWorkspace",
+        "title": "Chipix: Attach RTL Workspace"
+      },
+      {
+        "command": "chipix.buildTruthCore",
+        "title": "Chipix: Build TruthCore"
+      },
+      {
+        "command": "chipix.refreshTruthCore",
+        "title": "Chipix: Refresh TruthCore"
+      },
+      {
+        "command": "chipix.checkCurrentFile",
+        "title": "Chipix: Check Current SystemVerilog File"
+      },
+      {
+        "command": "chipix.checkRtlWorkspace",
+        "title": "Chipix: Check RTL Workspace"
+      },
+      {
+        "command": "chipix.clearSyntaxDiagnostics",
+        "title": "Chipix: Clear Syntax Diagnostics"
+      },
+      {
+        "command": "chipix.prepareVerification",
+        "title": "Chipix: Prepare Verification"
+      },
+      {
+        "command": "chipix.generatePlan",
+        "title": "Chipix: Generate Verification Plan"
+      },
+      {
+        "command": "chipix.executePlan",
+        "title": "Chipix: Execute Approved Plan"
+      },
+      {
+        "command": "chipix.uploadSimulatorLog",
+        "title": "Chipix: Upload Simulator Log"
+      },
+      {
+        "command": "chipix.refreshPatches",
+        "title": "Chipix: Refresh Patches"
+      },
+      {
+        "command": "chipix.reviewPatch",
+        "title": "Chipix: Review Patch"
+      },
+      {
+        "command": "chipix.approvePatch",
+        "title": "Chipix: Approve Patch"
+      },
+      {
+        "command": "chipix.rejectPatch",
+        "title": "Chipix: Reject Patch"
+      },
+      {
+        "command": "chipix.openGeneratedArtifact",
+        "title": "Chipix: Open Generated Artifact"
+      },
+      {
+        "command": "chipix.openSettings",
+        "title": "Chipix: Open Settings"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "chipix.checkCurrentFile",
+          "when": "resourceExtname == .sv || resourceExtname == .svh || resourceExtname == .v || resourceExtname == .vh",
+          "group": "navigation@20"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "chipix.selectSpec",
+          "when": "view == chipix.verification",
+          "group": "navigation@1"
+        },
+        {
+          "command": "chipix.attachRtlWorkspace",
+          "when": "view == chipix.verification",
+          "group": "navigation@2"
+        },
+        {
+          "command": "chipix.buildTruthCore",
+          "when": "view == chipix.verification",
+          "group": "navigation@3"
+        },
+        {
+          "command": "chipix.refreshTruthCore",
+          "when": "view == chipix.truthCore",
+          "group": "navigation"
+        },
+        {
+          "command": "chipix.refreshPatches",
+          "when": "view == chipix.patches",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.92.0",
+    "typescript": "^5.6.0",
+    "@vscode/vsce": "^3.2.0"
+  }
+}

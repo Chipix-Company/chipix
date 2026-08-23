@@ -1,0 +1,40 @@
+﻿{
+  "project": "simple_counter",
+  "language": "verilog",
+  "generated_at": "2026-04-01T13:15:07.784637",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\simple_counter.v",
+      "filename": "simple_counter.v",
+      "module_name": "simple_counter",
+      "lines": 31,
+      "timestamp": "2026-04-01T13:15:07.782457"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\simple_counter_top.v",
+      "filename": "simple_counter_top.v",
+      "module_name": "simple_counter_top",
+      "lines": 49,
+      "timestamp": "2026-04-01T13:15:07.783151"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_simple_counter.v",
+      "filename": "tb_simple_counter.v",
+      "module_name": "tb_simple_counter",
+      "lines": 50,
+      "timestamp": "2026-04-01T13:15:07.783910"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 62,
+      "timestamp": "2026-04-01T13:15:07.784617"
+    }
+  ],
+  "total_lines": 192
+}

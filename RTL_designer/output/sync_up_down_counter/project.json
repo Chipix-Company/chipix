@@ -1,0 +1,40 @@
+﻿{
+  "project": "sync_up_down_counter",
+  "language": "systemverilog",
+  "generated_at": "2026-04-10T15:27:22.358641",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\sync_up_down_counter.sv",
+      "filename": "sync_up_down_counter.sv",
+      "module_name": "sync_up_down_counter",
+      "lines": 85,
+      "timestamp": "2026-04-10T15:27:22.356753"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\sync_up_down_counter_top.sv",
+      "filename": "sync_up_down_counter_top.sv",
+      "module_name": "sync_up_down_counter_top",
+      "lines": 92,
+      "timestamp": "2026-04-10T15:27:22.357523"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_sync_up_down_counter.sv",
+      "filename": "tb_sync_up_down_counter.sv",
+      "module_name": "tb_sync_up_down_counter",
+      "lines": 50,
+      "timestamp": "2026-04-10T15:27:22.358088"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 81,
+      "timestamp": "2026-04-10T15:27:22.358626"
+    }
+  ],
+  "total_lines": 308
+}

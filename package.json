@@ -1,0 +1,164 @@
+{
+  "name": "chipverify-desktop",
+  "version": "0.2.6",
+  "description": "AI-assisted chip design verification workspace for TruthCore, UVM, formal, and unit-simulation workflows.",
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "main": "electron/main.js",
+  "homepage": "https://chipverify.com",
+  "author": {
+    "name": "ChipVerify",
+    "email": "support@chipverify.com"
+  },
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && ..\\.venv\\Scripts\\python.exe -m uvicorn main:app --host 127.0.0.1 --port 7348",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./backend/runtime/windows/build_backend_exe.ps1 -BackendRoot ./backend -OutputRoot ./backend/runtime/windows/build",
+    "build:backend:linux": "bash ./backend/runtime/linux/build_backend_elf.sh",
+    "package:desktop:run": "npm run build:frontend && electron .",
+    "package:desktop": "npm run build:frontend && electron-builder --dir",
+    "package:desktop:embedded:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/packaging/package_embedded_windows.ps1 -ElectronTarget dir",
+    "package:desktop:embedded:linux": "bash ./scripts/packaging/package_embedded_linux.sh",
+    "package:desktop:installer": "npm run package:desktop:installer:win",
+    "package:desktop:installer:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/packaging/package_embedded_windows.ps1 -ElectronTarget nsis",
+    "package:desktop:installer:linux": "npm run build:frontend && electron-builder --linux AppImage --x64",
+    "package:desktop:installer:linux:embedded": "bash ./scripts/packaging/package_embedded_linux.sh --target AppImage",
+    "package:desktop:installer:linux:rpm": "bash ./scripts/packaging/package_embedded_linux.sh --target rpm",
+    "package:appimage:docker": "bash ./scripts/packaging/build_appimage_docker.sh",
+    "package:appimage:depot": "bash ./scripts/packaging/build_appimage_depot.sh",
+    "package:appimage:depot:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/packaging/build_appimage_depot.ps1",
+    "package:redhat:rpm:docker": "bash ./scripts/packaging/build_redhat_rpm_docker.sh",
+    "package:redhat:rpm:depot": "bash ./scripts/packaging/build_redhat_rpm_depot.sh",
+    "package:redhat:appimage:depot": "bash ./scripts/packaging/build_redhat_appimage_depot.sh",
+    "package:redhat:appimage:depot:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/packaging/build_redhat_appimage_depot.ps1",
+    "package:redhat:appimage:docker": "bash ./scripts/packaging/build_redhat_appimage_docker.sh",
+    "package:desktop:installer:redhat": "bash ./scripts/packaging/package_embedded_redhat_linux.sh all",
+    "package:desktop:installer:redhat:appimage": "bash ./scripts/packaging/package_embedded_redhat_linux.sh AppImage",
+    "package:shareable:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/packaging/package_shareable_windows.ps1",
+    "package:nocert:webdemo:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/packaging/package_no_cert_web_demo_windows.ps1",
+    "license:machine-key": "node scripts/make-machine-key.js",
+    "package:fullnode:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/packaging/package_fullnode_windows.ps1",
+    "package:nocert:webdemo:linux": "bash ./scripts/packaging/package_nocert_webdemo_linux.sh",
+    "package:release:ci": "npm run package:desktop:installer:win && npm run package:desktop:installer:linux:embedded",
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy",
+    "convex:seed": "convex run appInfo:seedDefaults",
+    "convex:seed-cloud": "convex run controlPlane:seedCloudDefaults",
+    "convex:apply-bedrock-env": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/convex/apply_provider_env_from_process.ps1",
+    "convex:publish-desktop-release": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/convex/publish_desktop_release.ps1",
+    "convex:publish-desktop-release:linux": "bash ./scripts/convex/publish_desktop_release.sh --platform linux"
+  },
+  "build": {
+    "appId": "com.chipverify.desktop",
+    "productName": "ChipVerify_Desktop",
+    "asar": true,
+    "compression": "normal",
+    "generateUpdatesFilesForAllChannels": true,
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist-electron",
+      "buildResources": "build-resources"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "build-resources/runtime",
+        "to": "runtime",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "${productName}-${version}-win-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    },
+    "linux": {
+      "target": [
+        "rpm",
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development",
+      "executableName": "chipverify-desktop",
+      "artifactName": "${productName}-${version}-linux-${arch}.${ext}",
+      "synopsis": "AI-assisted chip design verification workspace",
+      "description": "ChipVerify Desktop builds TruthCore mental models and generates UVM, formal, and unit-simulation verification collateral."
+    },
+    "rpm": {
+      "maintainer": "ChipVerify <support@chipverify.com>",
+      "compression": "xz",
+      "fpm": [
+        "--rpm-rpmbuild-define=_build_id_links none",
+        "--rpm-rpmbuild-define=__os_install_post %{nil}"
+      ],
+      "depends": [
+        "gtk3",
+        "nss",
+        "alsa-lib",
+        "libnotify",
+        "libXScrnSaver",
+        "libXtst",
+        "libxkbcommon",
+        "libdrm",
+        "mesa-libgbm",
+        "cups-libs",
+        "libsecret",
+        "at-spi2-core",
+        "at-spi2-atk",
+        "atk",
+        "xdg-utils",
+        "bash"
+      ]
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "AffanShaikhsurab",
+        "repo": "chipix_release"
+      }
+    ],
+    "electronUpdaterCompatibility": ">=2.16"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "electron": "^33.2.1",
+    "electron-builder": "^26.8.1",
+    "wait-on": "^8.0.1"
+  },
+  "chipverify": {
+    "convexSiteUrl": "https://next-swordfish-62.convex.site"
+  },
+  "dependencies": {
+    "@mastra/ai-sdk": "^1.3.3",
+    "@mastra/core": "^1.24.1",
+    "@mastra/libsql": "^1.8.0",
+    "@mastra/memory": "^1.15.0",
+    "@sentry/electron": "^6.11.0",
+    "convex": "^1.40.0",
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9",
+    "framer-motion": "^12.38.0",
+    "just-bash": "^2.14.1",
+    "lucide-react": "^1.7.0"
+  }
+}

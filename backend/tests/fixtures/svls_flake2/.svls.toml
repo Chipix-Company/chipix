@@ -1,0 +1,5 @@
+[verilog]
+include_paths = ["rtl", "generated", "spec"]
+
+[option]
+linter = true

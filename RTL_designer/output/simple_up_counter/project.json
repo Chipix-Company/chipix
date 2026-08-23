@@ -1,0 +1,40 @@
+﻿{
+  "project": "simple_up_counter",
+  "language": "systemverilog",
+  "generated_at": "2026-04-01T12:39:51.822469",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\simple_up_counter.sv",
+      "filename": "simple_up_counter.sv",
+      "module_name": "simple_up_counter",
+      "lines": 40,
+      "timestamp": "2026-04-01T12:39:51.819901"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\simple_up_counter_top.sv",
+      "filename": "simple_up_counter_top.sv",
+      "module_name": "simple_up_counter_top",
+      "lines": 40,
+      "timestamp": "2026-04-01T12:39:51.820675"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_simple_up_counter.sv",
+      "filename": "tb_simple_up_counter.sv",
+      "module_name": "tb_simple_up_counter",
+      "lines": 50,
+      "timestamp": "2026-04-01T12:39:51.821668"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 64,
+      "timestamp": "2026-04-01T12:39:51.822450"
+    }
+  ],
+  "total_lines": 194
+}

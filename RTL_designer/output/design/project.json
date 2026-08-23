@@ -1,0 +1,24 @@
+﻿{
+  "project": "design",
+  "language": "verilog",
+  "generated_at": "2026-03-27T21:54:27.740049",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\design.v",
+      "filename": "design.v",
+      "module_name": "design",
+      "lines": 1,
+      "timestamp": "2026-03-27T21:54:27.739578"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 82,
+      "timestamp": "2026-03-27T21:54:27.740037"
+    }
+  ],
+  "total_lines": 83
+}

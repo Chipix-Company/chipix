@@ -1,0 +1,24 @@
+[Unit]
+Description=ChipVerify Local Runtime (llama.cpp + backend)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chipverify
+Group=chipverify
+EnvironmentFile=-/etc/chipverify/runtime.env
+WorkingDirectory=/opt/chipverify/backend
+ExecStart=/bin/bash /opt/chipverify/backend/runtime/start_runtime_linux.sh
+Restart=always
+RestartSec=5
+TimeoutStartSec=120
+TimeoutStopSec=30
+LimitNOFILE=65536
+
+# Keep logs in journald by default; route externally if needed.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

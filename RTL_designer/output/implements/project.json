@@ -1,0 +1,40 @@
+﻿{
+  "project": "implements",
+  "language": "systemverilog",
+  "generated_at": "2026-04-10T15:28:59.911912",
+  "files": [
+    {
+      "action": "created",
+      "filepath": "rtl\\implements.sv",
+      "filename": "implements.sv",
+      "module_name": "implements",
+      "lines": 59,
+      "timestamp": "2026-04-10T15:28:59.910181"
+    },
+    {
+      "action": "created",
+      "filepath": "rtl\\implements_top.sv",
+      "filename": "implements_top.sv",
+      "module_name": "implements_top",
+      "lines": 65,
+      "timestamp": "2026-04-10T15:28:59.910815"
+    },
+    {
+      "action": "created",
+      "filepath": "tb\\tb_implements.sv",
+      "filename": "tb_implements.sv",
+      "module_name": "tb_implements",
+      "lines": 50,
+      "timestamp": "2026-04-10T15:28:59.911367"
+    },
+    {
+      "action": "created",
+      "filepath": "README.md",
+      "filename": "README.md",
+      "module_name": "documentation",
+      "lines": 80,
+      "timestamp": "2026-04-10T15:28:59.911898"
+    }
+  ],
+  "total_lines": 254
+}

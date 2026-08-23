@@ -1,0 +1,20 @@
+# nfpm spec for optional RPM distribution on RHEL.
+# Build after: npm run package:desktop:installer:linux:embedded
+name: chipverify-desktop
+arch: amd64
+platform: linux
+version: "${VERSION}"
+section: utils
+maintainer: ChipVerify <support@chipverify.com>
+description: ChipVerify Desktop — unified frontend + embedded Python backend
+homepage: https://chipverify.com
+contents:
+  - src: dist-electron/ChipVerify Desktop-${VERSION}-linux-x64.AppImage
+    dst: /opt/chipverify/ChipVerify.AppImage
+    file_info:
+      mode: 0755
+  - src: packaging/chipverify.desktop
+    dst: /usr/share/applications/chipverify.desktop
+scripts:
+  postinstall: |
+    chmod +x /opt/chipverify/ChipVerify.AppImage

@@ -1,0 +1,66 @@
+# syntax=docker/dockerfile:1
+# Reproducible AlmaLinux 8 build that produces a RHEL-compatible AppImage with Bedrock
+# defaults baked into the embedded backend .env and Electron startup.
+#
+# WHY AlmaLinux 8: glibc 2.28 — PyInstaller backend runs on RHEL 8/9, Rocky, AlmaLinux.
+# AppImage is portable on generic Linux; this build still uses the Red Hat backend path
+# (build_backend.sh + stage_embedded_runtime_env with provider=bedrock).
+#
+# Built on Depot:
+#   depot build -f Dockerfile.redhat.appimage --target artifact -o type=local,dest=./dist-redhat .
+# Or:
+#   npm run package:redhat:appimage:depot:win
+FROM almalinux:8 AS builder
+
+RUN dnf module reset -y nodejs && dnf module enable -y nodejs:20
+
+RUN dnf install -y --allowerasing \
+    python3.11 python3.11-devel python3.11-pip \
+    gcc gcc-c++ make \
+    nodejs npm \
+    fuse fuse-libs \
+    gtk3 nss alsa-lib libnotify libXScrnSaver libXtst libxkbcommon \
+    libdrm mesa-libgbm cups-libs libsecret at-spi2-core at-spi2-atk atk \
+    xdg-utils which findutils git curl tar gzip xz binutils sed grep file unzip \
+    && dnf clean all
+
+WORKDIR /src
+
+COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN npm ci
+
+COPY . .
+RUN find . -type f -name '*.sh' -exec sed -i 's/\r$//' {} + \
+    && chmod +x backend/runtime/linux/build_backend.sh \
+    backend/runtime/linux/build_backend_elf.sh \
+    backend/runtime/linux/launch-backend.sh \
+    scripts/packaging/*.sh
+
+ENV CHIPVERIFY_PYTHON_BIN=python3.11
+ENV CHIPVERIFY_LLM_PROVIDER=bedrock
+ENV MODEL_PROVIDER=bedrock
+
+ARG CHIPVERIFY_DEMO_BEDROCK_API_KEY=
+ARG CHIPVERIFY_DEMO_GEMINI_API_KEY=
+ARG CHIPVERIFY_DEMO_OPENAI_API_KEY=
+ARG CHIPVERIFY_SENTRY_DSN=
+ARG CHIPVERIFY_SENTRY_ENVIRONMENT=production
+ENV CHIPVERIFY_DEMO_BEDROCK_API_KEY=${CHIPVERIFY_DEMO_BEDROCK_API_KEY}
+ENV CHIPVERIFY_DEMO_GEMINI_API_KEY=${CHIPVERIFY_DEMO_GEMINI_API_KEY}
+ENV CHIPVERIFY_DEMO_OPENAI_API_KEY=${CHIPVERIFY_DEMO_OPENAI_API_KEY}
+ENV CHIPVERIFY_SENTRY_DSN=${CHIPVERIFY_SENTRY_DSN}
+ENV CHIPVERIFY_SENTRY_ENVIRONMENT=${CHIPVERIFY_SENTRY_ENVIRONMENT}
+
+# Red Hat AppImage only (no RPM). Bedrock config staged via stage_embedded_runtime_env.sh;
+# build_backend.sh runs --self-test-packaged (services.verification.* imports).
+ARG CACHEBUST=1
+RUN bash ./scripts/packaging/package_embedded_redhat_linux.sh AppImage \
+    && mkdir -p /out \
+    && cp -v dist-redhat/* /out/ \
+    && ls -la /out
+
+CMD ["bash", "./scripts/packaging/package_embedded_redhat_linux.sh", "AppImage"]
+
+FROM scratch AS artifact
+COPY --from=builder /out/ /

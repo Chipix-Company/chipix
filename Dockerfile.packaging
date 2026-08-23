@@ -1,0 +1,31 @@
+# Reproducible Linux packaging image for RHEL-compatible (glibc) builds.
+# Build on AlmaLinux 8 for maximum RHEL 8/9 compatibility.
+FROM almalinux:8
+
+RUN dnf install -y \
+    python3.11 python3.11-devel \
+    nodejs npm \
+    fuse fuse-libs \
+    gtk3 libnotify \
+    git curl tar gzip \
+    && dnf clean all
+
+WORKDIR /src
+COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN npm ci
+
+COPY . .
+RUN chmod +x backend/runtime/linux/build_backend_elf.sh \
+    scripts/packaging/package_embedded_linux.sh \
+    scripts/packaging/package_nocert_webdemo_linux.sh \
+    scripts/packaging/stage_embedded_runtime_env.sh
+
+# Pass demo API keys at build time:
+#   docker build --build-arg CHIPVERIFY_DEMO_GEMINI_API_KEY=... -f Dockerfile.packaging .
+ARG CHIPVERIFY_DEMO_GEMINI_API_KEY=
+ARG CHIPVERIFY_DEMO_OPENAI_API_KEY=
+ENV CHIPVERIFY_DEMO_GEMINI_API_KEY=${CHIPVERIFY_DEMO_GEMINI_API_KEY}
+ENV CHIPVERIFY_DEMO_OPENAI_API_KEY=${CHIPVERIFY_DEMO_OPENAI_API_KEY}
+
+CMD ["bash", "./scripts/packaging/package_embedded_linux.sh", "--target", "AppImage"]

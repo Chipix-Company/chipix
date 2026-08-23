@@ -1,0 +1,70 @@
+# syntax=docker/dockerfile:1
+# Reproducible build image that produces a ChipVerify Desktop AppImage.
+#
+# Uses Debian bookworm (glibc 2.36) — same class of target as GitHub Actions
+# ubuntu-latest. Best for generic Ubuntu/Debian/Fedora desktop users.
+# For RHEL 8/9 native installs use Dockerfile.redhat + build_redhat_rpm_depot.sh.
+#
+# Built fast on Depot (remote builders + persistent cache):
+#   depot build -f Dockerfile.appimage --target artifact -o type=local,dest=./dist-electron .
+# The AppImage is exported to ./dist-electron with no container run step.
+FROM node:20-bookworm AS builder
+
+# Python 3.11 + Electron/Chromium runtime libs + FUSE2 (AppImage runtime).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-venv python3.11-dev \
+    build-essential \
+    fuse libfuse2 \
+    libgtk-3-0 libnss3 libasound2 libnotify4 libxss1 libxtst6 \
+    libxkbcommon0 libdrm2 libgbm1 libcups2 libsecret-1-0 \
+    at-spi2-core libatk1.0-0 libatk-bridge2.0-0 \
+    xdg-utils git curl ca-certificates unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+
+# Install JS deps first for layer caching.
+COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN npm ci
+
+COPY . .
+# The repo may have been checked out on Windows (git autocrlf), which leaves CRLF in the
+# shell scripts and breaks bash inside the Linux container ("set: pipefail: invalid option
+# name"). Normalize all shell scripts to LF, then make them executable.
+RUN find . -type f -name '*.sh' -exec sed -i 's/\r$//' {} + \
+    && chmod +x backend/runtime/linux/build_backend_elf.sh \
+    backend/runtime/linux/launch-backend.sh \
+    scripts/packaging/*.sh
+
+ENV CHIPVERIFY_BOOTSTRAP_PYTHON=python3.11
+
+ARG CHIPVERIFY_DEMO_GEMINI_API_KEY=
+ARG CHIPVERIFY_DEMO_OPENAI_API_KEY=
+ARG CHIPVERIFY_SENTRY_DSN=
+ARG CHIPVERIFY_SENTRY_ENVIRONMENT=production
+ENV CHIPVERIFY_DEMO_GEMINI_API_KEY=${CHIPVERIFY_DEMO_GEMINI_API_KEY}
+ENV CHIPVERIFY_DEMO_OPENAI_API_KEY=${CHIPVERIFY_DEMO_OPENAI_API_KEY}
+ENV CHIPVERIFY_SENTRY_DSN=${CHIPVERIFY_SENTRY_DSN}
+ENV CHIPVERIFY_SENTRY_ENVIRONMENT=${CHIPVERIFY_SENTRY_ENVIRONMENT}
+
+# Build embedded backend + frontend + AppImage during the image build so remote
+# builders (Depot) cache the heavy steps. Collect installers into /out.
+#
+# Backend bundling: build_backend_elf.sh collects services/routes/database/agent_tools
+# and runs --self-test-packaged (imports services.verification.uvm_gen, etc.) so a missing
+# PyInstaller module fails the build instead of POST /verification/plan returning 500.
+RUN bash ./scripts/packaging/package_embedded_linux.sh --target AppImage \
+    && mkdir -p /out \
+    && cp -v dist-electron/*.AppImage /out/ \
+    && cp -v dist-electron/latest-linux.yml /out/ 2>/dev/null || true \
+    && cp -v dist-electron/*.blockmap /out/ 2>/dev/null || true \
+    && ls -la /out
+
+# Fallback: the builder image can still be `docker/podman run` directly to rebuild.
+CMD ["bash", "./scripts/packaging/package_embedded_linux.sh", "--target", "AppImage"]
+
+# Export-only stage. Build with `--target artifact -o type=local,dest=./dist-electron`
+# to write the AppImage to the host with no extra tooling or container run step.
+FROM scratch AS artifact
+COPY --from=builder /out/ /
