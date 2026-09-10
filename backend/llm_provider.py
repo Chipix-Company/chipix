@@ -73,11 +73,17 @@ def _normalize_provider(name: Optional[str]) -> str:
         "convex": "convex_gateway",
         "convex_cloud": "convex_gateway",
         "convex_llm": "convex_gateway",
+        "mock": "demo",
+        "script": "demo",
+        "scripted": "demo",
     }
     return aliases.get(value, value)
 
 
 def _default_llm_provider() -> str:
+    demo_flag = (os.getenv("CHIPVERIFY_DEMO_MODE") or "").strip().lower()
+    if demo_flag in {"1", "true", "yes", "on"}:
+        return "demo"
     explicit = (
         os.getenv("CHIPVERIFY_LLM_PROVIDER")
         or os.getenv("MODEL_PROVIDER")
@@ -300,6 +306,9 @@ def _resolve_model_name(model: Optional[str], provider: str) -> str:
     google-genai 404s. Always coerce to GEMINI_DEFAULT_MODEL in that case.
     """
     raw = str(model or "").strip()
+
+    if provider == "demo":
+        return raw or "demo-script"
 
     if provider == "gemini":
         # Caller-supplied name takes precedence only if it looks Gemini-shaped.
@@ -596,6 +605,11 @@ def generate(
     max_tokens = max_tokens or DEFAULT_MAX_TOKENS
     extra_body = extra_body or EXTRA_BODY
 
+    if provider == "demo":
+        from demo.llm_script import generate_demo
+
+        return generate_demo(system_prompt, user_message)
+
     if provider == "convex_gateway":
         return _generate_convex_gateway(
             system_prompt,
@@ -646,6 +660,19 @@ def generate_stream(
     temperature = temperature if temperature is not None else DEFAULT_TEMPERATURE
     max_tokens = max_tokens or DEFAULT_MAX_TOKENS
     extra_body = extra_body or EXTRA_BODY
+
+    if provider == "demo":
+        from demo.llm_script import generate_demo
+
+        content, reasoning = generate_demo(system_prompt, user_message)
+        if reasoning:
+            # Keep parity with other providers that may yield reasoning first.
+            pass
+        # Stream in small chunks so UI peek/stream feels live.
+        step = 48
+        for i in range(0, len(content), step):
+            yield content[i : i + step]
+        return
 
     if provider == "convex_gateway":
         content, reasoning = _generate_convex_gateway(
@@ -1313,6 +1340,11 @@ def chat_with_tools(
     max_tokens = max_tokens or DEFAULT_MAX_TOKENS
     extra_body = extra_body or EXTRA_BODY
 
+    if provider == "demo":
+        from demo.llm_script import chat_with_tools_demo
+
+        return chat_with_tools_demo(messages, tools)
+
     if provider == "convex_gateway":
         return _chat_with_tools_convex_gateway(
             messages,
@@ -1364,6 +1396,12 @@ async def chat_with_tools_stream(
     temperature = temperature if temperature is not None else DEFAULT_TEMPERATURE
     max_tokens = max_tokens or DEFAULT_MAX_TOKENS
     extra_body = extra_body or EXTRA_BODY
+
+    if provider == "demo":
+        from demo.llm_script import chat_with_tools_demo
+
+        yield chat_with_tools_demo(messages, tools)
+        return
 
     if provider == "convex_gateway":
         yield _chat_with_tools_convex_gateway(
@@ -2411,6 +2449,8 @@ def complete_fim_stream(
 def validate_provider() -> tuple[bool, str]:
     """Check if the configured provider has valid credentials."""
     provider = PROVIDER
+    if provider == "demo":
+        return True, "Demo script provider configured (no remote LLM)"
     if provider == "gemini":
         if not GOOGLE_API_KEY:
             return False, "GOOGLE_API_KEY or GEMINI_API_KEY not set"
@@ -2437,5 +2477,5 @@ def validate_provider() -> tuple[bool, str]:
     else:
         return False, (
             f"Unknown provider: {provider}. Use 'gemini', 'bedrock', 'openai', 'nim', "
-            "'azure_openai', or 'convex_gateway'"
+            "'azure_openai', 'convex_gateway', or 'demo'"
         )

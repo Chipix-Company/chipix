@@ -1,0 +1,109 @@
+{
+  "path": "C:\\Users\\affan\\Affan Projects\\chipix\\scripts\\demo\\out\\vo.wav",
+  "model": "flux-hannah-en",
+  "speed": "1",
+  "sample_rate": 24000,
+  "bgm": "C:\\Users\\affan\\Affan Projects\\chipix\\scripts\\demo\\assets\\the_mountain-saas-systems-140452.mp3",
+  "bgm_level": 0.12,
+  "total_s": 208.352,
+  "beats": [
+    {
+      "id": "01",
+      "chars": 117,
+      "speech_s": 7.416,
+      "silence_after_s": 2.5,
+      "text": "You finished the RTL. Now you need proof it matches the spec \u2014 before tape-out, not after a week of debug in the lab."
+    },
+    {
+      "id": "02",
+      "chars": 83,
+      "speech_s": 6.936,
+      "silence_after_s": 2.0,
+      "text": "Open the SHA-256 accelerator. Real crypto hardware you're bringing to verification."
+    },
+    {
+      "id": "03",
+      "chars": 71,
+      "speech_s": 5.976,
+      "silence_after_s": 3.5,
+      "text": "Attach the design files. Upload RTL and drop in the SystemVerilog core."
+    },
+    {
+      "id": "04",
+      "chars": 79,
+      "speech_s": 5.328,
+      "silence_after_s": 3.0,
+      "text": "Attach the functional spec too. Every check should trace back to a requirement."
+    },
+    {
+      "id": "05",
+      "chars": 111,
+      "speech_s": 7.968,
+      "silence_after_s": 12.0,
+      "text": "Tell Chipix to build a mental model. It reads the RTL and the spec before it writes a single line of test code."
+    },
+    {
+      "id": "06",
+      "chars": 101,
+      "speech_s": 8.064,
+      "silence_after_s": 10.0,
+      "text": "Open the mental model. Walk the overview, modules, ports, parameters \u2014 what this block actually does."
+    },
+    {
+      "id": "07",
+      "chars": 56,
+      "speech_s": 3.648,
+      "silence_after_s": 2.0,
+      "text": "That matches what you expect. Approve it and keep going."
+    },
+    {
+      "id": "08",
+      "chars": 130,
+      "speech_s": 9.984,
+      "silence_after_s": 18.0,
+      "text": "Now Chipix writes the unit testbench \u2014 on screen, in your editor. Take a second. Skim the stimulus and the scoreboard as it lands."
+    },
+    {
+      "id": "09",
+      "chars": 95,
+      "speech_s": 6.456,
+      "silence_after_s": 10.0,
+      "text": "Switch to Verify. Pick UnitSim, approve the plan, hit Implement \u2014 and the run card comes alive."
+    },
+    {
+      "id": "10",
+      "chars": 114,
+      "speech_s": 9.096,
+      "silence_after_s": 12.0,
+      "text": "Watch the stages run. Two tests pass. The multi-block padding case fails \u2014 msg_last never fired on the last block."
+    },
+    {
+      "id": "11",
+      "chars": 100,
+      "speech_s": 7.488,
+      "silence_after_s": 8.0,
+      "text": "Chipix names the bug and shows the fix in a diff. You click Apply. The patch lands in the testbench."
+    },
+    {
+      "id": "12",
+      "chars": 111,
+      "speech_s": 6.288,
+      "silence_after_s": 14.0,
+      "text": "Run it again. All three UnitSim cases pass. Formal checks reset, handshake, and digest hold. Coverage moves up."
+    },
+    {
+      "id": "13",
+      "chars": 94,
+      "speech_s": 7.656,
+      "silence_after_s": 4.0,
+      "text": "Verification complete. A real failure caught, a one-click fix applied, green across the board."
+    },
+    {
+      "id": "14",
+      "chars": 183,
+      "speech_s": 12.048,
+      "silence_after_s": 3.0,
+      "text": "That's Chipix: read the design first, write tests in your IDE, run staged verification, fix what breaks \u2014 in one thread. If you're bringing up blocks like this every week, start here."
+    }
+  ]
+}

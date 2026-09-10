@@ -1,0 +1,11 @@
+{
+  "project_id": "6f694328-783b-47ae-9fb1-44cb81599216",
+  "project_name": "SHA-256 Accelerator 7725",
+  "rtl_path": "C:\\Users\\affan\\Affan Projects\\chipix\\backend\\demo\\fixtures\\sha256\\rtl\\sha256_accelerator.sv",
+  "spec_path": "C:\\Users\\affan\\Affan Projects\\chipix\\backend\\demo\\fixtures\\sha256\\spec_sha256.md",
+  "prompts": {
+    "mental_model": "Build a mental model from the uploaded SHA-256 spec and RTL.",
+    "implement": "Looks right \u2014 continue. Write the directed unit testbench for sha256_accelerator.",
+    "verify": "Plan and run verification for sha256_accelerator."
+  }
+}

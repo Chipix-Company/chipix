@@ -1,0 +1,108 @@
+{
+  "version": 2,
+  "media": {
+    "screenVideoPath": "C:\\Users\\affan\\AppData\\Roaming\\openscreen\\recordings\\recording-1789007732112.mp4",
+    "cursorCaptureMode": "editable-overlay"
+  },
+  "editor": {
+    "cursorTheme": "default",
+    "wallpaper": "/wallpapers/wallpaper1.jpg",
+    "shadowIntensity": 0.2,
+    "showBlur": false,
+    "motionBlurAmount": 0.2,
+    "borderRadius": 40,
+    "padding": 50,
+    "cropRegion": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "zoomRegions": [
+      {
+        "id": "zoom_mm_tour_58d2db",
+        "startMs": 70690,
+        "endMs": 76690,
+        "depth": 2.5,
+        "focus": {
+          "cx": 0.55,
+          "cy": 0.42
+        },
+        "focusMode": "manual"
+      },
+      {
+        "id": "zoom_ide_shown_3680f1",
+        "startMs": 104320,
+        "endMs": 109820,
+        "depth": 3.0,
+        "focus": {
+          "cx": 0.62,
+          "cy": 0.48
+        },
+        "focusMode": "manual"
+      },
+      {
+        "id": "zoom_plan_approved_8ddaf2",
+        "startMs": 122580,
+        "endMs": 126580,
+        "depth": 2.2,
+        "focus": {
+          "cx": 0.48,
+          "cy": 0.55
+        },
+        "focusMode": "manual"
+      },
+      {
+        "id": "zoom_run_fail_fd7554",
+        "startMs": 141869,
+        "endMs": 148869,
+        "depth": 3.0,
+        "focus": {
+          "cx": 0.5,
+          "cy": 0.52
+        },
+        "focusMode": "manual"
+      },
+      {
+        "id": "zoom_fix_applied_1ee997",
+        "startMs": 157359,
+        "endMs": 162359,
+        "depth": 3.2,
+        "focus": {
+          "cx": 0.52,
+          "cy": 0.5
+        },
+        "focusMode": "manual"
+      },
+      {
+        "id": "zoom_verdict_49d07c",
+        "startMs": 177649,
+        "endMs": 183649,
+        "depth": 2.6,
+        "focus": {
+          "cx": 0.5,
+          "cy": 0.48
+        },
+        "focusMode": "manual"
+      }
+    ],
+    "cameraFullscreenRegions": [],
+    "autoZoomEnabled": false,
+    "autoFocusAll": false,
+    "trimRegions": [],
+    "speedRegions": [],
+    "annotationRegions": [],
+    "aspectRatio": "16:9",
+    "webcamLayoutPreset": "picture-in-picture",
+    "webcamMaskShape": "rectangle",
+    "webcamMirrored": false,
+    "webcamReactiveZoom": true,
+    "webcamSizePreset": 25,
+    "webcamPosition": null,
+    "exportQuality": "good",
+    "exportFormat": "mp4",
+    "gifFrameRate": 15,
+    "gifLoop": true,
+    "gifSizePreset": "medium"
+  }
+}

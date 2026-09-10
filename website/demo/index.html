@@ -3,9 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chipix — Interactive preview</title>
+<title>Chipix · Interactive preview</title>
 <link rel="stylesheet" href="thread-first.css" />
 <link rel="stylesheet" href="embed.css" />
+<script>
+(function () {
+  try {
+    if (new URLSearchParams(location.search).get("fs") === "1") {
+      document.documentElement.classList.add("demo-fs");
+    }
+    if (window.self === window.top) {
+      document.documentElement.classList.add("demo-standalone");
+    }
+  } catch (_) { /* ignore */ }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -14,14 +26,14 @@
    FIRST PRINCIPLES
    ------------------------------------------------------------
    1. The product is a CONVERSATION about a design.
-   2. Files, runs, edits, mental models, plans, fixes — all are
+   2. Files, runs, edits, mental models, plans, fixes, all are
       richly-typed messages in that thread.
    3. Power surfaces (single-file editor, full IDE, mental-model
       explorer, command palette) are SUMMONED, never present.
    4. Every card carries its own next-step buttons.
    5. Plain-English first; logs/waves/graphs/code one click deeper.
    6. The AI shows its UNDERSTANDING (mental model, plan) before
-      it acts, so the user can correct early — not after.
+      it acts, so the user can correct early, not after.
    ============================================================ */
 :root {
   --bg: #faf8f5;
@@ -748,46 +760,46 @@ body.dark .why-card { border-color: rgba(224,138,124,0.2); }
 .composer-wrap {
   border-top: 1px solid var(--line);
   background: var(--bg);
-  padding: 14px 28px 20px;
+  padding: 10px 28px 16px;
 }
-.composer-inner { max-width: 780px; margin: 0 auto; }
-.suggest { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+.composer-inner { max-width: 720px; margin: 0 auto; }
+.suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .sgg {
-  padding: 6px 12px; border-radius: 999px;
+  padding: 5px 11px; border-radius: 999px;
   background: var(--surface); border: 1px solid var(--line);
-  color: var(--ink-2); font-size: 13px;
+  color: var(--ink-2); font-size: 12.5px;
 }
 .sgg:hover { border-color: var(--ink-2); color: var(--ink); }
 .sgg.accent { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .composer {
-  display: flex; align-items: flex-end; gap: 10px;
+  display: flex; align-items: flex-end; gap: 8px;
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 9px 11px 9px 16px;
+  border-radius: 14px;
+  padding: 6px 10px 6px 12px;
 }
-.composer:focus-within { border-color: var(--ink-2); box-shadow: 0 0 0 4px var(--surface-2); }
+.composer:focus-within { border-color: var(--ink-2); box-shadow: 0 0 0 3px var(--surface-2); }
 .composer textarea {
   flex: 1; background: none; border: none; outline: none;
-  font-size: 15px; line-height: 1.5;
-  min-height: 24px; max-height: 200px;
-  padding: 7px 0; color: var(--ink);
+  font-size: 14px; line-height: 1.45;
+  min-height: 22px; max-height: 120px;
+  padding: 5px 0; color: var(--ink);
 }
 .composer textarea::placeholder { color: var(--ink-3); }
 .composer .tool {
-  width: 34px; height: 34px;
+  width: 30px; height: 30px;
   display: grid; place-items: center;
-  border-radius: 9px; color: var(--ink-3);
+  border-radius: 8px; color: var(--ink-3); flex-shrink: 0;
 }
 .composer .tool:hover { background: var(--surface-2); color: var(--ink); }
 .composer .send {
-  width: 38px; height: 38px;
+  width: 32px; height: 32px;
   background: var(--ink); color: var(--bg);
-  border-radius: 12px; display: grid; place-items: center;
+  border-radius: 10px; display: grid; place-items: center; flex-shrink: 0;
 }
 .composer .send:hover { background: var(--ink-2); }
 .composer-foot {
-  margin-top: 7px; display: flex; justify-content: space-between;
-  font-size: 11.5px; color: var(--ink-4); padding: 0 4px;
+  margin-top: 5px; display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--ink-4); padding: 0 4px;
 }
 
 /* ============= EDITOR (single-file, summoned) ============= */
@@ -1203,7 +1215,7 @@ body.dark .drawer-section .row.special {
 
 @media (max-width: 640px) {
   .thread { padding: 24px 18px 28px; }
-  .composer-wrap { padding: 12px 18px 18px; }
+  .composer-wrap { padding: 10px 14px 12px; }
   .you { max-width: 90%; }
   .starters { grid-template-columns: 1fr; }
   .ide-body { grid-template-columns: 60px 1fr; }
@@ -1213,8 +1225,10 @@ body.dark .drawer-section .row.special {
 </head>
 <body class="dark thread-first-shell demo-embed-root">
 
+<a class="demo-standalone-back" href="../">← Back to Chipix</a>
+
 <p class="demo-preview-banner" role="status">
-  <strong>Interactive preview</strong> — simulated thread · no backend required
+  <strong>Interactive preview</strong> · simulated thread · no backend required
   <button type="button" class="demo-banner-reset" id="demoBannerReset" title="Restart demo">↺ Restart</button>
 </p>
 
@@ -1297,7 +1311,7 @@ body.dark .drawer-section .row.special {
       <div class="welcome" id="welcome">
         <div class="crest">Cx</div>
         <h1>Let's design something.</h1>
-        <p>Describe a chip in plain English. I'll show you how I understand it, write the RTL, then we move to verification together — mental model, staged plan, and human-approved diffs.</p>
+        <p>Describe a chip in plain English. I'll show you how I understand it, write the RTL, then we move to verification together: mental model, staged plan, and human-approved diffs.</p>
         <div class="starters">
           <button class="starter" data-intent="uart">
             <div class="lbl">RTL · Peripheral</div>
@@ -1312,7 +1326,7 @@ body.dark .drawer-section .row.special {
           <button class="starter" data-intent="alu">
             <div class="lbl">RTL · Datapath</div>
             <div class="txt">RISC-V style ALU</div>
-            <div class="sub">Add, sub, shift, logic — single cycle</div>
+            <div class="sub">Add, sub, shift, logic, single cycle</div>
           </button>
           <button class="starter" data-intent="import">
             <div class="lbl">Existing project</div>
@@ -1324,28 +1338,29 @@ body.dark .drawer-section .row.special {
     </div>
   </div>
 
-  <!-- ============ Composer + floating mode toggle ============ -->
+  <!-- ============ Composer (Design/Verify sits below the input) ============ -->
   <div class="demo-composer-stack">
-  <div class="tf-mode-toggle-wrap demo-mode-float" id="demoModeToggle">
-    <div class="tf-mode-toggle" data-mode="design" role="radiogroup" aria-label="Design or Verify focus">
-      <span class="tf-mode-thumb" aria-hidden="true"></span>
-      <button type="button" class="tf-mode-opt active" data-mode="design" role="radio" aria-checked="true"><span class="tf-mode-dot tf-mode-dot--design" aria-hidden="true"></span><span class="tf-mode-label">Design</span></button>
-      <button type="button" class="tf-mode-opt" data-mode="verify" role="radio" aria-checked="false"><span class="tf-mode-dot tf-mode-dot--verify" aria-hidden="true"></span><span class="tf-mode-label">Verify</span></button>
-    </div>
-  </div>
   <div class="composer-wrap">
     <div class="composer-inner">
       <div class="suggest" id="suggest"></div>
       <div class="composer">
         <button class="tool" title="Attach file">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.4 11.1L13 19.5a5 5 0 0 1-7-7L14.4 4a3.3 3.3 0 1 1 4.7 4.7L10.7 17a1.7 1.7 0 0 1-2.4-2.4L16 7"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.4 11.1L13 19.5a5 5 0 0 1-7-7L14.4 4a3.3 3.3 0 1 1 4.7 4.7L10.7 17a1.7 1.7 0 0 1-2.4-2.4L16 7"/></svg>
         </button>
         <textarea id="composerInput" placeholder="Describe what you want to build, or ask anything…" rows="1"></textarea>
-        <button class="send" id="sendBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+        <button class="send" id="sendBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
       </div>
-      <div class="composer-foot">
-        <span><span class="kbd">⌘ Enter</span> send · <span class="kbd">⌘ K</span> palette · <span class="kbd">⌘ ⇧ E</span> IDE mode</span>
-        <span>Chipix builds, verifies, explains, and fixes</span>
+      <div class="composer-below">
+        <div class="composer-foot">
+          <span><span class="kbd">⌘ Enter</span> send · <span class="kbd">⌘ K</span> palette · <span class="kbd">⌘ ⇧ E</span> IDE mode</span>
+          <div class="tf-mode-toggle-wrap demo-mode-below" id="demoModeToggle">
+            <div class="tf-mode-toggle" data-mode="design" role="radiogroup" aria-label="Design or Verify focus">
+              <span class="tf-mode-thumb" aria-hidden="true"></span>
+              <button type="button" class="tf-mode-opt active" data-mode="design" role="radio" aria-checked="true"><span class="tf-mode-dot tf-mode-dot--design" aria-hidden="true"></span><span class="tf-mode-label">Design</span></button>
+              <button type="button" class="tf-mode-opt" data-mode="verify" role="radio" aria-checked="false"><span class="tf-mode-dot tf-mode-dot--verify" aria-hidden="true"></span><span class="tf-mode-label">Verify</span></button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1372,7 +1387,7 @@ body.dark .drawer-section .row.special {
       <div class="glyph" id="editorGlyph">SV</div>
       <div>
         <div class="name" id="editorName">file.sv</div>
-        <div class="meta" id="editorMeta">—</div>
+        <div class="meta" id="editorMeta">-</div>
       </div>
     </div>
     <div class="spacer"></div>
@@ -1396,7 +1411,7 @@ body.dark .drawer-section .row.special {
     <div class="ef-inner">
       <div class="ef-prompt">
         <span class="lbl">Ask Chipix</span>
-        <input id="editorAsk" placeholder="Explain a line, refactor, find issues — about this file" />
+        <input id="editorAsk" placeholder="Explain a line, refactor, find issues about this file" />
         <button class="tool" style="color:var(--ink-3)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </button>
@@ -1442,7 +1457,7 @@ body.dark .drawer-section .row.special {
         </div>
         <div class="body" id="ideOutputBody">
 <span style="color:var(--ink-4)">[14:43:01] </span>Starting regression…
-<span style="color:var(--ink-4)">[14:43:02] </span>Linting 4 modules — clean
+<span style="color:var(--ink-4)">[14:43:02] </span>Linting 4 modules, clean
 <span style="color:var(--ink-4)">[14:43:03] </span>Building testbench
 <span style="color:var(--ink-4)">[14:43:05] </span>Simulating 333 directed + random tests
 <span style="color:var(--ink-4)">[14:46:13] </span>All assertions held (218/218)
@@ -1452,7 +1467,7 @@ body.dark .drawer-section .row.special {
     </div>
     <aside class="ide-right">
       <div class="grp">Assistant in context</div>
-      <div class="ai-msg you">Open <code>uart_apb.sv</code> at line 218 — that's where the parity bug was.</div>
+      <div class="ai-msg you">Open <code>uart_apb.sv</code> at line 218, that's where the parity bug was.</div>
       <div class="ai-msg">Done. The fix swapped the ternary so odd parity inverts the XOR. Want me to add a header comment summarising the change?</div>
       <div class="grp">Project agents</div>
       <div class="ai-msg"><strong>Spec Parser</strong> · idle</div>
@@ -1564,11 +1579,11 @@ body.dark .drawer-section .row.special {
       <table>
         <thead><tr><th>Module</th><th>Role</th><th>Children</th></tr></thead>
         <tbody>
-          <tr><td><code>uart_apb</code></td><td>Top — APB decode, register file, IRQ logic</td><td>4</td></tr>
-          <tr><td><code>baud_gen</code></td><td>Fractional baud divider, ±0.05% accuracy</td><td>—</td></tr>
-          <tr><td><code>fifo</code></td><td>Synchronous FIFO (instantiated twice: tx_fifo, rx_fifo)</td><td>—</td></tr>
-          <tr><td><code>tx_serializer</code></td><td>Drives the <code>tx</code> pin: start, 8 data, parity, stop</td><td>—</td></tr>
-          <tr><td><code>rx_deserializer</code></td><td>Samples <code>rx</code> at mid-bit, framing/parity check</td><td>—</td></tr>
+          <tr><td><code>uart_apb</code></td><td>Top: APB decode, register file, IRQ logic</td><td>4</td></tr>
+          <tr><td><code>baud_gen</code></td><td>Fractional baud divider, ±0.05% accuracy</td><td>-</td></tr>
+          <tr><td><code>fifo</code></td><td>Synchronous FIFO (instantiated twice: tx_fifo, rx_fifo)</td><td>-</td></tr>
+          <tr><td><code>tx_serializer</code></td><td>Drives the <code>tx</code> pin: start, 8 data, parity, stop</td><td>-</td></tr>
+          <tr><td><code>rx_deserializer</code></td><td>Samples <code>rx</code> at mid-bit, framing/parity check</td><td>-</td></tr>
         </tbody>
       </table>
     </section>
@@ -1616,8 +1631,8 @@ body.dark .drawer-section .row.special {
 
     <section class="panel" data-p="experimental">
       <h2>Experimental insights</h2>
-      <p>I noticed your spec leaves <strong>oversampling factor</strong> unspecified. I'm defaulting to <strong>16×</strong> at mid-bit (standard), but flag this — some industrial systems run 13× to save power. Want me to expose this as a register field?</p>
-      <p>I also see the spec mentions "back-pressure" on RX once — but the FIFO can't really push back over a UART line. I'm treating that paragraph as informational. Confirm if you wanted hardware flow control (RTS/CTS) instead.</p>
+      <p>I noticed your spec leaves <strong>oversampling factor</strong> unspecified. I'm defaulting to <strong>16×</strong> at mid-bit (standard), but flag this; some industrial systems run 13× to save power. Want me to expose this as a register field?</p>
+      <p>I also see the spec mentions "back-pressure" on RX once, but the FIFO can't really push back over a UART line. I'm treating that paragraph as informational. Confirm if you wanted hardware flow control (RTS/CTS) instead.</p>
     </section>
   </div>
 </div>
@@ -1637,10 +1652,10 @@ body.dark .drawer-section .row.special {
   </div>
   <div class="dash-body">
     <div class="dash-kpis" id="dashKpis">
-      <div class="dash-kpi good"><div class="k">Tests</div><div class="v" id="dashTests">—</div></div>
-      <div class="dash-kpi good"><div class="k">Coverage</div><div class="v" id="dashCov">—</div></div>
-      <div class="dash-kpi"><div class="k">Assertions</div><div class="v" id="dashAssert">—</div></div>
-      <div class="dash-kpi"><div class="k">Last runtime</div><div class="v" id="dashRuntime">—</div></div>
+      <div class="dash-kpi good"><div class="k">Tests</div><div class="v" id="dashTests">-</div></div>
+      <div class="dash-kpi good"><div class="k">Coverage</div><div class="v" id="dashCov">-</div></div>
+      <div class="dash-kpi"><div class="k">Assertions</div><div class="v" id="dashAssert">-</div></div>
+      <div class="dash-kpi"><div class="k">Last runtime</div><div class="v" id="dashRuntime">-</div></div>
     </div>
     <div class="dash-runs">
       <h3>Recent runs</h3>
@@ -1691,7 +1706,7 @@ body.dark .drawer-section .row.special {
     <div class="drawer-section">
       <h4>All conversations</h4>
       <div id="drawerConvos">
-        <div class="empty">No conversations yet — start by describing what you want to build.</div>
+        <div class="empty">No conversations yet. Start by describing what you want to build.</div>
       </div>
     </div>
     <div class="drawer-section">
@@ -1741,7 +1756,7 @@ const FILE_TEMPLATES = {
     glyph: "SV",
     meta: "package · written by Chipix",
     content:
-`// uart_pkg.sv — parameters and types for UART APB controller
+`// uart_pkg.sv, parameters and types for UART APB controller
 
 package uart_pkg;
   localparam int FIFO_DEPTH = 16;
@@ -1762,7 +1777,7 @@ endpackage
     glyph: "SV",
     meta: "baud divider · written by Chipix",
     content:
-`// baud_gen.sv — fractional baud divider
+`// baud_gen.sv, fractional baud divider
 
 module baud_gen #(parameter int CLK_HZ = 50_000_000)
 (
@@ -1783,7 +1798,7 @@ endmodule
     glyph: "SV",
     meta: "synchronous FIFO · written by Chipix",
     content:
-`// fifo.sv — synchronous FIFO
+`// fifo.sv, synchronous FIFO
 
 module fifo #(parameter int DEPTH = 16, parameter int WIDTH = 8)
 (
@@ -1801,7 +1816,7 @@ endmodule
     glyph: "SV",
     meta: "top module · written by Chipix",
     content:
-`// uart_apb.sv — APB UART top module
+`// uart_apb.sv, APB UART top module
 
 module uart_apb import uart_pkg::*;
 (
@@ -1827,7 +1842,7 @@ endmodule
     glyph: "MD",
     meta: "specification · imported",
     content:
-`# UART APB Controller — Specification
+`# UART APB Controller, Specification
 
 ## §1 Overview
 An 8-bit asynchronous serial transceiver exposed to the SoC over APB.
@@ -1961,14 +1976,14 @@ function cardMentalModel(turn) {
       </div>
       <div>
         <div class="title">Here's how I understand your design</div>
-        <div class="sub">My mental model — please correct anything I got wrong</div>
+        <div class="sub">My mental model. Please correct anything I got wrong</div>
       </div>
       <div class="spacer"></div>
       <button class="micro-btn" id="mmOpenFull">View full model →</button>
     </div>
     <div class="mm-body">
       <div class="mm-desc">
-        A <strong>UART APB controller</strong> — an 8-bit asynchronous serial transceiver fronted by an APB slave. It buffers data with <strong>16-byte sync FIFOs</strong> on TX and RX, generates its own baud clock from a fractional divider, and fires an interrupt when the RX FIFO crosses a programmable level (default 8). Baud rate changes only take effect when both FIFOs are empty.
+        A <strong>UART APB controller</strong>, an 8-bit asynchronous serial transceiver fronted by an APB slave. It buffers data with <strong>16-byte sync FIFOs</strong> on TX and RX, generates its own baud clock from a fractional divider, and fires an interrupt when the RX FIFO crosses a programmable level (default 8). Baud rate changes only take effect when both FIFOs are empty.
       </div>
       <div class="mm-graph">
         <svg viewBox="0 0 700 170" preserveAspectRatio="xMidYMid meet">
@@ -2016,8 +2031,8 @@ function cardMentalModel(turn) {
       </div>
     </div>
     <div class="card-actions">
-      <button class="btn primary" id="mmAccept">Looks right — continue</button>
-      <button class="btn" id="mmCorrect">Something's off — let me correct</button>
+      <button class="btn primary" id="mmAccept">Looks right, continue</button>
+      <button class="btn" id="mmCorrect">Something's off, let me correct</button>
       <div class="spacer"></div>
       <button class="btn" id="mmFullBtn">Explore in full view</button>
     </div>
@@ -2032,7 +2047,7 @@ function cardMentalModel(turn) {
       <li><span class="k">rx, tx</span><span>Serial pads</span></li>
       <li><span class="k">irq</span><span>Level interrupt to SoC</span></li></ul>`,
     modules: `<ul class="mm-list">
-      <li><span class="k">uart_apb</span><span>Top — APB decode, register file, IRQ</span></li>
+      <li><span class="k">uart_apb</span><span>Top: APB decode, register file, IRQ</span></li>
       <li><span class="k">baud_gen</span><span>Fractional baud divider (±0.05%)</span></li>
       <li><span class="k">fifo ×2</span><span>16×8 sync FIFO (tx_fifo, rx_fifo)</span></li>
       <li><span class="k">tx_serializer</span><span>start, 8 data, parity, stop</span></li>
@@ -2062,17 +2077,17 @@ function cardMentalModel(turn) {
     if (STATE.mentalModelApproved) return;
     STATE.mentalModelApproved = true;
     card.querySelector(".card-actions").innerHTML =
-      `<span style="color:var(--good);font-weight:600;font-size:13px;padding:6px 0">✓ Approved — proceeding to strategy</span>`;
-    addUser("Looks right — continue.");
+      `<span style="color:var(--good);font-weight:600;font-size:13px;padding:6px 0">✓ Approved, proceeding to strategy</span>`;
+    addUser("Looks right, continue.");
     proceedToStrategy();
   });
   card.querySelector("#mmCorrect").addEventListener("click", () => {
-    addUser("Actually, the baud rate should be allowed to change anytime — not just when FIFOs are empty.");
+    addUser("Actually, the baud rate should be allowed to change anytime, not just when FIFOs are empty.");
     const t = addThinking("Updating my model…");
     sleep(900).then(() => {
       t.remove();
       addSystemTurn(turn2 => {
-        addSaid(turn2, "Got it — corrected. Baud reload is now allowed any time, with a glitch-free divider switch. I've updated the model. Tap <strong>Looks right — continue</strong> to move on.");
+        addSaid(turn2, "Got it, corrected. Baud reload is now allowed any time, with a glitch-free divider switch. I've updated the model. Tap <strong>Looks right, continue</strong> to move on.");
       });
       const desc = card.querySelector(".mm-desc");
       desc.innerHTML = desc.innerHTML.replace(/Baud rate changes only take effect when both FIFOs are empty\./, "<strong>Baud reload is allowed any time</strong>, glitch-free.");
@@ -2094,7 +2109,7 @@ function cardStrategy(turn) {
       </div>
       <div>
         <div class="title">My recommended verification approach</div>
-        <div class="sub">Three strategies — I've pre-selected what fits this design</div>
+        <div class="sub">Three strategies. I've pre-selected what fits this design</div>
       </div>
     </div>
     <div class="strat-body">
@@ -2111,7 +2126,7 @@ function cardStrategy(turn) {
         <div class="body">
           <div class="name">Formal property checking <span class="reco">Recommended</span></div>
           <div class="desc">Mathematically prove no deadlock and that APB protocol is honoured.</div>
-          <div class="why">~20 lines of SVA — cheap insurance for a control block.</div>
+          <div class="why">~20 lines of SVA: cheap insurance for a control block.</div>
         </div>
       </div>
       <div class="strat-row" data-strat="uvm">
@@ -2119,7 +2134,7 @@ function cardStrategy(turn) {
         <div class="body">
           <div class="name">Full UVM environment <span class="skip">Skip for now</span></div>
           <div class="desc">Constrained-random with scoreboards, agents, sequences.</div>
-          <div class="why">Overkill for a block this small — adds days of setup. Reach for it when integrating into the SoC.</div>
+          <div class="why">Overkill for a block this small; adds days of setup. Reach for it when integrating into the SoC.</div>
         </div>
       </div>
     </div>
@@ -2144,7 +2159,7 @@ function cardStrategy(turn) {
   });
   card.querySelector("#stratExplain").addEventListener("click", () => {
     addSystemTurn(t => addSaid(t,
-      "Unit sim is your fast feedback loop — minutes per cycle. Formal proves things you'd never reach by simulation. UVM scales to <em>systems</em>; for one block it's mostly ceremony. We can always promote to UVM when this peripheral lands in an SoC."));
+      "Unit sim is your fast feedback loop: minutes per cycle. Formal proves things you'd never reach by simulation. UVM scales to <em>systems</em>; for one block it's mostly ceremony. We can always promote to UVM when this peripheral lands in an SoC."));
   });
   turn.appendChild(card);
   scrollDown();
@@ -2161,7 +2176,7 @@ function cardPlanApproval(turn) {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </div>
       <div>
-        <div class="title">Verification plan — please approve</div>
+        <div class="title">Verification plan. Please approve</div>
         <div class="sub">${STATE.planTests.filter(t=>t.on).length} test scenarios across the strategies you picked</div>
       </div>
     </div>
@@ -2242,7 +2257,7 @@ function cardToolchain(turn) {
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
       Verilator
     </span>
-    <span style="font-size:12px;color:var(--ink-3);flex:1;text-align:right">Verilator missing — falling back to Icarus for sim.</span>
+    <span style="font-size:12px;color:var(--ink-3);flex:1;text-align:right">Verilator missing, falling back to Icarus for sim.</span>
   `;
   turn.appendChild(card);
   scrollDown();
@@ -2412,7 +2427,7 @@ async function runRunCard(card, script) {
     nowTitle.textContent = step.label;
     nowSub.textContent = step.sub || "";
     const ts = new Date().toTimeString().slice(0,8);
-    log.innerHTML += `<span class="ts">[${ts}]</span>${step.label} — ${step.sub||""}\n`;
+    log.innerHTML += `<span class="ts">[${ts}]</span>${step.label}: ${step.sub||""}\n`;
     log.scrollTop = log.scrollHeight;
     prevStage = step.stage;
     await sleep(step.durationMs);
@@ -2474,7 +2489,7 @@ function cardCoverage(turn) {
       <div class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg></div>
       <div>
         <div class="title">Coverage breakdown</div>
-        <div class="sub">Where the tests reached — and where they didn't</div>
+        <div class="sub">Where the tests reached, and where they didn't</div>
       </div>
     </div>
     <div class="cov-bars">
@@ -2649,12 +2664,12 @@ function updateSuggestionsForStep() {
     case "welcome":
       setSuggestions([
         { text: "Build a UART with APB", accent: true, on: beginDesignUART },
-        { text: "Verify code I already have", on: () => addUser("I have existing RTL — try the UART starter for the full demo.") },
+        { text: "Verify code I already have", on: () => addUser("I have existing RTL; try the UART starter for the full demo.") },
       ]);
       break;
     case "passedFirst":
       setSuggestions([
-        { text: "Add parity support", accent: true, on: () => userAsks("Add parity support — both odd and even, configurable through the control register.") },
+        { text: "Add parity support", accent: true, on: () => userAsks("Add parity support: both odd and even, configurable through the control register.") },
         { text: "Show me the schematic", on: () => addSystemTurn(t => cardSchematic(t)) },
         { text: "Open in IDE mode", on: openIDE },
       ]);
@@ -2693,7 +2708,7 @@ async function beginDesignUART() {
 
   cardAsk(turn, {
     q: "Should the baud rate be changeable while the UART is busy?",
-    sub: "Most designs only allow it when both FIFOs are empty — safer, simpler.",
+    sub: "Most designs only allow it when both FIFOs are empty: safer, simpler.",
     choices: [
       { label: "Only when FIFOs are empty" },
       { label: "Allow changes anytime" },
@@ -2703,7 +2718,7 @@ async function beginDesignUART() {
   });
   cardAsk(turn, {
     q: "What should trigger the RX interrupt?",
-    sub: "Pick a default — you can change it in the register map later.",
+    sub: "Pick a default; you can change it in the register map later.",
     choices: [
       { label: "Half-full (8 bytes)" },
       { label: "Programmable, default 8" },
@@ -2726,7 +2741,7 @@ async function proceedToMentalModel() {
   const t = addThinking("Synthesising my mental model of the design…");
   await sleep(1400); t.remove();
   const turn = addSystemTurn(t => {
-    addSaid(t, "Before I write a single line, let me show you how I understand this. <strong>If anything is wrong here, every test I write will reinforce the wrong design</strong> — so this is the most important checkpoint.");
+    addSaid(t, "Before I write a single line, let me show you how I understand this. <strong>If anything is wrong here, every test I write will reinforce the wrong design</strong>, so this is the most important checkpoint.");
   });
   cardMentalModel(turn);
 }
@@ -2786,7 +2801,7 @@ async function proceedToBuild() {
   await sleep(400);
   addSaid(turn, "All files written. Want me to verify it now using the plan you approved?");
   setDemoMode("verify");
-  setDemoActivity("RTL ready — start verification when you are");
+  setDemoActivity("RTL ready. Start verification when you are");
   cardAsk(turn, {
     q: "Start verification?",
     choices: [
@@ -2796,7 +2811,7 @@ async function proceedToBuild() {
     ],
     onPick: (c, i) => {
       if (i === 1) { addSystemTurn(t => cardSchematic(t)); STATE.step = "passedFirst"; updateSuggestionsForStep(); }
-      else if (i === 2) { addSystemTurn(t => addSaid(t, "Take your time. Tap any file card to read it — or open the full IDE from the drawer.")); STATE.step = "passedFirst"; updateSuggestionsForStep(); }
+      else if (i === 2) { addSystemTurn(t => addSaid(t, "Take your time. Tap any file card to read it, or open the full IDE from the drawer.")); STATE.step = "passedFirst"; updateSuggestionsForStep(); }
       else runFirstVerification();
     }
   });
@@ -2822,7 +2837,7 @@ async function runFirstVerification() {
   cardVerdict(turn, {
     kind: "good",
     title: "Looks correct",
-    sub: `All ${STATE.planTests.filter(t=>t.on).length} tests passed. Coverage came in at <strong>87%</strong> — two real gaps showed up, see below.`,
+    sub: `All ${STATE.planTests.filter(t=>t.on).length} tests passed. Coverage came in at <strong>87%</strong>; two real gaps showed up, see below.`,
     facts: [
       { k: "Simulation", v: `${STATE.planTests.filter(t=>t.on).length} / ${STATE.planTests.filter(t=>t.on).length} passed` },
       { k: "Coverage",   v: "87% functional, 82% line" },
@@ -2836,7 +2851,7 @@ async function runFirstVerification() {
   });
   cardCoverage(turn);
   STATE.step = "passedFirst";
-  setDemoActivity("Tests green — iterate or extend");
+  setDemoActivity("Tests green. Iterate or extend");
   updateSuggestionsForStep();
 }
 
@@ -2970,9 +2985,9 @@ async function showFailureAnalysis() {
   cardVerdict(turn, {
     kind: "bad",
     title: "Found a problem",
-    sub: "17 of 64 parity tests failed. All failures are in <strong>odd parity</strong> mode — even parity is clean.",
+    sub: "17 of 64 parity tests failed. All failures are in <strong>odd parity</strong> mode; even parity is clean.",
     facts: [
-      { k: "Failing tests",    v: "17 / 64 — all odd parity" },
+      { k: "Failing tests",    v: "17 / 64, all odd parity" },
       { k: "First failure",    v: "parity_odd_tx_basic" },
       { k: "Assertion broken", v: "tx_parity_match" },
       { k: "Coverage",         v: "81% functional, 73% line" }
@@ -3025,7 +3040,7 @@ async function runFixVerification() {
     cardVerdict(turn, {
       kind: "good",
       title: "All clear",
-      sub: "397 / 397 tests passed — including all 64 parity scenarios. Coverage rose to <strong>94%</strong>.",
+      sub: "397 / 397 tests passed, including all 64 parity scenarios. Coverage rose to <strong>94%</strong>.",
       facts: [
         { k: "Simulation", v: "397 / 397 passed" },
         { k: "Parity tests", v: "64 / 64 (odd + even)" },
@@ -3149,9 +3164,9 @@ function renderIdeExplorer() {
   ideExplorer.innerHTML = `
     <div class="grp">UART APB Controller</div>
     <div class="grp" style="padding-top:2px">RTL</div>
-    ${rtl.map(n => `<div class="erow ${ideActiveTab===n?'active':''}" data-f="${n}"><span class="gly">SV</span>${n}</div>`).join("") || `<div class="erow"><span class="gly" style="color:var(--ink-4)">—</span><em style="color:var(--ink-4)">empty</em></div>`}
+    ${rtl.map(n => `<div class="erow ${ideActiveTab===n?'active':''}" data-f="${n}"><span class="gly">SV</span>${n}</div>`).join("") || `<div class="erow"><span class="gly" style="color:var(--ink-4)">-</span><em style="color:var(--ink-4)">empty</em></div>`}
     <div class="grp">Spec</div>
-    ${docs.map(n => `<div class="erow ${ideActiveTab===n?'active':''}" data-f="${n}"><span class="gly">MD</span>${n}</div>`).join("") || `<div class="erow"><span class="gly" style="color:var(--ink-4)">—</span><em style="color:var(--ink-4)">empty</em></div>`}
+    ${docs.map(n => `<div class="erow ${ideActiveTab===n?'active':''}" data-f="${n}"><span class="gly">MD</span>${n}</div>`).join("") || `<div class="erow"><span class="gly" style="color:var(--ink-4)">-</span><em style="color:var(--ink-4)">empty</em></div>`}
     <div class="grp">Tests</div>
     <div class="erow"><span class="gly" style="color:var(--ink-4)">SV</span><em style="color:var(--ink-4)">tb_uart.sv (generated)</em></div>
     <div class="grp">Reports</div>
@@ -3275,9 +3290,9 @@ function renderDashboard() {
   const testCount = STATE.planTests?.filter(t => t.on).length || 12;
   const hasPass = ["passedFirst", "finalPass"].includes(STATE.step);
   $("#dashTests").textContent = hasPass ? `${testCount} / ${testCount}` : "Pending";
-  $("#dashCov").textContent = hasPass ? "87%" : "—";
-  $("#dashAssert").textContent = hasPass ? "218 / 218" : "—";
-  $("#dashRuntime").textContent = hasPass ? "03:08" : "—";
+  $("#dashCov").textContent = hasPass ? "87%" : "-";
+  $("#dashAssert").textContent = hasPass ? "218 / 218" : "-";
+  $("#dashRuntime").textContent = hasPass ? "03:08" : "-";
   const runs = $("#dashRuns");
   runs.innerHTML = "";
   const items = STATE.convos?.length ? STATE.convos : [{ status: "y", label: "UART APB Controller", when: "In progress" }];
@@ -3331,7 +3346,7 @@ $("#resetBtn").addEventListener("click", () => location.reload());
 function refreshDrawerConvos() {
   const el = $("#drawerConvos");
   if (!STATE.convos.length) {
-    el.innerHTML = `<div class="empty">No conversations yet — start by describing what you want to build.</div>`;
+    el.innerHTML = `<div class="empty">No conversations yet. Start by describing what you want to build.</div>`;
     return;
   }
   el.innerHTML = STATE.convos.map(c => `<div class="row"><span class="dot ${c.status}"></span>${c.label}<span class="when">${c.when}</span></div>`).join("");
@@ -3364,7 +3379,7 @@ function renderPalette(query = "") {
     items.push({ section: "Power tools", icon: "▤", name: "Open verification dashboard", meta: "KPIs", on: () => { closePalette(); openDashboard(); } });
   }
   if (STATE.step === "passedFirst") {
-    items.push({ section: "Suggested", icon: "+", name: "Add parity support", meta: "iterate", on: () => userAsks("Add parity support — both odd and even.") });
+    items.push({ section: "Suggested", icon: "+", name: "Add parity support", meta: "iterate", on: () => userAsks("Add parity support: both odd and even.") });
   }
   Object.keys(STATE.files).forEach(n => {
     items.push({ section: "Files", icon: STATE.files[n].glyph || "SV", name: n, meta: `${STATE.files[n].lines} lines`, on: () => openEditor(n) });
@@ -3418,7 +3433,7 @@ document.querySelectorAll(".starter").forEach(b => {
     if (intent === "uart") beginDesignUART();
     else {
       addUser(b.querySelector(".txt").textContent);
-      addSystemTurn(t => addSaid(t, "For the full end-to-end demo, hit the <strong>UART with APB</strong> starter — it walks through mental model → strategy → plan → build → fix."));
+      addSystemTurn(t => addSaid(t, "For the full end-to-end demo, hit the <strong>UART with APB</strong> starter; it walks through mental model → strategy → plan → build → fix."));
     }
   });
 });
@@ -3431,7 +3446,7 @@ refreshDrawerConvos();
 refreshDrawerFiles();
 
 /* ============================================================
-   LANDING DEMO — side rail + Design/Verify lens (product shell)
+   LANDING DEMO: side rail + Design/Verify lens (product shell)
    ============================================================ */
 const demoModeWrap = document.getElementById("demoModeToggle");
 const demoModeToggle = demoModeWrap?.querySelector(".tf-mode-toggle");
@@ -3445,11 +3460,11 @@ const DEMO_ACTIVITY = {
   mentalmodel: "Building mental model…",
   strategy: "Choosing verification strategy…",
   planapproval: "Approve the staged plan…",
-  building: "Writing RTL — verification next",
+  building: "Writing RTL, verification next",
   running: "Running staged verification…",
   runningSecond: "Re-running verification…",
-  passedFirst: "Tests green — iterate or extend",
-  finalPass: "All checks passed — save baseline",
+  passedFirst: "Tests green. Iterate or extend",
+  finalPass: "All checks passed. Save baseline",
   failed: "Investigating failure…",
   parity: "Applying parity changes…",
   askedReverify: "Ready to re-verify",
@@ -3479,7 +3494,7 @@ function setDemoMode(mode, opts = {}) {
     if (mode === "verify" && VERIFY_GATED_STEPS.has(STATE.step)) {
       setDemoActivity("Approve mental model before verification");
     } else if (mode === "verify" && STATE.step === "building") {
-      setDemoActivity("RTL ready — start verification in thread");
+      setDemoActivity("RTL ready. Start verification in thread");
     } else {
       syncDemoActivity();
     }
@@ -3488,7 +3503,7 @@ function setDemoMode(mode, opts = {}) {
 function handleDemoModeClick(mode) {
   if (mode === "verify" && VERIFY_GATED_STEPS.has(STATE.step)) {
     setDemoMode("verify");
-    toast("Finish design and confirm the mental model — then staged verification unlocks.");
+    toast("Finish design and confirm the mental model, then staged verification unlocks.");
     return;
   }
   setDemoMode(mode);

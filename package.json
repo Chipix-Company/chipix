@@ -5,10 +5,10 @@
   "license": "GPL-3.0-or-later",
   "private": true,
   "main": "electron/main.js",
-  "homepage": "https://chipverify.com",
+  "homepage": "https://chipix.in/",
   "author": {
-    "name": "ChipVerify",
-    "email": "support@chipverify.com"
+    "name": "Chipix",
+    "email": "support@chipix.in"
   },
   "scripts": {
     "dev:frontend": "cd frontend && npm run dev",

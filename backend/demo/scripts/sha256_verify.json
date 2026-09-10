@@ -1,0 +1,304 @@
+{
+  "name": "sha256_human_paced",
+  "description": "Phase-gated demo LLM: mental_model → implement → verify fail/fix/rerun",
+  "generate_rules": [
+    {
+      "when_any": ["json only", "return json", "block model", "mental model", "enrich"],
+      "content": "@include fixtures/sha256/generated/mental_model_enrichment.json"
+    },
+    {
+      "when_any": ["test plan", "unit simulation plan", "scenarios"],
+      "content": "{\n  \"summary\": \"Directed SHA-256 unit plan\",\n  \"scenarios\": [{\"name\": \"empty_nist\", \"priority\": \"P0\"}],\n  \"demo\": true\n}"
+    },
+    {
+      "when_any": ["formal", "sva", "assertion"],
+      "content": "{\n  \"properties\": [\"p_reset_clears_hash\", \"p_msg_transfer_stable\", \"p_hash_hold\"],\n  \"mode\": \"prove\",\n  \"demo\": true\n}"
+    }
+  ],
+  "generate_fallback": {
+    "content": "{\"status\":\"ok\",\"demo\":true}"
+  },
+  "phases": {
+    "mental_model": {
+      "triggers": [
+        "build mental model",
+        "mental model from",
+        "from the uploaded",
+        "uploaded sha-256"
+      ],
+      "turns": [
+        {
+          "content": "I'll ground this in your sources first — scanning the project, then reading the SHA-256 RTL and specification before I commit to a mental model.",
+          "reasoning": "Discovery before understanding.",
+          "tool_calls": [
+            {
+              "id": "mm_scan",
+              "name": "scanProject",
+              "arguments": { "project_id": "{{project_id}}" }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Layout looks right. Listing artifacts so the mental model is tied to the real files you uploaded.",
+          "tool_calls": [
+            {
+              "id": "mm_list",
+              "name": "listFiles",
+              "arguments": { "project_id": "{{project_id}}" }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Building the mental model for `sha256_accelerator` now — interfaces, FSM, parameters, and the requirements that matter for verification.",
+          "tool_calls": [
+            {
+              "id": "mm_build",
+              "name": "buildMentalModel",
+              "arguments": {
+                "project_id": "{{project_id}}",
+                "target_module": "sha256_accelerator"
+              }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Here's how I understand **sha256_accelerator** before we write any tests.\n\n**Overview** — A streaming SHA-256 compression engine: 512-bit message blocks in, 256-bit digest out, ready/valid on both sides.\n\n**Modules / structure** — Top `sha256_accelerator` with control FSM (`IDLE → PAD_GENERATE → PROCESS_BLOCK → OUTPUT_HASH`), 64-round datapath, message schedule W[0:63], and chained H registers.\n\n**Ports** — `clk`/`rst_n`; message `msg_valid`/`msg_data[511:0]`/`msg_last`/`msg_ready`; digest `hash_valid`/`hash_data[255:0]`/`hash_ready`.\n\n**Parameters / constants** — NIST K[0:63] round constants and H_INIT IV; 64 compression rounds per block.\n\n**Functionality** — Handshake safety, IV load on first block, chaining on later blocks, `msg_last` → present digest, hold digest while `!hash_ready`, NIST empty-message digest as golden check.\n\nOpen the **Mental model** rail and walk Overview → Modules → Ports → Parameters → Functionalities. When it looks right, tell me to continue and I'll write the unit testbench.",
+          "tool_calls": [],
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    "implement": {
+      "triggers": [
+        "looks right",
+        "write the directed",
+        "write the unit",
+        "write the testbench",
+        "directed unit testbench"
+      ],
+      "turns": [
+        {
+          "content": "Approved. I'll track the work, then write `tb_sha256_unit.sv` with the NIST empty-digest checker so you can watch the code land live.",
+          "tool_calls": [
+            {
+              "id": "impl_todos",
+              "name": "findTodos",
+              "arguments": {
+                "todos": [
+                  {
+                    "id": "t_tb",
+                    "description": "Write directed unit testbench for sha256_accelerator",
+                    "type": "code"
+                  },
+                  {
+                    "id": "t_sim",
+                    "description": "Run UnitSim against NIST empty digest",
+                    "type": "test"
+                  },
+                  {
+                    "id": "t_formal",
+                    "description": "Generate SVA and run formal prove",
+                    "type": "test"
+                  }
+                ]
+              }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Writing the directed unit testbench now — clock/reset, ready/valid stimulus, and the NIST empty-message scoreboard.",
+          "tool_calls": [
+            {
+              "id": "impl_tb",
+              "name": "createFile",
+              "arguments": {
+                "project_id": "{{project_id}}",
+                "filename": "tb_sha256_unit.sv",
+                "artifact_type": "generated",
+                "content": "@include fixtures/sha256/generated/tb_sha256_unit.sv",
+                "replace_existing": true
+              }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Also adding formal properties for reset, handshake stability, and digest hold — then we can switch to Verify and run the plan once.",
+          "tool_calls": [
+            {
+              "id": "impl_sva",
+              "name": "createFile",
+              "arguments": {
+                "project_id": "{{project_id}}",
+                "filename": "sha256_accelerator_formal.sv",
+                "artifact_type": "generated",
+                "content": "@include fixtures/sha256/generated/sha256_formal.sv",
+                "replace_existing": true
+              }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Testbench and SVA are in the project. Open the Editor if you want to read `tb_sha256_unit.sv`. When you're ready, switch to **Verify** and say **plan and run verification** so we can approve the plan and watch the run card.",
+          "tool_calls": [],
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    "verify_plan": {
+      "triggers": [
+        "plan and run verification",
+        "plan verification",
+        "approve the plan"
+      ],
+      "turns": [
+        {
+          "content": "Use the staged verification cards above — pick UnitSim + Formal, then **Approve & run**. I'll stay with you through the run.",
+          "tool_calls": [],
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    "verify_fail": {
+      "triggers": [
+        "show the failing",
+        "why did unitsim fail",
+        "multi_block_padding"
+      ],
+      "turns": [
+        {
+          "content": "UnitSim failed on **multi_block_padding** (2/3 passed). The scoreboard never drove `msg_last` on the final padded block, so the digest stayed stale. I'm proposing a minimal testbench fix — Apply it when you're ready.",
+          "tool_calls": [
+            {
+              "id": "ver_fail_sim",
+              "name": "runUnitSimulation",
+              "arguments": { "project_id": "{{project_id}}" }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Diff is ready on the thread. Click **Apply change**, then re-run verification.",
+          "tool_calls": [],
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    "analyze_fix": {
+      "triggers": [
+        "propose a minimal fix",
+        "propose fix",
+        "explain the failure",
+        "explain failure"
+      ],
+      "turns": [
+        {
+          "content": "Root cause: `drive_padded_message` leaves `msg_last=0` on the final block. Fix: assert `msg_last` on that beat. DiffCard is queued for your Apply.",
+          "tool_calls": [
+            {
+              "id": "fix_sim",
+              "name": "runUnitSimulation",
+              "arguments": { "project_id": "{{project_id}}" }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Apply the DiffCard when it looks right — then re-run.",
+          "tool_calls": [],
+          "finish_reason": "stop"
+        }
+      ]
+    },
+    "verify_rerun_pass": {
+      "triggers": [
+        "re-run verification after applying",
+        "rerun after",
+        "re-run after applying",
+        "after applying the patch"
+      ],
+      "turns": [
+        {
+          "content": "Patch applied. Re-running UnitSim, then formal prove.",
+          "tool_calls": [
+            {
+              "id": "rerun_sim",
+              "name": "runUnitSimulation",
+              "arguments": { "project_id": "{{project_id}}" }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "UnitSim 3/3 PASS. Formal prove next.",
+          "tool_calls": [
+            {
+              "id": "rerun_formal",
+              "name": "runFormalVerification",
+              "arguments": {
+                "project_id": "{{project_id}}",
+                "target_module": "sha256_accelerator",
+                "mode": "prove",
+                "depth": 64
+              }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "VERIFICATION COMPLETE for sha256_accelerator.\n\n• UnitSim PASS — empty / abc / multi-block padding\n• Formal PROVEN — reset, handshake, hash hold\n• Coverage ~94%\n\nGenerated: tb_sha256_unit.sv, sha256_accelerator_formal.sv",
+          "tool_calls": [
+            {
+              "id": "rerun_done",
+              "name": "attemptCompletion",
+              "arguments": {
+                "summary": "VERIFICATION COMPLETE — fail fixed, full coverage.",
+                "command": "Hold on the green verdict."
+              }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        }
+      ]
+    },
+    "verify": {
+      "triggers": [
+        "start verification",
+        "run verification",
+        "unitsim",
+        "formal prove",
+        "yes, plan",
+        "proceed with unitsim",
+        "proceed with"
+      ],
+      "turns": [
+        {
+          "content": "Prefer the staged **Approve & run** path so you can watch the run card. If you want the agent path instead: launching UnitSim now.",
+          "tool_calls": [
+            {
+              "id": "ver_sim",
+              "name": "runUnitSimulation",
+              "arguments": { "project_id": "{{project_id}}" }
+            }
+          ],
+          "finish_reason": "tool_calls"
+        },
+        {
+          "content": "Check the UnitSim result above. If it failed, Apply the DiffCard, then re-run. If it passed, we continue to formal.",
+          "tool_calls": [],
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  "fallback": {
+    "content": "Demo phase complete for this prompt. Continue with the next on-camera step (mental model tour, implement, or verify).",
+    "tool_calls": [],
+    "finish_reason": "stop"
+  }
+}

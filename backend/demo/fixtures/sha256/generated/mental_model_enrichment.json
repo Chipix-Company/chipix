@@ -1,0 +1,101 @@
+{
+  "blocks": [
+    {
+      "name": "sha256_accelerator",
+      "kind": "crypto_hash",
+      "summary": "Streaming SHA-256 compression engine with ready/valid message and digest interfaces. Accepts 512-bit blocks, runs 64 NIST rounds, and emits a 256-bit digest.",
+      "clock_domains": ["clk"],
+      "resets": ["rst_n"],
+      "modules": [
+        {
+          "name": "sha256_accelerator",
+          "role": "top",
+          "description": "Control FSM + compression datapath + message schedule"
+        },
+        {
+          "name": "msg_if",
+          "role": "interface",
+          "description": "Ready/valid 512-bit message ingress with msg_last"
+        },
+        {
+          "name": "hash_if",
+          "role": "interface",
+          "description": "Ready/valid 256-bit digest egress with hold-when-stalled"
+        },
+        {
+          "name": "round_datapath",
+          "role": "datapath",
+          "description": "64-round SHA-256 compression using K constants and W schedule"
+        }
+      ],
+      "ports": [
+        { "name": "clk", "direction": "input", "width": 1, "description": "Rising-edge clock" },
+        { "name": "rst_n", "direction": "input", "width": 1, "description": "Async active-low reset" },
+        { "name": "msg_valid", "direction": "input", "width": 1, "description": "Message block valid" },
+        { "name": "msg_data", "direction": "input", "width": 512, "description": "512-bit SHA-256 block" },
+        { "name": "msg_last", "direction": "input", "width": 1, "description": "Final padded block of message" },
+        { "name": "msg_ready", "direction": "output", "width": 1, "description": "Backpressure to producer" },
+        { "name": "hash_valid", "direction": "output", "width": 1, "description": "Digest ready" },
+        { "name": "hash_data", "direction": "output", "width": 256, "description": "SHA-256 digest" },
+        { "name": "hash_ready", "direction": "input", "width": 1, "description": "Consumer ready" }
+      ],
+      "parameters": [
+        { "name": "K", "value": "64 x 32-bit NIST cube-root constants", "description": "Round constants" },
+        { "name": "H_INIT", "value": "8 x 32-bit IV", "description": "Initial hash values" },
+        { "name": "ROUNDS", "value": "64", "description": "Compression rounds per block" }
+      ],
+      "interfaces": [
+        {
+          "name": "msg",
+          "protocol": "ready_valid",
+          "signals": ["msg_valid", "msg_data", "msg_last", "msg_ready"]
+        },
+        {
+          "name": "hash",
+          "protocol": "ready_valid",
+          "signals": ["hash_valid", "hash_data", "hash_ready"]
+        }
+      ],
+      "fsms": [
+        {
+          "name": "sha_ctrl",
+          "states": ["STATE_IDLE", "STATE_PAD_GENERATE", "STATE_PROCESS_BLOCK", "STATE_OUTPUT_HASH"],
+          "description": "Overall control for ingress, 64-round processing, and digest output"
+        }
+      ],
+      "requirements": [
+        { "id": "REQ-IDLE", "text": "After reset enter IDLE with msg_ready=1 and hash_valid=0" },
+        { "id": "REQ-HANDSHAKE", "text": "Block transfers only when msg_valid && msg_ready" },
+        { "id": "REQ-ROUNDS", "text": "Each accepted block executes exactly 64 compression rounds" },
+        { "id": "REQ-IV", "text": "First block loads H0..H7 from SHA-256 IV" },
+        { "id": "REQ-CHAIN", "text": "Subsequent blocks chain from prior intermediate hash" },
+        { "id": "REQ-LAST", "text": "msg_last accepted → present hash_valid with final digest" },
+        { "id": "REQ-BACKPRESSURE", "text": "msg_ready deasserts while a block is in PROCESS_BLOCK" },
+        { "id": "REQ-OUTPUT-STALL", "text": "hash_valid && !hash_ready keeps digest stable" },
+        { "id": "REQ-EMPTY", "text": "Empty padded message matches NIST digest e3b0c442…" }
+      ],
+      "expected_behaviors": [
+        "Ready/valid message ingress with backpressure during compression",
+        "64-round NIST compression with W schedule expansion",
+        "Digest hold while consumer is not ready",
+        "NIST empty-message golden vector"
+      ],
+      "flows": [
+        "Reset → IDLE → accept block → PROCESS_BLOCK (64) → OUTPUT_HASH → IDLE",
+        "Multi-block chain: IV on first, accumulate H on later, emit on msg_last"
+      ],
+      "risks": [
+        "64-round schedule correctness",
+        "msg_ready deassert timing during PROCESS_BLOCK",
+        "hash_valid hold while !hash_ready"
+      ],
+      "verification_hints": {
+        "unit_sim": ["empty digest NIST vector", "multi-block chaining", "backpressure"],
+        "formal": ["handshake mutual exclusion", "reset clears hash_valid", "64-round completion"]
+      }
+    }
+  ],
+  "open_questions": [],
+  "confidence": 0.93,
+  "demo": true
+}

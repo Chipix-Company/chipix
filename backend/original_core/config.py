@@ -24,15 +24,28 @@ def _normalize_provider(name: str) -> str:
         "convex": "convex_gateway",
         "convex_cloud": "convex_gateway",
         "convex_llm": "convex_gateway",
+        "mock": "demo",
+        "script": "demo",
+        "scripted": "demo",
     }
     return aliases.get(value, value)
 
 
 # LLM provider contract with compatibility aliases for test environments.
-LLM_PROVIDER: str = _normalize_provider(
-    os.getenv(
-        "CHIPVERIFY_LLM_PROVIDER",
-        os.getenv("MODEL_PROVIDER", "gemini"),
+_demo_mode = (os.getenv("CHIPVERIFY_DEMO_MODE") or "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+LLM_PROVIDER: str = (
+    "demo"
+    if _demo_mode
+    else _normalize_provider(
+        os.getenv(
+            "CHIPVERIFY_LLM_PROVIDER",
+            os.getenv("MODEL_PROVIDER", "gemini"),
+        )
     )
 )
 

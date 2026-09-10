@@ -134,6 +134,24 @@ async def handle_run_simulation(
 ) -> str:
     """Run simulation using iverilog or Verilator."""
     try:
+        from demo import demo_mode_enabled
+
+        if demo_mode_enabled():
+            from demo.scenario import unitsim_result
+
+            payload = unitsim_result(project_id)
+            if str(payload.get("status") or "").upper() == "FAIL":
+                from demo.scenario import ensure_fix_patch
+
+                patch_info = ensure_fix_patch(project_id, db_session)
+                if patch_info:
+                    payload["patch_proposal"] = patch_info
+            elif str(payload.get("status") or "").upper() == "PASS":
+                from demo.scenario import advance_after_pass
+
+                advance_after_pass(project_id)
+            return json.dumps(payload, indent=2)
+
         # ── Try NEW unitsim_loop first ───────────────────────────
         model = kwargs.get("mental_model")
         work_dir = kwargs.get("work_dir", "")

@@ -1,0 +1,137 @@
+{
+  "timing": {
+    "t0": 1789007732.2268746,
+    "cold_open": 2.8,
+    "project_selected": 8.72,
+    "import_intent": 17.65,
+    "upload_rtl": 27.13,
+    "upload_spec": 35.46,
+    "mm_started": 40.82,
+    "mm_narrative": 55.42,
+    "mm_tour": 73.49,
+    "mm_approve": 79.14,
+    "tb_written": 86.79,
+    "ide_shown": 107.12,
+    "verify_mode": 108.93,
+    "plan_approved": 125.38,
+    "run_fail": 144.67,
+    "fix_applied": 160.16,
+    "verdict": 180.45,
+    "end_hold": 192.11,
+    "outro": 207.15
+  },
+  "vo_timeline": [
+    {
+      "id": "01",
+      "start": 0.0,
+      "speech_end": 7.416,
+      "end": 9.916,
+      "speech": 7.416,
+      "silence": 2.5
+    },
+    {
+      "id": "02",
+      "start": 9.916,
+      "speech_end": 16.852,
+      "end": 18.852,
+      "speech": 6.936,
+      "silence": 2.0
+    },
+    {
+      "id": "03",
+      "start": 18.852,
+      "speech_end": 24.828,
+      "end": 28.328,
+      "speech": 5.976,
+      "silence": 3.5
+    },
+    {
+      "id": "04",
+      "start": 28.328,
+      "speech_end": 33.656,
+      "end": 36.656,
+      "speech": 5.328,
+      "silence": 3.0
+    },
+    {
+      "id": "05",
+      "start": 36.656,
+      "speech_end": 44.623999999999995,
+      "end": 56.623999999999995,
+      "speech": 7.968,
+      "silence": 12.0
+    },
+    {
+      "id": "06",
+      "start": 56.623999999999995,
+      "speech_end": 64.68799999999999,
+      "end": 74.68799999999999,
+      "speech": 8.064,
+      "silence": 10.0
+    },
+    {
+      "id": "07",
+      "start": 74.68799999999999,
+      "speech_end": 78.33599999999998,
+      "end": 80.33599999999998,
+      "speech": 3.648,
+      "silence": 2.0
+    },
+    {
+      "id": "08",
+      "start": 80.33599999999998,
+      "speech_end": 90.31999999999998,
+      "end": 108.31999999999998,
+      "speech": 9.984,
+      "silence": 18.0
+    },
+    {
+      "id": "09",
+      "start": 108.31999999999998,
+      "speech_end": 114.77599999999998,
+      "end": 124.77599999999998,
+      "speech": 6.456,
+      "silence": 10.0
+    },
+    {
+      "id": "10",
+      "start": 124.77599999999998,
+      "speech_end": 133.87199999999999,
+      "end": 145.87199999999999,
+      "speech": 9.096,
+      "silence": 12.0
+    },
+    {
+      "id": "11",
+      "start": 145.87199999999999,
+      "speech_end": 153.35999999999999,
+      "end": 161.35999999999999,
+      "speech": 7.488,
+      "silence": 8.0
+    },
+    {
+      "id": "12",
+      "start": 161.35999999999999,
+      "speech_end": 167.648,
+      "end": 181.648,
+      "speech": 6.288,
+      "silence": 14.0
+    },
+    {
+      "id": "13",
+      "start": 181.648,
+      "speech_end": 189.304,
+      "end": 193.304,
+      "speech": 7.656,
+      "silence": 4.0
+    },
+    {
+      "id": "14",
+      "start": 193.304,
+      "speech_end": 205.352,
+      "end": 208.352,
+      "speech": 12.048,
+      "silence": 3.0
+    }
+  ]
+}
