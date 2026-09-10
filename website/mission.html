@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Chipix mission: build an open ecosystem for chip design and verification in an industry built on closed IP — open UVM and open systems as the next revolution." />
+  <title>Mission — Chipix</title>
+  <link rel="stylesheet" href="css/landing.css" />
+</head>
+<body>
+  <a class="lp-skip" href="#mission">Skip to mission</a>
+
+  <header class="lp-nav">
+    <a class="lp-logo" href="./">
+      <img class="lp-logo-mark" src="img/chipix-app-icon.png" width="30" height="30" alt="" />
+      <span>CHIPIX</span>
+    </a>
+    <nav class="lp-nav-links" aria-label="Primary">
+      <a href="index.html#product">Product</a>
+      <a href="index.html#mental-model">Mental model</a>
+      <a href="index.html#verification">Verification</a>
+      <a href="mission.html" aria-current="page">Mission</a>
+      <a href="index.html?demo=1">Demo</a>
+    </nav>
+    <div class="lp-nav-cta">
+      <a
+        class="lp-btn ghost lp-github"
+        href="https://github.com/chipix-company/chipix"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chipix on GitHub"
+      >
+        <svg class="lp-github-icon" viewBox="0 0 16 16" aria-hidden="true" width="16" height="16">
+          <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        <span>GitHub</span>
+      </a>
+      <a class="lp-btn ghost" href="index.html?demo=1">Try demo</a>
+      <a class="lp-btn primary" href="index.html#download">Download</a>
+    </div>
+  </header>
+
+  <main>
+    <article class="lp-mission lp-container" id="mission">
+      <p class="lp-eyebrow">Our mission</p>
+      <h1>An open ecosystem for an industry built on closed IP.</h1>
+      <p class="lp-hero-lead">
+        Chip design and verification grew up behind expensive licenses and proprietary stacks.
+        We believe open UVM, open tools, and open systems are the next revolution in the chip industry —
+        and Chipix exists to make that path real.
+      </p>
+
+      <div class="lp-prose">
+        <section>
+          <h2>The industry today</h2>
+          <p>
+            If you want to build software today, your tools are free. Compilers, editors, operating systems,
+            version control — the stack is open, and nobody questions it.
+          </p>
+          <p>
+            If you want to build and verify a chip, the story is different. Design and verification tooling
+            sits behind licenses from a handful of vendors. Seats cost tens of thousands of dollars a year.
+            A student can't afford a full verification environment. A two-person startup burns runway before
+            tapeout. Even large companies ration tool access to whoever's budget covers the seat.
+          </p>
+          <p>
+            Much of the industry still runs on closed IP, closed flows, and black-box tools between you and
+            your own results. That model worked for a generation. It does not scale to the next one —
+            when more people, more startups, and more open hardware projects need to verify silicon.
+          </p>
+        </section>
+
+        <section>
+          <h2>What we believe</h2>
+          <p>
+            Access to good tools shouldn't depend on the size of your purchase order. Every engineer —
+            at every company, at every stage — should be able to sit down and verify a design.
+          </p>
+          <p>
+            That means an <strong>open ecosystem</strong>: inspectable software, open EDA you already trust,
+            open UVM and open verification stacks you can read, modify, and share. No seat counting that
+            locks knowledge behind a PO. No black boxes between you and evidence that your design works.
+          </p>
+          <ul>
+            <li>Open source studio you can inspect, fork, and self-host</li>
+            <li>Open tools first — Verilator, Yosys/SymbiYosys, Icarus, Slang, and open UVM paths</li>
+            <li>Human-approved changes and local-first execution, including models that never leave your machine</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Why open UVM and open systems matter</h2>
+          <p>
+            Software had its revolution when the toolchain went open. Hardware is next — but only if
+            verification escapes proprietary lock-in the same way compilers and kernels did.
+          </p>
+          <p>
+            <strong>Open UVM</strong> and <strong>open systems</strong> let students learn on real flows,
+            startups ship without burning cash on seats, and teams at every scale share methods instead of
+            reinventing closed environments. That is not a side quest. It is the next revolution in the
+            chip industry: collaboration and evidence over gated IP and opaque tools.
+          </p>
+        </section>
+
+        <section>
+          <h2>What Chipix does</h2>
+          <p>
+            Chipix is the world's first open-source, AI-native studio for chip design and verification.
+            You bring a spec and RTL; an agent helps you understand the design, plan verification, generate
+            unit sims, formal properties, and UVM environments — then runs them on open tools and collects
+            evidence, with you approving every meaningful change.
+          </p>
+          <ul>
+            <li>Thread-first workspace: intent, mental model, plans, and results in one place</li>
+            <li>Staged verification on your machine — recommend, plan, approve, execute</li>
+            <li>BYOK AI you control; audit trail your team can trust</li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="lp-mission-cta">
+        <h2>Build with us</h2>
+        <p>Star the repo, try the demo, or download the desktop studio — and help open the stack.</p>
+        <div class="lp-hero-ctas" style="margin-bottom: 0;">
+          <a
+            class="lp-btn primary lp-github"
+            href="https://github.com/chipix-company/chipix"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg class="lp-github-icon" viewBox="0 0 16 16" aria-hidden="true" width="16" height="16">
+              <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            GitHub
+          </a>
+          <a class="lp-btn" href="index.html#download">Download</a>
+          <a class="lp-btn ghost" href="index.html?demo=1">Try interactive demo</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="lp-foot lp-container">
+    <span>© 2026 ChipVerify · Chipix studio</span>
+    <span class="lp-foot-links">
+      <a href="./">Home</a>
+      <a
+        class="lp-github"
+        href="https://github.com/chipix-company/chipix"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <svg class="lp-github-icon" viewBox="0 0 16 16" aria-hidden="true" width="14" height="14">
+          <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        GitHub
+      </a>
+      <span>Local-first · BYOK · Open source</span>
+    </span>
+  </footer>
+</body>
+</html>

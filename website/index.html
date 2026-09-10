@@ -3,44 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Chipix — collaborative visual verification for chip teams. One thread from spec to green tests, without the $10M ELA." />
-  <title>Chipix — Spec to proven</title>
+  <meta name="description" content="Chipix — the world's first open-source, AI-native studio for chip design and verification. Spec to green tests on open tools, without the $10M ELA." />
+  <title>Chipix — World's first open-source chip verification studio</title>
   <link rel="stylesheet" href="css/landing.css" />
 </head>
 <body>
-  <a class="lp-skip" href="#demo">Skip to interactive demo</a>
+  <a class="lp-skip" href="#demo" data-open-demo>Skip to interactive demo</a>
 
   <header class="lp-nav">
     <a class="lp-logo" href="./">
-      <span class="lp-logo-mark">Cx</span>
+      <img class="lp-logo-mark" src="img/chipix-app-icon.png" width="30" height="30" alt="" />
       <span>CHIPIX</span>
     </a>
     <nav class="lp-nav-links" aria-label="Primary">
       <a href="#product">Product</a>
       <a href="#mental-model">Mental model</a>
       <a href="#verification">Verification</a>
-      <a href="#demo">Demo</a>
+      <a href="mission.html">Mission</a>
+      <a href="#demo" data-open-demo>Demo</a>
     </nav>
     <div class="lp-nav-cta">
-      <a class="lp-btn ghost" href="#demo">Try demo</a>
+      <a
+        class="lp-btn ghost lp-github"
+        href="https://github.com/chipix-company/chipix"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chipix on GitHub"
+      >
+        <svg class="lp-github-icon" viewBox="0 0 16 16" aria-hidden="true" width="16" height="16">
+          <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        <span>GitHub</span>
+      </a>
+      <a class="lp-btn ghost" href="?demo=1" data-open-demo>Try demo</a>
       <a class="lp-btn primary" href="#download">Download</a>
     </div>
   </header>
 
   <main>
     <section class="lp-hero lp-container" id="product">
-      <p class="lp-eyebrow">Collaborative Visual Verification</p>
-      <h1>Your chip verification workspace — one thread from spec to green tests.</h1>
+      <p class="lp-eyebrow">World's first OSS · AI-native chip studio</p>
+      <h1>The open platform for chip design and verification.</h1>
       <p class="lp-hero-lead">
-        Chipix is a desktop studio where you describe intent in plain language, build a shared mental model of your RTL,
-        approve every change, and run staged verification locally — with an audit trail your team can trust.
+        Chipix is the world's first open-source, AI-native studio for chip design and verification —
+        a thread-first desktop workspace on open tools (Verilator, open UVM paths, and more),
+        where you describe intent, approve every change, and run staged verification locally.
       </p>
       <p class="lp-hero-lead" style="font-size: 1rem; margin-top: -8px;">
         <strong>Spec to proven</strong> — without the $10M license.
       </p>
       <div class="lp-hero-ctas">
         <a class="lp-btn primary" href="#download">Download desktop</a>
-        <a class="lp-btn" href="#demo">Try interactive demo</a>
+        <a class="lp-btn" href="?demo=1" data-open-demo>Try interactive demo</a>
+        <a
+          class="lp-btn ghost lp-github"
+          href="https://github.com/chipix-company/chipix"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg class="lp-github-icon" viewBox="0 0 16 16" aria-hidden="true" width="16" height="16">
+            <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          GitHub
+        </a>
       </div>
       <div class="lp-trust" role="list">
         <span role="listitem">Runs on your machine</span>
@@ -50,25 +75,51 @@
       </div>
     </section>
 
+    <section class="lp-people-trust lp-container" aria-labelledby="people-trust-heading">
+      <p class="lp-people-trust-label" id="people-trust-heading">Trusted by the people of</p>
+      <ul class="lp-people-trust-names">
+        <li>Intel</li>
+        <li>AMD</li>
+        <li>NVIDIA</li>
+        <li>Qualcomm</li>
+        <li>TSMC</li>
+        <li>Samsung</li>
+        <li>Synopsys</li>
+        <li>Cadence</li>
+      </ul>
+    </section>
+
     <section class="lp-container" id="demo" aria-labelledby="demo-heading">
       <h2 id="demo-heading" class="lp-eyebrow" style="margin-bottom: 8px;">Interactive product preview</h2>
       <p style="color: var(--lp-ink-2); margin: 0 0 16px; max-width: 62ch;">
-        Use the real Chipix thread UI below — pick a starter, build a mental model, toggle Design ↔ Verify,
-        approve a staged plan, and walk through diffs. Simulated run; no API keys required.
+        Peek at the real Chipix thread UI below — click the preview to open it full screen and try the flow:
+        pick a starter, build a mental model, toggle Design ↔ Verify, and approve a staged plan.
       </p>
-      <div class="lp-demo-stage">
+      <div class="lp-demo-stage" id="lpDemoStage">
         <div class="lp-demo-frame-wrap">
           <iframe
             class="lp-demo-frame"
             src="demo/"
-            title="Chipix interactive preview — thread-first workspace"
+            title="Chipix product preview (click to open full demo)"
             loading="lazy"
-            allow="clipboard-read; clipboard-write"
+            tabindex="-1"
+            aria-hidden="true"
           ></iframe>
+          <div
+            class="lp-demo-hitlayer"
+            id="lpDemoHitlayer"
+            role="button"
+            tabindex="0"
+            aria-label="Click to open full demo"
+          >
+            <span class="lp-demo-hint" id="lpDemoHint">
+              <span aria-hidden="true">⛶</span>
+              <span class="lp-demo-hint-text">Click to open full demo</span>
+            </span>
+          </div>
         </div>
         <div class="lp-demo-caption">
-          <span>Tip: click <strong>UART controller with APB interface</strong> for the full guided flow.</span>
-          <span><span class="lp-btn ghost" style="padding: 6px 12px; font-size: 12px; cursor: pointer;" onclick="document.querySelector('.lp-demo-frame').contentWindow.location.reload()">↺ Reset demo</span></span>
+          <span>Click the preview (or scroll over it) to open the full-screen demo — then try <strong>UART controller with APB interface</strong>.</span>
         </div>
       </div>
     </section>
@@ -87,7 +138,7 @@
             <li>Full history per project — every decision stays in context</li>
             <li>⌘K command palette to jump to files, runs, and actions</li>
           </ul>
-          <p><a class="lp-btn" href="#demo">Open the demo thread →</a></p>
+          <p><a class="lp-btn" href="?demo=1" data-open-demo>Open the demo thread →</a></p>
         </div>
         <div class="lp-feature-card">
           <span class="tag">Design mode</span>
@@ -145,20 +196,67 @@
 
     <section class="lp-cta-band lp-container" id="download">
       <h2>Spec to proven — on your machine, at your pace</h2>
-      <p>Community tier free · Pro from $199/seat/mo · Desktop app for macOS &amp; Windows</p>
+      <p>Open source · Community tier free · Desktop app for Windows &amp; Linux</p>
       <div class="lp-hero-ctas" style="justify-content: center;">
-        <a class="lp-btn primary" href="https://github.com" rel="noopener">Download Chipix</a>
-        <a class="lp-btn" href="#demo">Try interactive demo</a>
+        <a
+          class="lp-btn primary lp-github"
+          href="https://github.com/chipix-company/chipix"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg class="lp-github-icon" viewBox="0 0 16 16" aria-hidden="true" width="16" height="16">
+            <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          Download on GitHub
+        </a>
+        <a class="lp-btn" href="?demo=1" data-open-demo>Try interactive demo</a>
       </div>
-      <p style="font-size: 13px; color: var(--lp-ink-3); margin-top: 16px;">
-        Replace the download link with your release URL when shipping.
-      </p>
     </section>
   </main>
 
+  <div
+    class="lp-demo-fs"
+    id="lpDemoFs"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="lpDemoFsTitle"
+    aria-hidden="true"
+  >
+    <div class="lp-demo-fs-bar">
+      <button type="button" class="lp-btn ghost" id="lpDemoFsBack">← Back to Chipix</button>
+      <div class="lp-demo-fs-title" id="lpDemoFsTitle">Chipix interactive demo</div>
+      <div class="lp-demo-fs-actions">
+        <button type="button" class="lp-btn ghost" id="lpDemoFsReset" title="Restart demo">↺ Reset</button>
+        <button type="button" class="lp-btn primary" id="lpDemoFsClose">Close</button>
+      </div>
+    </div>
+    <iframe
+      class="lp-demo-fs-frame"
+      id="lpDemoFsFrame"
+      title="Chipix full-screen interactive demo"
+      allow="clipboard-read; clipboard-write"
+    ></iframe>
+  </div>
+
   <footer class="lp-foot lp-container">
     <span>© 2026 ChipVerify · Chipix studio</span>
-    <span>Local-first · BYOK · Simulated preview on this page</span>
+    <span class="lp-foot-links">
+      <a href="mission.html">Mission</a>
+      <a
+        class="lp-github"
+        href="https://github.com/chipix-company/chipix"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <svg class="lp-github-icon" viewBox="0 0 16 16" aria-hidden="true" width="14" height="14">
+          <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        GitHub
+      </a>
+      <span>Local-first · BYOK · Simulated preview</span>
+    </span>
   </footer>
+  <script src="js/demo-expand.js" defer></script>
 </body>
 </html>
