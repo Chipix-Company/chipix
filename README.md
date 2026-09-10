@@ -10,13 +10,17 @@
 
 <h1 align="center">Chipix Studio</h1>
 
-<p align="center"><strong>Spec to proven — on open tools, with evidence you can audit.</strong></p>
+<p align="center"><strong>Spec to proven.</strong></p>
 
 <p align="center">
-  You finished the RTL. Now you need proof it matches the spec — before tape-out.<br />
-  Chipix is an open-source, AI-native studio that builds a mental model of your design,<br />
-  proposes a verification plan you approve, runs UnitSim / Formal / UVM on open simulators,<br />
-  and writes results back as evidence tied to requirements — on your machine, with models you choose.
+  You finished the RTL. Now you need proof it matches the spec — before tape-out, not after a week of debug in the lab.
+</p>
+
+<p align="center">
+  Chipix is open-source software for chip design and verification. Drop in a spec and your SystemVerilog.
+  It builds a mental model, proposes a plan, and waits for you to approve it. Then it runs UnitSim, formal, or UVM
+  on tools like Verilator and SymbiYosys, and keeps the results tied to the requirements those checks came from.
+  Your machine. Your models — cloud keys or a local GGUF. Nothing leaves unless you say so.
 </p>
 
 <p align="center">
@@ -28,7 +32,7 @@
 
 ## See it
 
-One thread. Spec + RTL in. Named failure. One-click fix. Green.
+The SHA-256 walkthrough below is the real app: upload, plan, fail, patch, green.
 
 <p align="center">
   <a href="docs/media/chipix_sha256_walkthrough.mp4">
@@ -37,55 +41,51 @@ One thread. Spec + RTL in. Named failure. One-click fix. Green.
 </p>
 
 <p align="center">
-  <a href="docs/media/chipix_sha256_walkthrough.mp4"><strong>▶ Watch the SHA-256 walkthrough</strong></a>
-  &nbsp;(~3.5 min)&nbsp;·&nbsp; fail → Apply → coverage
+  <a href="docs/media/chipix_sha256_walkthrough.mp4"><strong>▶ Watch (~3.5 min)</strong></a>
 </p>
 
-**What you just watched (Understand → Plan → Prove)**
+What happens on screen:
 
-1. **Understand** — Chipix reads the spec and RTL, builds a mental model, and waits for your approval.
-2. **Plan** — Staged verification recommends UnitSim (and more). You approve the plan before anything runs.
-3. **Prove** — A real case fails (`msg_last` on multi-block padding). Chipix names the bug, you Apply the patch, re-run — green, with coverage moving up.
+1. Chipix reads the spec and RTL, shows a mental model, and asks you to confirm it.
+2. You switch to Verify, pick UnitSim, and hit Implement on the plan card.
+3. Two tests pass. The multi-block padding case fails — `msg_last` never fired. Chipix shows a diff; you click Apply; you run again. Green. Coverage moves.
 
 ## Why we exist
 
-If you want to build software today, your tools are free. Compilers, editors, kernels, version control — the stack is open, and nobody questions it.
+Software people get free compilers and editors. Chip teams mostly don't. Verification seats can run tens of thousands of dollars a year. Students get locked out. Small teams burn cash on licenses before they burn it on silicon. Big companies ration who even gets a seat.
 
-If you want to verify a chip, the story is different. Design and verification tooling often sits behind licenses that cost tens of thousands of dollars per seat, every year. A student can't afford a full environment. A two-person startup burns runway before tape-out. Even large companies ration seats.
+That feels wrong to us. So Chipix is GPL, and it stays that way. Fork it. Self-host it. Read every line. Sell a business on top of it if you want — just keep the license terms.
 
-We think that's backwards. Every engineer, at every company, at every stage, should be able to sit down and verify a design.
-
-That's why Chipix is open source — and stays open source. Inspect it. Modify it. Self-host it. Build a business on it. No seat counting. No black box between you and your own results.
-
-And because verification is slow, repetitive, and expert-heavy, we put an AI agent in the loop — one you control, including models that never leave your machine.
+Verification work is also slow and full of repetition. We put an agent in the loop for that part. You still approve the plan and the patches. The agent doesn't ship silicon for you.
 
 ## How it works
 
-| | |
-|---|---|
-| **Understand** | Ingest specs and RTL. Build a source-grounded **mental model** that persists as shared memory for every later step. |
-| **Plan** | Recommend a strategy. Generate reviewable plans for **UnitSim**, **formal (SVA)**, and **UVM**. Humans approve before execute. |
-| **Prove** | Run through open adapters — Verilator, Icarus, Yosys/SymbiYosys, Slang — with compile gates. Store coverage and outcomes as **evidence** tied to requirements. |
+**Mental model.** Spec + RTL go in. Chipix writes down what it thinks the design does (modules, ports, params). You can open that rail and push back before anything runs.
 
-The workspace is **thread-first**: conversation, files, plans, diffs, and run cards live side by side — with an IDE rail for live writes and an agent that streams every tool call.
+**Staged plan.** It suggests UnitSim, formal (SVA), or UVM. You see the plan as a card. Nothing executes until you click Implement.
 
-## What ships today
+**Run + evidence.** Adapters talk to Verilator, Icarus, Yosys/SymbiYosys, Slang. Compile gates catch junk before you trust a pass. Results and coverage hang off the requirements they came from.
 
-- Spec + RTL ingest → mental model with readiness checks
-- Staged verification with human-approved plans
-- UnitSim / Formal / UVM generation paths on open EDA tools
-- Diff / patch apply in-thread, then re-run
-- Desktop app (Windows & Linux) + FastAPI backend + `agent_core` event runtime
-- Bring your own LLM: cloud providers, OpenAI-compatible endpoints, or local GGUF via llama.cpp
-- VS Code extension for TruthCore-backed verification in the editor
+The UI is a thread — chat, files, diffs, and run cards in one place — plus an IDE rail when the agent is writing `.sv`.
 
-## Who it's for
+## What you can do today
 
-**Startup** — Stand up real verification without an enterprise contract. Seed money goes to engineers, not seats.
+- Upload a spec (PDF, DOCX, markdown, images) and an RTL tree
+- Approve a mental model, then a staged verification plan
+- Generate and run UnitSim / formal / UVM paths on the open tools above
+- Apply a patch from a Diff card and re-run without leaving the thread
+- Run the desktop app on Windows or Linux; bring Gemini, OpenAI, Azure, NIM, any OpenAI-compatible endpoint, or llama.cpp locally
+- Use the VS Code extension if you want TruthCore checks in the editor
 
-**Student / researcher** — Professional flows on a laptop. Local models if you have no API budget. Learn by reading what the agent generates and why.
+Some of this is still rough. Formal generation and regression smarts are the next things we're hardening — not sold as done.
 
-**Established team** — Automate the repetitive path while keeping engineers in approval loops. Self-host, audit, extend — GPL keeps the code yours to inspect.
+## Who this is for
+
+You're a startup that can't sign a six-figure EDA deal yet, but still needs directed tests and a paper trail.
+
+You're a student or researcher who wants to see what a real UnitSim bench looks like, on a laptop, maybe with no API budget.
+
+You're on a bigger team and you're tired of copy-pasting the same TB scaffolding. Keep engineers in the approval loop; let the agent do the boring drafts. Self-host if your security folks care (they should).
 
 ## Quick start
 
@@ -99,31 +99,31 @@ npm install && cd frontend && npm install && cd ..
 .\launch_all.ps1
 ```
 
-Full setup — LLM providers, testing, packaging, releases — is in [DEVELOPMENT.md](DEVELOPMENT.md).
+LLM setup, packaging, and troubleshooting live in [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Repository layout
 
 | Path | Purpose |
 |---|---|
-| `frontend/` | React + Vite desktop workspace UI |
-| `backend/` | FastAPI server, project APIs, staged verification |
-| `backend/agent_core/` | Event-driven agent runtime |
-| `backend/services/mental_model/` | Mental-model builder and readiness |
-| `backend/services/verification/` | Strategy, UnitSim / Formal / UVM planning |
-| `docs/media/` | README banner + product walkthrough video |
-| `electron/` | Electron shell |
+| `frontend/` | React + Vite workspace UI |
+| `backend/` | FastAPI, projects, staged verification |
+| `backend/agent_core/` | Agent event loop |
+| `backend/services/mental_model/` | Mental-model builder |
+| `backend/services/verification/` | Strategy and UnitSim / Formal / UVM planning |
+| `docs/media/` | Banner and walkthrough video |
+| `electron/` | Desktop shell |
 | `vscode-extension/` | VS Code extension |
-| `Documentation/` | User-facing guides |
+| `Documentation/` | Longer guides |
 
 ## Community
 
-- [Contributing](CONTRIBUTING.md) — setup, tests, PRs
-- [Development](DEVELOPMENT.md) — configuration, packaging, releases
-- [Security](SECURITY.md) — private vulnerability reports
-- [Agent architecture](AGENTS.md) — how the agent runtime works
+- [Contributing](CONTRIBUTING.md)
+- [Development](DEVELOPMENT.md)
+- [Security](SECURITY.md)
+- [Agent architecture](AGENTS.md)
 
 ## License
 
 Copyright © 2026 Chipix Company.
 
-Licensed under the [GNU General Public License v3.0](LICENSE) (`GPL-3.0-or-later`).
+[GNU General Public License v3.0](LICENSE) (`GPL-3.0-or-later`).
