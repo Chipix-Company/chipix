@@ -80,10 +80,11 @@ body.demo-embed-root .dash-overlay.open {
   justify-content: center;
   gap: 12px;
   margin: 0;
-  padding: 6px 12px;
+  padding: 7px 14px;
   font-size: 12px;
+  letter-spacing: 0.01em;
   color: var(--ink-3, #8f897b);
-  background: var(--surface-2, #221f1a);
+  background: color-mix(in srgb, var(--surface-2, #221f1a) 92%, #000);
   border-bottom: 1px solid var(--line, #2d2922);
   z-index: 100;
   position: relative;
