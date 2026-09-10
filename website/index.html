@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Chipix: collaborative visual verification for chip teams. One thread from spec to green tests, without the $10M ELA." />
   <title>Chipix · Spec to proven</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/landing.css" />
 </head>
 <body>
+  <div class="lp-atmosphere" aria-hidden="true"></div>
   <a class="lp-skip" href="#demo" data-open-demo>Skip to interactive demo</a>
 
-  <header class="lp-nav">
+  <header class="lp-nav" id="lpNav">
     <a class="lp-logo" href="./">
       <img class="lp-logo-mark" src="img/chipix-app-icon.png" width="22" height="22" alt="" />
       <span>Chipix</span>
@@ -28,10 +32,12 @@
   </header>
 
   <main>
-    <!-- Centered hero copy → CTAs → product visual (Cursor placement) -->
     <section class="lp-hero lp-container" id="product">
-      <div class="lp-hero-inner">
-        <p class="lp-eyebrow">Collaborative visual verification</p>
+      <div class="lp-hero-inner lp-reveal">
+        <p class="lp-brand-lockup">
+          <img src="img/chipix-app-icon.png" width="40" height="40" alt="" />
+          <span>Chipix</span>
+        </p>
         <h1>Your chip verification workspace, one thread from spec to green tests.</h1>
         <p class="lp-hero-lead">
           Describe intent in plain language, build a shared mental model of your RTL,
@@ -41,21 +47,22 @@
           <a class="lp-btn primary" href="#download">Download desktop</a>
           <a class="lp-btn" href="?demo=1" data-open-demo>Try interactive demo</a>
         </div>
-        <div class="lp-trust" role="list">
-          <span role="listitem">Runs on your machine</span>
-          <span role="listitem">BYOK for AI</span>
-          <span role="listitem">Verilator &amp; open-stack ready</span>
-          <span role="listitem">Human-approved diffs</span>
-        </div>
+        <ul class="lp-trust" role="list">
+          <li role="listitem">Runs on your machine</li>
+          <li role="listitem">BYOK for AI</li>
+          <li role="listitem">Verilator &amp; open-stack ready</li>
+          <li role="listitem">Human-approved diffs</li>
+        </ul>
       </div>
     </section>
 
     <section class="lp-demo lp-container lp-container--wide" id="demo" aria-labelledby="demo-heading">
-      <div class="lp-demo-intro">
+      <div class="lp-demo-intro lp-reveal">
         <h2 id="demo-heading" class="lp-eyebrow">Interactive product preview</h2>
         <p>Pick a starter, build a mental model, toggle Design ↔ Verify, approve a plan. Simulated, no API keys.</p>
       </div>
-      <div class="lp-demo-stage" id="lpDemoStage">
+      <div class="lp-demo-stage lp-reveal" id="lpDemoStage">
+        <div class="lp-demo-glow" aria-hidden="true"></div>
         <div class="lp-demo-frame-wrap">
           <iframe
             class="lp-demo-frame"
@@ -86,7 +93,7 @@
 
     <section class="lp-section" id="thread">
       <div class="lp-container lp-section-grid">
-        <div>
+        <div class="lp-reveal">
           <p class="lp-eyebrow">Thread-first workspace</p>
           <h2>Start every workflow in one conversation</h2>
           <p>
@@ -98,24 +105,34 @@
             <li>Full history per project: every decision stays in context</li>
             <li>⌘K command palette for files, runs, and actions</li>
           </ul>
-          <p><a class="lp-btn" href="?demo=1" data-open-demo>Open the demo thread →</a></p>
+          <p><a class="lp-text-link" href="?demo=1" data-open-demo>Open the demo thread</a></p>
         </div>
-        <div class="lp-feature-card">
-          <span class="tag">Design mode</span>
-          <h3>Describe what to build</h3>
-          <p>Plain-language intent shapes RTL work, file cards, and implementation plans, all in the scrollable thread.</p>
-        </div>
+        <figure class="lp-visual lp-reveal">
+          <img
+            src="demo-uart-flow.png"
+            alt="Chipix Design mode asking clarifying questions about a UART APB controller"
+            width="1280"
+            height="800"
+            loading="lazy"
+          />
+          <figcaption>Design mode: clarifiers stay in the thread</figcaption>
+        </figure>
       </div>
     </section>
 
     <section class="lp-section" id="mental-model">
-      <div class="lp-container lp-section-grid">
-        <div class="lp-feature-card">
-          <span class="tag">Mental model</span>
-          <h3>Shared map before heavy checks</h3>
-          <p>Modules, interfaces, protocols, and assumptions, in plain English and hierarchy, so plans match your intent.</p>
-        </div>
-        <div>
+      <div class="lp-container lp-section-grid lp-section-grid--flip">
+        <figure class="lp-visual lp-reveal">
+          <img
+            src="demo-verify-screenshot.png"
+            alt="Chipix welcome screen with Design and Verify modes and starter prompts"
+            width="1280"
+            height="800"
+            loading="lazy"
+          />
+          <figcaption>One workspace: design intent, then verify</figcaption>
+        </figure>
+        <div class="lp-reveal">
           <p class="lp-eyebrow">Mental model</p>
           <h2>Know what the agent thinks before it runs checks</h2>
           <p>
@@ -133,7 +150,7 @@
 
     <section class="lp-section" id="verification">
       <div class="lp-container lp-section-grid">
-        <div>
+        <div class="lp-reveal">
           <p class="lp-eyebrow">Staged verification</p>
           <h2>Plan, approve, then run, safely</h2>
           <p>
@@ -146,22 +163,42 @@
             <li>Dashboard for runs, KPIs, and failures</li>
           </ul>
         </div>
-        <div class="lp-feature-card">
-          <span class="tag">Verify mode</span>
-          <h3>Traceable progress to green tests</h3>
-          <p>Measurable verification progress with an audit trail, not tapeout signoff claims.</p>
+        <div class="lp-verify-points lp-reveal" aria-label="Verification stages">
+          <div class="lp-verify-point">
+            <span class="lp-verify-num">01</span>
+            <div>
+              <h3>Recommend</h3>
+              <p>Unit sim, formal, or UVM sized to your block.</p>
+            </div>
+          </div>
+          <div class="lp-verify-point">
+            <span class="lp-verify-num">02</span>
+            <div>
+              <h3>Approve</h3>
+              <p>Review the plan and diffs before anything runs.</p>
+            </div>
+          </div>
+          <div class="lp-verify-point">
+            <span class="lp-verify-num">03</span>
+            <div>
+              <h3>Execute</h3>
+              <p>Local toolchain, measurable progress, audit trail.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="lp-cta-band lp-container" id="download">
-      <h2>Spec to proven, on your machine, at your pace</h2>
-      <p>Community tier free · Pro from $199/seat/mo · Desktop for macOS &amp; Windows</p>
-      <div class="lp-hero-ctas">
-        <a class="lp-btn primary" href="https://github.com/chipix-company/chipix" target="_blank" rel="noopener noreferrer">Download Chipix</a>
-        <a class="lp-btn" href="?demo=1" data-open-demo>Try interactive demo</a>
+      <div class="lp-cta-inner lp-reveal">
+        <h2>Spec to proven, on your machine, at your pace</h2>
+        <p>Community tier free · Pro from $199/seat/mo · Desktop for macOS &amp; Windows</p>
+        <div class="lp-hero-ctas">
+          <a class="lp-btn primary" href="https://github.com/chipix-company/chipix" target="_blank" rel="noopener noreferrer">Download Chipix</a>
+          <a class="lp-btn" href="?demo=1" data-open-demo>Try interactive demo</a>
+        </div>
+        <p class="lp-cta-note">Open source · local-first · BYOK</p>
       </div>
-      <p class="lp-cta-note">Open source · local-first · BYOK</p>
     </section>
   </main>
 
@@ -195,5 +232,6 @@
     <span>Local-first · BYOK · Simulated preview</span>
   </footer>
   <script src="js/demo-expand.js" defer></script>
+  <script src="js/landing.js" defer></script>
 </body>
 </html>
