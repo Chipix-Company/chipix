@@ -82,6 +82,14 @@ async def approve_patch(
     result = do_approve(patch_id, db)
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
+    try:
+        from demo import demo_mode_enabled
+        from demo.scenario import mark_applied
+
+        if demo_mode_enabled():
+            mark_applied(project_id)
+    except Exception:
+        pass
     return result
 
 

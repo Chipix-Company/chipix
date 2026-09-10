@@ -20,7 +20,7 @@ body.demo-embed-root .tf-desktop-root.demo-chrome {
   min-height: 0;
 }
 
-/* Iframe is often <720px wide — keep desktop shell, not mobile collapse */
+/* Iframe / fullscreen — keep desktop shell, not mobile collapse */
 body.demo-embed-root [data-ui-shell="thread-first"] {
   --tf-rail-w: 56px !important;
 }
@@ -28,14 +28,23 @@ body.demo-embed-root [data-ui-shell="thread-first"] {
 body.demo-embed-root .tf-side-rail,
 body.demo-embed-root .demo-rail {
   display: flex !important;
-  width: 56px !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: var(--tf-rail-w, 56px) !important;
+  min-width: var(--tf-rail-w, 56px) !important;
+  max-width: var(--tf-rail-w, 56px) !important;
+  padding: 14px 0 10px !important;
+  box-sizing: border-box !important;
   grid-area: auto !important;
   grid-column: 1 !important;
   grid-row: 1 / -1 !important;
+  overflow: visible !important;
 }
 
 body.demo-embed-root .demo-chrome {
-  grid-template-columns: 56px minmax(0, 1fr) !important;
+  grid-template-columns: var(--tf-rail-w, 56px) minmax(0, 1fr) !important;
   grid-template-areas: none !important;
 }
 
@@ -60,8 +69,8 @@ body.demo-embed-root .editor.open,
 body.demo-embed-root .ide.open,
 body.demo-embed-root .mm-overlay.open,
 body.demo-embed-root .dash-overlay.open {
-  left: 56px;
-  width: calc(100% - 56px);
+  left: var(--tf-rail-w, 56px);
+  width: calc(100% - var(--tf-rail-w, 56px));
   right: auto;
 }
 
@@ -71,13 +80,55 @@ body.demo-embed-root .dash-overlay.open {
   justify-content: center;
   gap: 12px;
   margin: 0;
-  padding: 6px 12px;
+  padding: 7px 14px;
   font-size: 12px;
+  letter-spacing: 0.01em;
   color: var(--ink-3, #8f897b);
-  background: var(--surface-2, #221f1a);
+  background: color-mix(in srgb, var(--surface-2, #221f1a) 92%, #000);
   border-bottom: 1px solid var(--line, #2d2922);
   z-index: 100;
   position: relative;
+}
+
+/* Fullscreen embed from landing overlay (?fs=1) */
+html.demo-fs,
+html.demo-fs body {
+  height: 100%;
+}
+
+html.demo-fs .demo-preview-banner {
+  display: none;
+}
+
+html.demo-fs .tf-desktop-root.demo-chrome {
+  flex: 1;
+  min-height: 0 !important;
+  height: 100% !important;
+}
+
+.demo-standalone-back {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2, #c4bdaa);
+  background: var(--surface-2, #221f1a);
+  border-bottom: 1px solid var(--line, #2d2922);
+  text-decoration: none;
+}
+
+.demo-standalone-back:hover {
+  color: var(--ink, #f0ebe0);
+  text-decoration: underline;
+}
+
+/* Top-level /demo/ visit (not in iframe): show back to marketing site */
+html.demo-standalone .demo-standalone-back {
+  display: flex;
 }
 
 .demo-preview-banner strong {
@@ -186,7 +237,7 @@ body.demo-embed-root .starters {
   grid-template-columns: 1fr;
 }
 
-/* Composer stack: floating mode pill + input */
+/* Composer stack: mode pill + input — match product density */
 .demo-composer-stack {
   position: relative;
   border-top: 1px solid var(--line, #2d2922);
@@ -195,20 +246,102 @@ body.demo-embed-root .starters {
 
 .demo-composer-stack .composer-wrap {
   border-top: none;
-  padding-top: 6px;
+  padding: 8px 24px 12px;
 }
 
-.demo-mode-float.tf-mode-toggle-wrap {
+.demo-composer-stack .composer-inner {
+  max-width: 720px;
+}
+
+.demo-composer-stack .composer {
+  padding: 6px 10px 6px 12px;
+  border-radius: 14px;
+  gap: 8px;
+}
+
+.demo-composer-stack .composer textarea {
+  font-size: 14px;
+  line-height: 1.45;
+  min-height: 22px;
+  max-height: 120px;
+  padding: 5px 0;
+}
+
+.demo-composer-stack .composer .tool {
+  width: 30px;
+  height: 30px;
+}
+
+.demo-composer-stack .composer .send {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+.demo-composer-stack .composer .send svg {
+  width: 14px;
+  height: 14px;
+}
+
+.demo-composer-stack .composer-foot {
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+.demo-composer-stack .suggest {
+  margin-bottom: 6px;
+  gap: 6px;
+}
+
+.demo-composer-stack .sgg {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.demo-composer-stack .composer-below {
+  margin-top: 8px;
+}
+
+.demo-composer-stack .composer-foot {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.demo-mode-below.tf-mode-toggle-wrap {
   display: flex;
   justify-content: flex-end;
-  padding: 10px 28px 0;
-  pointer-events: none;
+  padding: 0;
+  margin: 0;
+  pointer-events: auto;
   position: relative;
   z-index: 2;
+  grid-area: unset;
+  animation: none;
+  flex-shrink: 0;
 }
 
-.demo-mode-float.tf-mode-toggle-wrap > * {
-  pointer-events: auto;
+.demo-mode-below .tf-mode-toggle {
+  vertical-align: middle;
+}
+
+/* Fullscreen: tighter chrome so composer doesn't dominate */
+html.demo-fs .demo-chrome[data-ui-shell="thread-first"] .tf-mode-toggle,
+html.demo-fs .demo-mode-below .tf-mode-toggle {
+  width: 196px;
+  height: 34px;
+}
+
+html.demo-fs .demo-composer-stack .composer-wrap {
+  padding: 6px 24px 10px;
+}
+
+html.demo-fs .demo-composer-stack .composer-inner {
+  max-width: 680px;
 }
 
 /* Fallback pill styles if thread-first.css vars are slow to resolve */
@@ -217,8 +350,8 @@ body.demo-embed-root .starters {
   display: inline-grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  width: 232px;
-  height: 40px;
+  width: 200px;
+  height: 34px;
   padding: 3px;
   border-radius: 999px;
   background: var(--tf-surface, #1c1a16);

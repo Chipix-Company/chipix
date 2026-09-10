@@ -145,6 +145,13 @@ async def handle_run_formal(
 ) -> str:
     """Run formal verification using SymbiYosys."""
     try:
+        from demo import demo_mode_enabled
+
+        if demo_mode_enabled():
+            from demo.scenario import formal_result
+
+            return json.dumps(formal_result(project_id), indent=2)
+
         # ── Check for SymbiYosys ──────────────────────────────────
         from services.eda.symbiyosys import _find_sby_binary, run_formal_verification, run_sby
 

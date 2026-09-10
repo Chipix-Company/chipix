@@ -30,6 +30,17 @@ def set_uvm_progress_callback(callback: Any):
     return _UVM_PROGRESS_CALLBACK.set(callback)
 
 
+def publish_uvm_progress(event: Dict[str, Any]) -> None:
+    """Emit a progress event if a streaming callback is attached."""
+    callback = _UVM_PROGRESS_CALLBACK.get()
+    if callback is None:
+        return
+    try:
+        callback(event)
+    except Exception:
+        logger.debug("uvm progress callback failed", exc_info=True)
+
+
 def reset_uvm_progress_callback(token: Any) -> None:
     _UVM_PROGRESS_CALLBACK.reset(token)
 

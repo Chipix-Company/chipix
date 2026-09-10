@@ -1,0 +1,93 @@
+# Chipix SHA-256 walkthrough VO — fail → fix → coverage
+# Notes (#) and [SCREEN:…] are not spoken.
+# [SILENCE:Ns] pads after each spoken beat (make_vo.py).
+#
+# Style (humanize + product-demo craft):
+# - Open on the engineer's problem, not a product tagline.
+# - One idea per beat. Narrate why; let the screen show what.
+# - Mid-demo tension (named fail) → Apply → payoff → outro.
+# - Avoid AI tells: no "landscape," "delve," rule-of-three hype.
+
+===BEAT 01===
+# cold open — the problem
+[SCREEN: welcome / empty studio]
+You finished the RTL. Now you need proof it matches the spec — before tape-out, not after a week of debug in the lab.
+[SILENCE:2.5]
+
+===BEAT 02===
+# select project
+[SCREEN: select SHA-256 Accelerator project]
+Open the SHA-256 accelerator. Real crypto hardware you're bringing to verification.
+[SILENCE:2]
+
+===BEAT 03===
+# upload RTL
+[SCREEN: attach menu → Upload RTL]
+Attach the design files. Upload RTL and drop in the SystemVerilog core.
+[SILENCE:3.5]
+
+===BEAT 04===
+# upload spec
+[SCREEN: attach menu → Upload specification]
+Attach the functional spec too. Every check should trace back to a requirement.
+[SILENCE:3]
+
+===BEAT 05===
+# build mental model
+[SCREEN: Yes — build mental model / agent tools]
+Tell Chipix to build a mental model. It reads the RTL and the spec before it writes a single line of test code.
+[SILENCE:12]
+
+===BEAT 06===
+# MM overlay tour
+[SCREEN: Mental model rail]
+Open the mental model. Walk the overview, modules, ports, parameters — what this block actually does.
+[SILENCE:10]
+
+===BEAT 07===
+# approve MM
+[SCREEN: Looks right — continue]
+That matches what you expect. Approve it and keep going.
+[SILENCE:2]
+
+===BEAT 08===
+# live IDE write — linger so viewers can read
+[SCREEN: LiveWritePeek then Editor tb_sha256_unit.sv]
+Now Chipix writes the unit testbench — on screen, in your editor. Take a second. Skim the stimulus and the scoreboard as it lands.
+[SILENCE:18]
+
+===BEAT 09===
+# staged plan
+[SCREEN: Verify mode → plan cards → Implement]
+Switch to Verify. Pick UnitSim, approve the plan, hit Implement — and the run card comes alive.
+[SILENCE:10]
+
+===BEAT 10===
+# run fail — mid-demo tension
+[SCREEN: RunCard stages → bad verdict]
+Watch the stages run. Two tests pass. The multi-block padding case fails — msg_last never fired on the last block.
+[SILENCE:12]
+
+===BEAT 11===
+# apply fix
+[SCREEN: DiffCard Apply change]
+Chipix names the bug and shows the fix in a diff. You click Apply. The patch lands in the testbench.
+[SILENCE:8]
+
+===BEAT 12===
+# re-run green
+[SCREEN: second run → green verdict + coverage]
+Run it again. All three UnitSim cases pass. Formal checks reset, handshake, and digest hold. Coverage moves up.
+[SILENCE:14]
+
+===BEAT 13===
+# payoff
+[SCREEN: VERIFICATION COMPLETE]
+Verification complete. A real failure caught, a one-click fix applied, green across the board.
+[SILENCE:4]
+
+===BEAT 14===
+# outro — what you saw / why it matters / soft CTA
+[SCREEN: VERIFICATION COMPLETE]
+That's Chipix: read the design first, write tests in your IDE, run staged verification, fix what breaks — in one thread. If you're bringing up blocks like this every week, start here.
+[SILENCE:3]

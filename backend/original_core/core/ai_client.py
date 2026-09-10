@@ -38,7 +38,7 @@ class AIClient:
 
     def __init__(self) -> None:
         provider = (config.LLM_PROVIDER or "gemini").strip().lower()
-        if provider not in {"local", "gemini", "nim", "openai", "azure_openai", "bedrock", "convex_gateway"}:
+        if provider not in {"local", "gemini", "nim", "openai", "azure_openai", "bedrock", "convex_gateway", "demo"}:
             logger.warning(
                 "Unsupported CHIPVERIFY_LLM_PROVIDER '%s'; falling back to gemini.",
                 provider,
@@ -83,6 +83,8 @@ class AIClient:
                 )
 
     def is_generation_configured(self) -> bool:
+        if self.provider == "demo":
+            return True
         if self.provider == "local" and not self.allow_local_provider:
             return False
 
@@ -189,7 +191,7 @@ class AIClient:
                 max_tokens=max_tokens,
             )
 
-        if self.provider in {"bedrock", "convex_gateway"}:
+        if self.provider in {"bedrock", "convex_gateway", "demo"}:
             import llm_provider
 
             response = await asyncio.to_thread(
@@ -237,7 +239,7 @@ class AIClient:
                 max_tokens=max_tokens,
             )
 
-        if self.provider in {"bedrock", "convex_gateway"}:
+        if self.provider in {"bedrock", "convex_gateway", "demo"}:
             import llm_provider
 
             content, _reasoning = await asyncio.to_thread(

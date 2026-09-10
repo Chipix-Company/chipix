@@ -3003,8 +3003,15 @@ async def _run_agentic_loop_v2(
     except Exception as e:
         logger.warning("Failed to load thread history: %s", e)
 
-    if current_user is not None:
-        context["current_user"] = current_user
+    if user_id:
+        try:
+            from database.models import User as DBUser
+
+            current_user = db.query(DBUser).filter(DBUser.id == user_id).first()
+            if current_user is not None:
+                context["current_user"] = current_user
+        except Exception as e:
+            logger.warning("Failed to attach current_user to agent context: %s", e)
 
     engine = AgenticLoopEngine(
         db_session=db,

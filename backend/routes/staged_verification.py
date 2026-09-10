@@ -3563,6 +3563,35 @@ async def execute_verification(
         raise HTTPException(status_code=400, detail="approved_plan is required")
     approved_plan = _hydrate_latest_plan_markdown(db, project, approved_plan)
 
+    # Demo short-circuit: animated RunCard + fail→fix→pass without real EDA.
+    try:
+        from demo import demo_mode_enabled
+
+        if demo_mode_enabled():
+            from demo.staged_execute import run_demo_staged_execute
+            from services.project_tasks import (
+                create_staged_verification_task,
+            )
+
+            verification_task = create_staged_verification_task(
+                db,
+                project=project,
+                user=current_user,
+                verification_type=request.verification_type,
+                approved_plan=approved_plan,
+                thread_id=(request.thread_id if hasattr(request, "thread_id") else None),
+            )
+            return await run_demo_staged_execute(
+                project_id=project.id,
+                verification_type=request.verification_type,
+                db_session=db,
+                verification_task=verification_task,
+            )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning("Demo staged execute failed; falling through: %s", exc)
+
     from services.project_tasks import (
         create_staged_verification_task,
     finalize_staged_verification_task,
