@@ -32,16 +32,21 @@
 
 ## See it
 
-The SHA-256 walkthrough below is the real app: upload, plan, fail, patch, green.
+The SHA-256 walkthrough is the real app: upload, plan, fail, patch, green.
+
+> GitHub will not preview large MP4s in the file browser. The video lives on
+> [Releases](https://github.com/Chipix-Company/chipix/releases/tag/demo-sha256-walkthrough) instead of in the git tree.
 
 <p align="center">
-  <a href="docs/media/chipix_sha256_walkthrough.mp4">
+  <a href="https://github.com/Chipix-Company/chipix/releases/download/demo-sha256-walkthrough/chipix_sha256_walkthrough.mp4">
     <img src="docs/media/chipix_sha256_walkthrough_poster.jpg" alt="Chipix SHA-256 walkthrough — click to play" width="100%" />
   </a>
 </p>
 
 <p align="center">
-  <a href="docs/media/chipix_sha256_walkthrough.mp4"><strong>▶ Watch (~3.5 min)</strong></a>
+  <a href="https://github.com/Chipix-Company/chipix/releases/download/demo-sha256-walkthrough/chipix_sha256_walkthrough.mp4"><strong>▶ Watch (~3.5 min)</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/Chipix-Company/chipix/releases/tag/demo-sha256-walkthrough">Release page</a>
 </p>
 
 What happens on screen:
@@ -110,7 +115,7 @@ LLM setup, packaging, and troubleshooting live in [DEVELOPMENT.md](DEVELOPMENT.m
 | `backend/agent_core/` | Agent event loop |
 | `backend/services/mental_model/` | Mental-model builder |
 | `backend/services/verification/` | Strategy and UnitSim / Formal / UVM planning |
-| `docs/media/` | Banner and walkthrough video |
+| `docs/media/` | README banner, poster, brand mark |
 | `electron/` | Desktop shell |
 | `vscode-extension/` | VS Code extension |
 | `Documentation/` | Longer guides |
