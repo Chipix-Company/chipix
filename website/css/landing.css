@@ -63,22 +63,22 @@ body {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(ellipse 90% 55% at 50% -10%, color-mix(in srgb, var(--lp-accent-2) 22%, transparent), transparent 58%),
-    radial-gradient(ellipse 50% 40% at 100% 30%, color-mix(in srgb, var(--lp-accent) 10%, transparent), transparent 55%),
-    radial-gradient(ellipse 45% 35% at 0% 70%, color-mix(in srgb, var(--lp-good) 8%, transparent), transparent 50%),
-    var(--lp-bg);
+    radial-gradient(ellipse 100% 70% at 50% -5%, color-mix(in srgb, var(--lp-accent-2) 34%, transparent), transparent 62%),
+    radial-gradient(ellipse 55% 45% at 95% 25%, color-mix(in srgb, var(--lp-accent) 16%, transparent), transparent 58%),
+    radial-gradient(ellipse 50% 40% at 5% 75%, color-mix(in srgb, var(--lp-good) 12%, transparent), transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--lp-surface) 55%, var(--lp-bg)), var(--lp-bg) 42%, var(--lp-bg));
 }
 
 .lp-atmosphere::after {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.35;
+  opacity: 0.55;
   background-image:
-    linear-gradient(color-mix(in srgb, var(--lp-line) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--lp-line) 55%, transparent) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(ellipse 70% 55% at 50% 18%, #000 10%, transparent 72%);
+    linear-gradient(color-mix(in srgb, var(--lp-line) 70%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--lp-line) 70%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 12%, #000 8%, transparent 70%);
 }
 
 a { color: inherit; text-decoration: none; }
@@ -263,7 +263,7 @@ a:hover { opacity: 0.78; }
 
 /* Hero: brand-first composition */
 .lp-hero {
-  padding: clamp(48px, 8vh, 88px) 0 36px;
+  padding: clamp(36px, 6vh, 64px) 0 24px;
   text-align: center;
 }
 
@@ -463,18 +463,24 @@ a:hover { opacity: 0.78; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 11px 18px;
   border-radius: 10px;
   font-family: var(--lp-display);
   font-size: 13px;
   font-weight: 500;
   color: #f0ebe0;
-  background: color-mix(in srgb, #1c1a16 90%, transparent);
-  border: 1px solid color-mix(in srgb, #f0ebe0 16%, transparent);
+  background: color-mix(in srgb, #1c1a16 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lp-accent-2) 45%, #f0ebe0);
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-  transition: transform 0.2s var(--lp-ease), background 0.2s ease;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s var(--lp-ease), background 0.2s ease, box-shadow 0.2s ease;
   pointer-events: none;
+  animation: lp-demo-hint-breathe 2.8s var(--lp-ease) infinite;
+}
+
+@keyframes lp-demo-hint-breathe {
+  0%, 100% { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4); }
+  50% { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px color-mix(in srgb, var(--lp-accent-2) 35%, transparent); }
 }
 
 .lp-demo-stage.is-hover {
@@ -532,6 +538,7 @@ a:hover { opacity: 0.78; }
   .lp-demo-stage.lp-demo-nudge,
   .lp-demo-stage.lp-demo-nudge-strong,
   .lp-demo-stage.lp-demo-expanding,
+  .lp-demo-hint,
   .lp-demo-hint.is-flash,
   .lp-reveal,
   .lp-btn:hover {
