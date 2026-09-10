@@ -58,7 +58,14 @@ export default function ChipixSideRail({
         aria-label="Switch project or jump to anything"
         title="Switch project · ⌘K"
       >
-        <span className="tf-side-rail-mark-glyph">Cx</span>
+        <img
+          className="tf-side-rail-mark-img"
+          src="/brand/chipix-app-icon.png"
+          alt=""
+          width={32}
+          height={32}
+          draggable={false}
+        />
       </button>
 
       <div className="tf-side-rail-group" role="toolbar" aria-label="Main shortcuts">

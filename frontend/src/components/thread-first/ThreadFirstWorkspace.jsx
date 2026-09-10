@@ -3553,7 +3553,7 @@ export default function ThreadFirstWorkspace({
         <div className="tf-thread">
           {showWelcome ? (
             <div className="tf-welcome" data-tour="welcome">
-              <div className="tf-crest">Cx</div>
+              <img className="tf-crest" src="/brand/chipix-app-icon.png" alt="Chipix" width={56} height={56} draggable={false} />
               <h1>{welcomeCopy.head}</h1>
               <p>{welcomeCopy.body}</p>
               <div className="tf-starters">

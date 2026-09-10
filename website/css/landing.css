@@ -84,12 +84,10 @@ a:hover { text-decoration: underline; }
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--lp-accent-2), var(--lp-accent));
-  color: #faf8f5;
-  display: grid;
-  place-items: center;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  display: block;
+  object-fit: cover;
+  background: #16130f;
+  border: 1px solid #332c24;
 }
 
 .lp-nav-links {
